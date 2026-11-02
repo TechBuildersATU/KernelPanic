@@ -10,7 +10,7 @@ Işın Yolu → Renk Tuzağı → Basma Dedik on screen; stage ids `pixel`, `col
 `orders`; the last one is the final).
 Every step has its own clock; a mistake or a step running out only costs that step — the stage
 is always played to its end and graded by its share of right steps (green / lime / orange /
-red). Surprise events (Overheat, Glitch, Emergency, Power Restored) make every round different.
+red). Surprise events (Overheat, Glitch, Power Restored) make every round different.
 The end shows a **title** from the five grades, the modules in their colours and, on a separate
 screen, an error report per stage. **No leaderboard, no nickname, nothing about the player is
 stored.** (Until Faz 5 it was a quiz; the questions were retired in Faz 6 and archived in
@@ -52,7 +52,7 @@ split screen (§2.5).
   instances share one `RoundSetup` (same seed, same plan, same events), each started as its own
   `player` (1, 2; solo is 0). Same difficulty, other answers (`game/stages/players.ts`: the dead
   pixel elsewhere, other colour orders, other words, another command order; Beam Path the same
-  for both); player 1 keeps the solo content. No Emergency in a duel (`planEvents(…, duel)`).
+  for both); player 1 keeps the solo content. The duel gets the same Glitch as a solo round.
   Each half is `<Play layout="half">` (`half-1`, `half-2`; the half layout lives in
   `[data-layout='half']` overrides in every stage's CSS). A finished half plays its own result
   transition (`ResultTransition layout="half"`: the 1280×800 scene with CSS `zoom` so the blend
@@ -63,9 +63,13 @@ split screen (§2.5).
   accent border on the outer (right) edge (`[data-side='2']` in `Play.module.css`).
 - **Home button** (`btn-home`, `components/HomeButton`): hold 1 s during a round to return to
   the button screen (a hold, so a stray tap never ends someone's round).
-- **Emergency (solo only):** the screen freezes (clock stands still, the World's code rain slows
-  to a stop, "SÜRE DURDU"); `EMERGENCY_READ_MS` to read without a countdown, then
-  `EMERGENCY_CHOOSE_MS` before the safe channel is picked.
+- **Emergency is gone (Faz 10, §3.3):** no safe/risky versions of a stage any more (no
+  `Variant`); `planEvents` gives every round exactly one Glitch on stage 2, 3 or 4.
+- **Variety (Faz 10):** Dead Pixel screens each have a `look` (`PIXEL_LOOKS`: `square`, `led`,
+  `diamond`, `hex`, `bars`; `data-look` on `pixel-grid`, the name in `pixel-panel`) and a hue
+  from `PIXEL_HUES`; the cell button is the touch target, its `.dot` takes the shape. Beam Path
+  lines come from `BEAM.lines` (three recipes per line) and `mirrorLine()` (left ↔ right, top ↔
+  bottom; `BeamLine.source` is the emitter, `sourceDir()` its direction).
 - **Dead Pixel** has five screens (`PIXEL.levels`: two easy, two medium, one close look).
 - **Overheat:** the cooling is "don't touch the screen for 3 s". Fast mode (plenty of time):
   touching costs −5 s ("SİSTEM ISINDI"), holding off gives nothing. Slow mode (time short):
@@ -139,7 +143,7 @@ src/
   game/        types, config, pure rules (reducer, grades, titles, events) — unit-tested
   game/stages/ the five stages' generators (pixel, colours, beam, trap, orders) + players.ts
   screens/     Attract, Hack, Play, Result, Report, Settings, DuelPlay, DuelResult
-  screens/play/    stage host + title card, grade card, event panels (Emergency, Overheat, Cooling)
+  screens/play/    stage host + title card, grade card, event panels (Overheat, Cooling)
   screens/stages/  the five stage games (PixelStage … OrdersStage) + runners/ (timed logic)
   fx/          code rain, glitch, scanlines, transitions, the APK's opening (BootIntro)
   audio/       synthesised sounds
@@ -179,14 +183,14 @@ while developing.** Follow `.agents/skills/kernelpanic-button-tests/SKILL.md`.
   `btn-press` = the final's red button, `btn-report`, `btn-restart`, `btn-settings`,
   `btn-social`, `btn-home`, `btn-panic-1`/`-2`); duel `mode-duel`, `half-1`/`half-2`,
   `half-tag`, `duel-waiting`,
-  `duel-result`; Emergency `emergency-frozen`, `emergency-hint`, `emergency-limit`; opening
+  `duel-result`; Dead Pixel `pixel-grid`, `pixel-panel`; opening
   `boot-intro`. Test builds also mark the right move on each
   stage (`data-odd`, `data-seq`, `data-need`, `data-correct`, `data-eff`) for the e2e helper.
 - Tappable controls: ≥ 64 px, pressed feedback, `usePressGuard` (double-tap guard) on anything
   that navigates or restarts; inside a stage the runner ignores taps outside a live step.
 - localStorage only through `src/app/storage.ts`. Test-only URL flags only through
   `getTestFlags()`: `?seed=N`, `?fastTimers=1` (animation waits only — never the round clock or
-  the step limits), `?event=glitch|emergency|power|overheat-fast|overheat-slow|none` (`none`: a
+  the step limits), `?event=glitch|power|overheat-fast|overheat-slow|none` (`none`: a
   round without surprises), `?transition=<title>&mood=<mood>` (loops one result transition;
   `&half=1` inside a duel half),
   `?intro=1` (plays the APK's opening in the browser).

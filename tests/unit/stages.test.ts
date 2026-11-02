@@ -2,8 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { BEAM } from '@/game/config'
 import { seededRng } from '@/game/rng'
 import { effectiveCommand, makeOrders, ringColourAt, windowOf } from '@/game/stages/orders'
-import { makeBeamLine, solutionOf, traceBeam } from '@/game/stages/beam'
-import { makePixelScreens } from '@/game/stages/pixel'
+import {
+  makeBeamLine,
+  makeBeamLines,
+  mirrorLine,
+  solutionOf,
+  sourceDir,
+  traceBeam,
+} from '@/game/stages/beam'
+import { makePixelScreens, PIXEL_HUES, PIXEL_LOOKS } from '@/game/stages/pixel'
 import { colourTotal, derange, makeLayers, makeSequence } from '@/game/stages/colours'
 import { makeTrapItems } from '@/game/stages/trap'
 
@@ -27,12 +34,33 @@ describe('Ölü Piksel', () => {
   it('the same seed gives the same screens', () => {
     expect(makePixelScreens(seededRng(5))).toEqual(makePixelScreens(seededRng(5)))
   })
+
+  it('every screen of a round is another kind of panel; the diamonds only on the first three', () => {
+    const looksSeen = new Map<string, Set<number>>()
+    const hues = new Set<string>()
+    for (const seed of SEEDS) {
+      const screens = makePixelScreens(seededRng(seed))
+      expect(new Set(screens.map((s) => s.look)).size).toBe(PIXEL_LOOKS.length)
+      expect(screens.findIndex((s) => s.look === 'diamond')).toBeLessThanOrEqual(2)
+      screens.forEach((s, i) => {
+        if (!looksSeen.has(s.look)) looksSeen.set(s.look, new Set())
+        looksSeen.get(s.look)!.add(i)
+        hues.add(s.base)
+      })
+    }
+    // over many rounds every look comes on every allowed screen, and every colour is used
+    for (const look of PIXEL_LOOKS)
+      expect([...looksSeen.get(look)!].sort()).toEqual(
+        look === 'diamond' ? [0, 1, 2] : [0, 1, 2, 3, 4],
+      )
+    expect(hues.size).toBeGreaterThanOrEqual(PIXEL_HUES.length)
+  })
 })
 
 describe('Dört Renk', () => {
-  it('layers 3–5–5 (safe 3–4–4, risky 5–6–7); the second has a colour twice in a row', () => {
+  it('layers 3–5–5; the second has a colour twice in a row', () => {
     for (const seed of SEEDS) {
-      const layers = makeLayers('normal', false, seededRng(seed))
+      const layers = makeLayers(false, seededRng(seed))
       expect(layers.map((l) => l.seq.length)).toEqual([3, 5, 5])
       expect(layers.map((l) => l.swap)).toEqual([false, false, true])
       const second = layers[1].seq
@@ -42,13 +70,11 @@ describe('Dört Renk', () => {
         expect(seq.some((k, i) => i > 1 && k === seq[i - 1] && k === seq[i - 2])).toBe(false)
       }
     }
-    expect(makeLayers('safe', false, seededRng(1)).map((l) => l.seq.length)).toEqual([3, 4, 4])
-    expect(makeLayers('risky', false, seededRng(1)).map((l) => l.seq.length)).toEqual([5, 6, 7])
-    expect([colourTotal('normal'), colourTotal('safe'), colourTotal('risky')]).toEqual([13, 11, 18])
+    expect(colourTotal()).toBe(13)
   })
 
   it('glitch makes the second layer swap too', () => {
-    expect(makeLayers('normal', true, seededRng(2)).map((l) => l.swap)).toEqual([false, true, true])
+    expect(makeLayers(true, seededRng(2)).map((l) => l.swap)).toEqual([false, true, true])
   })
 
   it('a swap moves every pad', () => {
@@ -65,12 +91,11 @@ describe('Dört Renk', () => {
 })
 
 describe('Işın Yolu', () => {
-  it('every generated line is unsolved at the start and solved by its solution', () => {
-    for (const variant of ['normal', 'safe', 'risky'] as const) {
-      for (const seed of SEEDS) {
-        const rng = seededRng(seed)
-        for (const size of BEAM.lines[variant]) {
-          const line = makeBeamLine(size, rng)
+  it('every recipe makes lines that are unsolved at the start and solved by their solution', () => {
+    for (const recipes of BEAM.lines) {
+      for (const size of recipes) {
+        for (const seed of SEEDS) {
+          const line = makeBeamLine(size, seededRng(seed))
           expect(traceBeam(line, line.start).ok).toBe(false)
           expect(traceBeam(line, solutionOf(line, line.start)).ok).toBe(true)
           const [cols, rows, , decoys, walls] = size
@@ -83,10 +108,61 @@ describe('Işın Yolu', () => {
     }
   })
 
+  it('a mirrored line is still solvable and still starts unsolved', () => {
+    for (const seed of SEEDS) {
+      const line = makeBeamLine(BEAM.lines[1][seed % 3], seededRng(seed))
+      for (const [across, upside] of [
+        [true, false],
+        [false, true],
+        [true, true],
+      ]) {
+        const seen = mirrorLine(line, across, upside)
+        expect(traceBeam(seen, seen.start).ok).toBe(false)
+        expect(traceBeam(seen, solutionOf(seen, seen.start)).ok).toBe(true)
+        expect(sourceDir(seen)).toBe(across ? -1 : 1)
+      }
+    }
+  })
+
+  it('the three lines vary: either side for the emitter, every recipe, the server anywhere', () => {
+    const sides = new Set<number>()
+    const shapes = new Set<string>()
+    const servers = new Set<string>()
+    for (const seed of SEEDS) {
+      const lines = makeBeamLines(seededRng(seed))
+      expect(lines.map((l) => [l.cols, l.rows])).toEqual([
+        [6, 4],
+        [7, 5],
+        [8, 5],
+      ])
+      for (const [i, line] of lines.entries()) {
+        expect(traceBeam(line, line.start).ok).toBe(false)
+        expect(traceBeam(line, solutionOf(line, line.start)).ok).toBe(true)
+        sides.add(sourceDir(line))
+        const fixed = line.mirrors.filter((m) => m.solution !== null).length
+        shapes.add(`${i}:${fixed}:${line.walls.length}`)
+        servers.add(
+          line.server.x === -1
+            ? 'left'
+            : line.server.x === line.cols
+              ? 'right'
+              : line.server.y < 0
+                ? 'top'
+                : 'bottom',
+        )
+      }
+    }
+    expect([...sides].sort()).toEqual([-1, 1])
+    expect([...servers].sort()).toEqual(['bottom', 'left', 'right', 'top'])
+    // every line comes in several shapes (its recipes)
+    for (const i of [0, 1, 2])
+      expect([...shapes].filter((s) => s.startsWith(`${i}:`)).length).toBeGreaterThanOrEqual(3)
+  })
+
   it('the beam stops at a wall and ends outside the grid at the server when solved', () => {
-    const line = makeBeamLine(BEAM.lines.normal[1], seededRng(9))
+    const line = makeBeamLine(BEAM.lines[1][0], seededRng(9))
     const beam = traceBeam(line, solutionOf(line, line.start))
-    expect(beam.points[0]).toEqual([-1, line.entry])
+    expect(beam.points[0]).toEqual([line.source.x, line.source.y])
     expect(beam.points.at(-1)).toEqual([line.server.x, line.server.y])
   })
 })

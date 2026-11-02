@@ -25,8 +25,8 @@ describe('duel content per player (§2.5)', () => {
     const seed = 12345
     expect(pixelScreensFor(seed, 1)).toEqual(makePixelScreens(seededRng(stageSeed(seed, 0))))
     expect(pixelScreensFor(seed, 0)).toEqual(pixelScreensFor(seed, 1))
-    expect(colourLayersFor(seed, 'normal', false, 1)).toEqual(
-      makeLayers('normal', false, seededRng(stageSeed(seed, SALT.colours))),
+    expect(colourLayersFor(seed, false, 1)).toEqual(
+      makeLayers(false, seededRng(stageSeed(seed, SALT.colours))),
     )
     expect(trapItemsFor(seed, 1)).toEqual(makeTrapItems(seededRng(stageSeed(seed, SALT.trap))))
     expect(ordersFor(seed, 1)).toEqual(makeOrders(seededRng(stageSeed(seed, SALT.orders))))
@@ -57,15 +57,13 @@ describe('duel content per player (§2.5)', () => {
   })
 
   it('Dört Renk: same lengths, speed and swaps; every layer lights up in another order', () => {
-    for (const variant of ['normal', 'safe', 'risky'] as const) {
-      for (const seed of SEEDS) {
-        const one = colourLayersFor(seed, variant, seed % 2 === 0, 1)
-        const two = colourLayersFor(seed, variant, seed % 2 === 0, 2)
-        expect(two.map((l) => [l.seq.length, l.onMs, l.swap])).toEqual(
-          one.map((l) => [l.seq.length, l.onMs, l.swap]),
-        )
-        two.forEach((layer, i) => expect(layer.seq.join()).not.toBe(one[i].seq.join()))
-      }
+    for (const seed of SEEDS) {
+      const one = colourLayersFor(seed, seed % 2 === 0, 1)
+      const two = colourLayersFor(seed, seed % 2 === 0, 2)
+      expect(two.map((l) => [l.seq.length, l.onMs, l.swap])).toEqual(
+        one.map((l) => [l.seq.length, l.onMs, l.swap]),
+      )
+      two.forEach((layer, i) => expect(layer.seq.join()).not.toBe(one[i].seq.join()))
     }
   })
 

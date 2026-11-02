@@ -95,13 +95,8 @@
   animation-delay: 0.24s !important;
 }
 
-.chip[data-tone='risky'],
 .chip[data-tone='final'] {
   color: var(--alarm);
-}
-
-.chip[data-tone='safe'] {
-  color: var(--ok);
 }
 
 .chip[data-tone='glitch'] {

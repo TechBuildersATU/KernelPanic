@@ -210,8 +210,8 @@ export async function step(
 
 /**
  * Plays the round from here to the end of stage `until` (default: the whole round, up to the
- * result — or, in a duel half, up to "waiting for the other player"). Emergency picks the safe
- * channel, the Overheat cooling is left alone (it holds).
+ * result — or, in a duel half, up to "waiting for the other player"). The Overheat cooling is
+ * left alone (it holds).
  */
 export async function playStages(
   page: Page,
@@ -229,11 +229,6 @@ export async function playStages(
     if ((await scope.getByTestId('duel-waiting').count()) > 0) return
     if ((await graded.count()) > 0) return
     const ended = await over(scope)
-    const safe = scope.getByTestId('btn-safe')
-    if (await safe.isVisible()) {
-      await safe.tap()
-      continue
-    }
     const stage = await liveStage(scope)
     if (stage && !ended) {
       const play = playOf(plan, stage)

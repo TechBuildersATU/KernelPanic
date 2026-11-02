@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Player } from '@/game/stages/players'
-import type { Variant } from '@/game/types'
 
 // The five stage games share this frame: their logic lives in a small class (a runner) that
 // owns its timers and publishes an immutable view after every change; the React component
@@ -11,7 +10,6 @@ export interface StageProps {
   seed: number
   /** Solo (0) or one of the duel's players: same stage, other answers (game/stages/players). */
   player: Player
-  variant: Variant
   glitch: boolean
   /** The title card has gone: the stage runs. */
   live: boolean
@@ -100,7 +98,7 @@ function useStageIO(props: StageProps): StageIO {
 
 /**
  * Creates the stage's runner once, draws its view and starts it when the title card has gone.
- * The host is keyed per stage and channel, so the props the runner is made from never change.
+ * The host is keyed per stage, so the props the runner is made from never change.
  */
 export function useRunner<R extends StageRunner<unknown>>(
   props: StageProps,

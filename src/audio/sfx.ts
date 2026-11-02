@@ -17,7 +17,6 @@ export type Sfx =
   | 'type'
   | 'overheat'
   | 'glitch'
-  | 'emergency'
   | 'power'
   | 'bonus'
   | 'penalty'
@@ -161,13 +160,6 @@ const RECIPES: Record<Sfx, (a: AudioOut) => void> = {
     for (let i = 0; i < 5; i++) {
       hiss(a, { at: i * 0.07, dur: 0.04, gain: 0.3, cutoff: 6000 - i * 900 })
       tone(a, { at: i * 0.07, dur: 0.04, freq: 200 + i * 340, type: 'square', gain: 0.1 })
-    }
-  },
-  // low klaxon (§3.3)
-  emergency: (a) => {
-    for (let i = 0; i < 2; i++) {
-      tone(a, { at: i * 0.42, dur: 0.36, freq: 440, type: 'sawtooth', gain: 0.24, cutoff: 1800 })
-      tone(a, { at: i * 0.42, dur: 0.36, freq: 554, type: 'sawtooth', gain: 0.16, cutoff: 1800 })
     }
   },
   // power coming back: a rising sweep and a bright chord (§3.4)

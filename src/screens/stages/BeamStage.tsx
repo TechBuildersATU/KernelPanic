@@ -2,7 +2,7 @@ import { useId } from 'react'
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
 import { BEAM } from '@/game/config'
 import { seededRng, stageSeed } from '@/game/rng'
-import { makeBeamLine } from '@/game/stages/beam'
+import { makeBeamLines, sourceDir } from '@/game/stages/beam'
 import { SALT } from '@/game/stages/players'
 import { Dots, Level, Say, StepTimer } from './kit'
 import { TONES, useRunner, type StageProps } from './runner'
@@ -25,8 +25,7 @@ const SAY = {
  */
 export function BeamStage(props: StageProps) {
   const [game, view] = useRunner(props, (io) => {
-    const rng = seededRng(stageSeed(props.seed, SALT.beam))
-    const lines = BEAM.lines[props.variant].map((size) => makeBeamLine(size, rng))
+    const lines = makeBeamLines(seededRng(stageSeed(props.seed, SALT.beam)))
     const flips = seededRng(stageSeed(props.seed, SALT.beamGlitch))
     return new BeamRunner(lines, props.glitch, flips, io)
   })
@@ -35,7 +34,8 @@ export function BeamStage(props: StageProps) {
   const { beam, orient } = view
   const linked = beam.ok
   const end = beam.points.at(-1)!
-  const points = beam.points.map(([x, y], i) => `${i === 0 ? x + 0.28 : x},${y}`).join(' ')
+  const dir = sourceDir(line)
+  const points = beam.points.map(([x, y], i) => `${i === 0 ? x + 0.28 * dir : x},${y}`).join(' ')
 
   return (
     <div className={k.game} data-testid="stage-beam" data-phase={view.phase} data-line={view.line}>
@@ -107,7 +107,7 @@ export function BeamStage(props: StageProps) {
             </g>
           ))}
 
-          <g transform={`translate(-1 ${line.entry})`}>
+          <g transform={`translate(${line.source.x} ${line.source.y}) scale(${dir} 1)`}>
             <rect className={s.emitter} x={-0.36} y={-0.26} width={0.66} height={0.52} rx={0.1} />
             <circle className={s.emitterDot} cx={0.2} cy={0} r={0.08} />
           </g>

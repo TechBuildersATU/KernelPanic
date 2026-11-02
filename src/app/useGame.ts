@@ -26,7 +26,6 @@ export interface GameActions {
   score: (ok: number, miss: number, note?: string) => void
   stageDone: () => void
   next: () => void
-  chooseChannel: (channel: 'safe' | 'risky') => void
   overheatReady: () => void
   coolingDone: (ok: boolean) => void
   openReport: () => void
@@ -40,16 +39,16 @@ function roundRng(): Rng {
   return seed === undefined ? Math.random : seededRng(seed)
 }
 
-/** A new round: its content seed, its surprise events and its length (a duel: no Emergency). */
-export function newRound(duel = false): RoundSetup {
+/** A new round: its content seed, its surprise events and its length (solo and duel alike). */
+export function newRound(): RoundSetup {
   const { event } = getTestFlags()
   const rng = roundRng()
   return {
     now: Date.now(),
     roundMs: readRoundSeconds() * 1000,
     seed: Math.floor(rng() * 0xffffffff),
-    plan: planEvents(rng, event, duel),
-    forced: duel && event === 'emergency' ? 'none' : event,
+    plan: planEvents(rng, event),
+    forced: event,
   }
 }
 
@@ -65,7 +64,6 @@ export function useGame(): [GameState, GameActions] {
       score: (ok, miss, note) => dispatch({ type: 'score', ok, miss, note }),
       stageDone: () => dispatch({ type: 'stageDone', now: Date.now() }),
       next: () => dispatch({ type: 'next', now: Date.now() }),
-      chooseChannel: (channel) => dispatch({ type: 'chooseChannel', now: Date.now(), channel }),
       overheatReady: () => dispatch({ type: 'overheatReady', now: Date.now() }),
       coolingDone: (ok) => dispatch({ type: 'coolingDone', now: Date.now(), ok }),
       openReport: () => dispatch({ type: 'openReport' }),

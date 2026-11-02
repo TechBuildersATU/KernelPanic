@@ -1,5 +1,4 @@
 import { seededRng, stageSeed, type Rng } from '../rng'
-import type { Variant } from '../types'
 import { makeOrders, type Order } from './orders'
 import { makePixelScreens, type PixelScreen } from './pixel'
 import { makeLayers, type ColourLayer } from './colours'
@@ -78,17 +77,12 @@ export function pixelScreensFor(seed: number, player: Player): PixelScreen[] {
 }
 
 /** DÖRT RENK: the same layers (lengths, speed, swaps); every layer lights up in another order. */
-export function colourLayersFor(
-  seed: number,
-  variant: Variant,
-  glitch: boolean,
-  player: Player,
-): ColourLayer[] {
+export function colourLayersFor(seed: number, glitch: boolean, player: Player): ColourLayer[] {
   return apartFrom(
     seed,
     SALT.colours,
     player,
-    (rng) => makeLayers(variant, glitch, rng),
+    (rng) => makeLayers(glitch, rng),
     (mine, theirs) => mine.every((layer, i) => layer.seq.join() !== theirs[i].seq.join()),
   )
 }

@@ -10,22 +10,16 @@ export type Phase = 'attract' | 'hack' | 'play' | 'result' | 'report'
 export type StageId = 'pixel' | 'colours' | 'beam' | 'trap' | 'orders'
 
 /**
- * Which version of a stage is played. Emergency (§3.3) lets the player pick the safe (easy) or
- * the risky (hardest) one; every other stage is the normal version.
- */
-export type Variant = 'normal' | 'safe' | 'risky'
-
-/**
  * How a stage went, from its share of right steps (§5.1): all right, more than 75 %, 50–75 %,
  * less than half. Every stage is played to its end; a mistake only costs that step.
  */
 export type Grade = 'perfect' | 'good' | 'pass' | 'fail'
 
 /**
- * Surprise events (§3). Overheat and power depend on how the player plays; glitch and emergency
- * are random.
+ * Surprise events (§3). Overheat and power depend on how the player plays; the glitch is random.
+ * (Emergency, a safe/risky choice of the stage's version, left the game in Faz 10.)
  */
-export type EventKind = 'overheat' | 'glitch' | 'emergency' | 'power'
+export type EventKind = 'overheat' | 'glitch' | 'power'
 
 /** Result titles (§5.1). */
 export type TitleId =
@@ -45,7 +39,6 @@ export interface StageRecord {
   /** 1–5: position in the round ("AŞAMA n/5"). */
   slot: number
   stage: StageId
-  variant: Variant
   glitch: boolean
   /** Steps done right. */
   ok: number

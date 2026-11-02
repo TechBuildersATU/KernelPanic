@@ -90,82 +90,6 @@ test.describe('SYSTEM OVERHEAT', () => {
   })
 })
 
-test.describe('EMERGENCY MODE', () => {
-  test('two big channels appear before stage 2, the clock standing still', async ({ page }) => {
-    await startRound(page, url('emergency'))
-    await playStages(page, 'right', 1)
-    await expect(page.getByTestId('emergency')).toBeVisible({ timeout: 5_000 })
-    await expect(page.getByTestId('btn-safe')).toContainText('kolay sürümü')
-    await expect(page.getByTestId('btn-risky')).toContainText('Yeşil geçersen +5 sn')
-    // the screen froze: the clock stands still and the choice is read first
-    await expect(page.getByTestId('emergency-frozen')).toHaveText('SÜRE DURDU')
-    await expect(page.getByTestId('emergency')).toHaveAttribute('data-reading', 'true')
-    await expect(page.getByTestId('emergency-hint')).toContainText('önce iki kanalı da oku')
-    await expect(page.getByTestId('world')).toHaveAttribute('data-light', 'emergency')
-    const before = await clock(page)
-    await page.waitForTimeout(1500)
-    expect(await clock(page)).toBe(before)
-  })
-
-  test('risky channel: the hardest Dört Renk (5–6–7), green → +5 s', async ({ page }) => {
-    test.setTimeout(90_000)
-    await startRound(page, real('emergency'))
-    await playStages(page, 'right', 1)
-    await page.getByTestId('btn-risky').tap()
-    await expect(page.getByTestId('stage-intro')).toContainText('RİSKLİ KANAL')
-    await playStages(page, 'right', 2)
-    await expect(page.getByTestId('stage-score')).toContainText('18/18 renk')
-    await expect(page.getByTestId('time-shift')).toHaveText('+5 sn')
-  })
-
-  test('risky channel: not green → −3 s', async ({ page }) => {
-    test.setTimeout(90_000)
-    await startRound(page, url('emergency'))
-    await playStages(page, 'right', 1)
-    await page.getByTestId('btn-risky').tap()
-    await playStages(page, { colours: 'wrong' }, 2)
-    await expect(page.locator('[data-testid="play"] [data-cell="2"]')).toHaveAttribute(
-      'data-state',
-      'fail',
-    )
-    await expect(page.getByTestId('time-shift')).toHaveText('−3 sn')
-  })
-
-  test('safe channel: the easy version (3–4–4), no time change', async ({ page }) => {
-    test.setTimeout(90_000)
-    await startRound(page, real('emergency'))
-    await playStages(page, 'right', 1)
-    await page.getByTestId('btn-safe').tap()
-    await expect(page.getByTestId('stage-intro')).toContainText('GÜVENLİ KANAL')
-    await playStages(page, 'right', 2)
-    await expect(page.getByTestId('stage-score')).toContainText('11/11 renk')
-    await expect(page.getByTestId('time-shift')).toHaveCount(0)
-  })
-
-  test('4 s to read, then 8 s to choose; no choice → the safe channel', async ({ page }) => {
-    test.setTimeout(60_000)
-    await page.clock.install()
-    await startRound(page, url('emergency'))
-    await playStages(page, 'right', 1)
-    const panel = page.getByTestId('emergency')
-    await expect(panel).toBeVisible({ timeout: 5_000 })
-    await expect(panel).toHaveAttribute('data-reading', 'true')
-    await page.clock.fastForward(4_500)
-    // the countdown has started and says how long is left
-    await expect(panel).toHaveAttribute('data-reading', 'false')
-    await expect(page.getByTestId('emergency-hint')).toContainText('sn sonra sistem güvenli')
-    await expect(page.getByTestId('emergency-limit')).toHaveAttribute(
-      'aria-label',
-      /Seçim için [5-8] saniye/,
-    )
-    await page.clock.fastForward(6_000)
-    await expect(panel).toBeVisible()
-    await page.clock.fastForward(3_000)
-    await expect(panel).toHaveCount(0, { timeout: 5_000 })
-    await expect(page.getByTestId('stage-intro')).toContainText('GÜVENLİ KANAL')
-  })
-})
-
 test.describe('GLITCH DETECTED', () => {
   test('stage 2 is glitched: banner, and its pads trade places in layer 2 too', async ({
     page,
@@ -241,7 +165,7 @@ test.describe('Result transitions (§5.3)', () => {
     'turn-it-off-and-on',
   ]) {
     test(`preview: ${title} plays over every event background`, async ({ page }) => {
-      for (const mood of ['normal', 'overheat', 'glitch', 'emergency', 'power']) {
+      for (const mood of ['normal', 'overheat', 'glitch', 'power']) {
         await page.goto(`/?transition=${title}&mood=${mood}`)
         const transition = page.getByTestId('result-transition')
         await expect(transition).toHaveAttribute('data-title', title)

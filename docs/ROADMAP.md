@@ -1,7 +1,7 @@
 # KERNEL PANIC — Booth Game #2: Roadmap and Design Document
 
 **ATÜ TechBuilders · a five-stage "the system crashed" booth game**
-Version: 1.3 (Faz 9: the cyber eye replaces the red button on the button screen, it looks somewhere else every 3 s and wherever the screen is touched; the duel's right half mirrors the left; the logo chip no longer spills out of the game during screen switches; English code and documents for the public repository) · Date: 2 November 2026 · Status: pre-release, next: the last test on the tablet · Booth: **4 November 2026** · Code: `Desktop/KernelPanic`
+Version: 1.4 (Faz 10: Emergency left the game, every round gets one Glitch; Dead Pixel shows five kinds of panel; Beam Path draws each line from several recipes and mirrors it, so the beam comes from either side. Faz 9: the cyber eye instead of the red button, a mirrored duel, English code and documents) · Date: 2 November 2026 · Status: pre-release, next: the last test on the tablet · Booth: **4 November 2026** · Code: `Desktop/KernelPanic`
 
 The game speaks Turkish. This document quotes its on-screen texts in Turkish, with a translation where it helps. Phases are called "Faz" as in the club's plan.
 
@@ -11,7 +11,7 @@ The game speaks Turkish. This document quotes its on-screen texts in Turkish, wi
 
 A visitor comes to the table and finds a big eye in a warning ring, written around it:
 **"BASMAK ÜZERESİN. SONUÇLARINDAN SORUMLU DEĞİLİZ."** ("You are about to press. We are not responsible for the consequences.")
-Pressing it "hacks" the system; the visitor has 60 seconds to save it by playing **five stages**: **Dead Pixel → Four Colours → Beam Path → Colour Trap → Don't Press** (Ölü Piksel → Dört Renk → Işın Yolu → Renk Tuzağı → Basma Dedik). Each stage is a small game that gets harder step by step; every step has its own clock. A mistake or a step running out never ends the game, it only costs that step: a stage is always played to its end and graded **green, lime, orange or red** by its share of right steps. Random events (overheat, glitch, emergency, power restored) make every round different. There is **no leaderboard**; at the end the visitor sees a **title** decided by the five grades, five coloured modules and, on a separate screen if they want, an **error report**.
+Pressing it "hacks" the system; the visitor has 60 seconds to save it by playing **five stages**: **Dead Pixel → Four Colours → Beam Path → Colour Trap → Don't Press** (Ölü Piksel → Dört Renk → Işın Yolu → Renk Tuzağı → Basma Dedik). Each stage is a small game that gets harder step by step; every step has its own clock. A mistake or a step running out never ends the game, it only costs that step: a stage is always played to its end and graded **green, lime, orange or red** by its share of right steps. Surprise events (overheat, glitch, power restored) make every round different. There is **no leaderboard**; at the end the visitor sees a **title** decided by the five grades, five coloured modules and, on a separate screen if they want, an **error report**.
 
 | Item | Decision |
 |---|---|
@@ -96,9 +96,9 @@ This is **Stage 1 — Activate** in the club's sketch.
 
 | # | Stage | Steps (normal version) | Step clock | Grade |
 |---|---|---|---|---|
-| 1 | **Dead Pixel** (Ölü Piksel) — find the square of a slightly different colour | **5 screens** (Faz 8, the same difficulty levels, more screens): 4×4 (10 %, easy) → 5×5 (8 %, easy) → 6×6 (6 %, medium) → 7×7 (5 %, medium) → 8×8 (3.5 % + a slight hue shift, look closely); every screen in another colour | 5 / 5.5 / 6 / 7 / 8 s per screen; a wrong square takes **2 s** off that screen's time | screens found / 5 |
+| 1 | **Dead Pixel** (Ölü Piksel) — find the square of a slightly different colour | **5 screens** (Faz 8, the same difficulty levels, more screens): 4×4 (10 %, easy) → 5×5 (8 %, easy) → 6×6 (6 %, medium) → 7×7 (5 %, medium) → 8×8 (3.5 % + a slight hue shift, look closely); Faz 10: every screen is **another kind of panel** — LCD squares, round LEDs, diamonds, honeycomb cells, RGB bars, in a new order every round (the diamonds, the smallest, only on the first three screens) — and in another colour from a pool of eight; its name stands next to it ("panel LED") | 5 / 5.5 / 6 / 7 / 8 s per screen; a wrong square takes **2 s** off that screen's time | screens found / 5 |
 | 2 | **Four Colours** (Dört Renk) — repeat the lit colours in the same order | 3 layers: 3 colours slow → 5 colours fast (one colour twice in a row) → 5 colours, and after the show **the pads trade places** | 3 s per colour (the clock stands still while watching) | colours pressed right / 13; a wrong colour ends that layer, its remaining colours do not count |
-| 3 | **Beam Path** (Işın Yolu) — tap the mirrors so the beam reaches the server | 3 lines: 6×4 (2 mirrors) → 7×5 (4 mirrors, a decoy mirror and a wall) → 8×5 (5 mirrors, the server at the top or bottom) | 8 / 10 / 12 s per line | lines connected / 3 |
+| 3 | **Beam Path** (Işın Yolu) — tap the mirrors so the beam reaches the server | 3 lines: 6×4 (2–3 mirrors to set) → 7×5 (3–5, decoy mirrors and walls) → 8×5 (4–6). Faz 10, against repetition: each line is drawn from **three recipes** of the same difficulty, and then **mirrored** at random — the emitter sits on the left or the right, the server on either side, at the top or the bottom | 8 / 10 / 12 s per line | lines connected / 3 |
 | 4 | **Colour Trap** (Renk Tuzağı) — a colour name written in another colour | 2 parts: first **YAZISINA BAS** (tap what the word says, 3 words) → ⚠ KURAL DEĞİŞTİ (the rule changed) → **RENGİNE BAS** (tap its ink colour, 3 words) | 2.6 s per word | right words / 6 |
 | 5 | **Don't Press** (Basma Dedik, the final) — the red button is the only control | 4 commands in a mixed order: BASILI TUT (hold 2 s), 3 KEZ BAS (press 3 times), YEŞİLDE BAS (press on green), BASMA! (don't touch for 2 s) → **TERS MOD** (reverse mode): on BAS don't press, on BASMA! press | 2–3.8 s per command | right commands / 6 |
 
@@ -124,7 +124,7 @@ Like BuildArena's duel: two people side by side in front of the tablet play **th
   - **Colour Trap:** the same two parts; other words and colours (the same word never comes in the same colour at the same place).
   - **Don't Press:** the same commands, TERS MOD still last; **another command order**, from the first command on.
   - **Beam Path:** **the same** for both (another line could be easier, which would be unfair).
-- **No Emergency in a duel (Faz 8):** the safe/risky choice would give the two players different stages; the duel's random event is always a Glitch (on the same stage for both).
+- **The duel's event (Faz 8, Faz 10):** like every round, a Glitch, on the same stage for both players.
 - **The first one done (Faz 8):** on the half of the player who finishes first, the solo round's **result transition** (the title's animation) plays on their own half: the scene shrinks to fit the half, its colour layers tint that half's stage screen. Then their title, five modules and "%... kurtarıldı" (saved) stay, with "Rakip hâlâ oynuyor…" (the other player is still playing). Once both are done, "Sonuçlar geliyor…" (results coming), and once both transitions have played, the duel result.
 - **Winner:** the duel result shows two columns: title, share of the system saved (right steps over the five stages), modules, time left. **The higher share wins; on a tie, more time left; if that ties too, a draw.** The winner's column glows in their colour and a crown comes down: "OYUNCU 1 KAZANDI" (player 1 wins). No rematch (for the queue); "Ana ekran" (home) or after 25 s the button screen by itself.
 - The house button in the middle (held 1 s) ends the duel. Faz 8: it sits on the seam **right under VS** (before, it overlapped player 1's tag and the cards' corner at the bottom).
@@ -136,8 +136,9 @@ Like BuildArena's duel: two people side by side in front of the tablet play **th
 General rules (so the game does not turn into chaos):
 
 - **At most 2 events** per round (Power Restored is only an animation and does not count); stages 1 and 5 **never** get an event.
-- **At least 1 random event** (Glitch or Emergency) per round; the same event never comes twice. No Emergency in a duel (§2.5).
-- Overheat and Power Restored depend on **how the visitor plays**; Glitch and Emergency on chance (on stages 2, 3 and 4, weighted 40 % / 50 % / 40 %; a Glitch breaks that stage's game, an Emergency lets the player pick that stage's version).
+- **Exactly 1 random event** per round: a Glitch, on stage 2, 3 or 4 (weighted 40 % / 50 % / 40 %); it breaks that stage's game a little. Solo and duel alike (§2.5).
+- Overheat and Power Restored depend on **how the visitor plays**.
+- Faz 10: **Emergency left the game** (§3.3); the round no longer has a safe or risky version of a stage.
 - Every event's time effect scales with the chosen round length (45 / 60 / 75).
 - **Photosensitive safety** in every event: nothing flashes more than 3 times a second; the device's "reduce motion" setting is respected.
 
@@ -166,7 +167,9 @@ General rules (so the game does not turn into chaos):
 
 - A glitch affects **only that stage**; the logic of the right answer never breaks, only places and looks change.
 
-### 3.3 EMERGENCY MODE! (by chance, risk and reward)
+### 3.3 ~~EMERGENCY MODE!~~ (removed in Faz 10)
+
+The club took it out of the game after the Faz 9 tests ("bu oyunda çok gerek yok gibi", it does not seem needed in this game): the other events already make every round different, and its panel stopped the round for up to 12 s. What it was, for the record:
 
 **Story: "choose a backup channel"** — before the stage starts the system offers two ways out.
 
@@ -233,7 +236,7 @@ The grade depends on the stage's number of steps: in a 3-step stage (Beam Path) 
 - **System modules:** the five small HUD cells **fly** into big cells, each in its stage's colour, with the stage's name and grade below (`Dört Renk · 11/13 · İYİ`).
 - The big **title** (in the grade scale's colours) with a one-line joke.
 - **Right steps / wrong steps** counting up, **time left** ("Süre aşımı +7 sn", overtime, if the time ran out).
-- Badges for the events survived (🔥 Overheat · ⚡ Power · 🧩 Glitch · 🚨 Emergency).
+- Badges for the events survived (🔥 Overheat · ⚡ Power · 🧩 Glitch).
 - Two buttons: **HATA RAPORUNU AÇ** (open the error report, only if a step went wrong) and **YENİDEN BAŞLAT** (restart).
 - **No** nickname, leaderboard or records.
 
@@ -254,7 +257,7 @@ The grade depends on the stage's number of steps: in a 3-step stage (Beam Path) 
 | ALMOST A LEGEND | A huge "LEGEND" fills from the left like a gauge but stops before the end; the edge of the fill trembles twice; "NEREDEYSE… 7 sn geç kaldın" (almost… you were 7 s late) |
 | HAVE YOU TRIED… | The stage screen **switches off** like an old monitor (shrinks into a bright line, then a dot), the room darkens; a power button symbol appears, its ring fills as if held and lights cyan; "Kapat. Aç. Tekrar dene." (Turn it off. Turn it on. Try again.) comes word by word |
 
-**Background variant:** the round's event background (Overheat, Glitch, Emergency, Power) is on the stage screen itself, so the transition always matches it (priority: Overheat > Glitch > Emergency > Power Restored > Normal).
+**Background variant:** the round's event background (Overheat, Glitch, Power) is on the stage screen itself, so the transition always matches it (priority: Overheat > Glitch > Power Restored > Normal).
 
 > **Earlier versions:** on 1 November the transitions were colour layers over the question screen (painting green, freezing, an iris, a blue screen); Faz 5 added the ONE BUG LEFT zoom and the BARELY BOOTED window. In Faz 6 all but BARELY BOOTED changed into the versions above.
 
@@ -381,6 +384,7 @@ Red and amber are not in the logo; they were added **on purpose**: the game's dr
 | **Faz 7** | 2 Nov | **1v1 duel** (a mode switch on the button screen, two buttons, starts once both pressed; the same five stages on a split screen; the first one done waits; a winner screen); **APK opening** (Android launch screen: red power symbol + turning ring; the game's opening: logo, KERNEL PANIC, five modules, folding like a monitor into the game); a **big logo with "ATÜ TechBuilders yapımı"** (made by) on the button screen, a **gear settings button** (time and sound only), **"Bizi takip edin"** QR; a **house button** in the game (hold 1 s); **Overheat rules** (plenty of time: a touch costs −5 s; little time: holding off gives +5 s); fixed "3 KEZ BAS" not filling its ring on the third tap | ✅ 94 unit + 81 end-to-end tests |
 | **Faz 8** | 2 Nov | **Fair but different duel content** (the same difficulty; the dead pixel's place, the colour order, Colour Trap's words and Don't Press's command order differ per player; Beam Path the same); **no Emergency in a duel**; the first one done gets **their own result transition** on their half (as in a solo round, shrunk to fit); **Emergency freezes the screen**, 4 s to read + 8 s to choose; **Dead Pixel 5 screens**; the logo in the **banner's chip frame** (ring + circuit traces), the club's name in a **cyber typeface** (Orbitron, ATÜ white · TECH cyan · BUILDERS blue), "yapımı · stant oyunu #2" removed, the chip powers on in the opening; the duel's house button moved under VS | ✅ 105 unit + 83 end-to-end tests |
 | **Faz 9** | 2 Nov | **The cyber eye** replaces the red button (the club picked it from three eyes on the "Kernel Panic Göz" prototype page): it looks somewhere else **every 3 s**, looks **where the screen is touched**, squints at the visitor when idle, opens wide and turns red when pressed; two eyes in the duel, looking together; the duel's right half mirrors the left (card accent on the outer edge); the logo chip **no longer spills out** of the game during screen switches; **English identifiers, file names and documents** for the public repository (the UI stays Turkish); end-to-end tests made independent of the machine's speed (they failed on GitHub's slower runners) | ✅ 111 unit + 87 end-to-end tests |
+| **Faz 10** | 2 Nov | **Emergency removed** (one Glitch every round, solo and duel; the safe/risky versions of the stages are gone); **Dead Pixel variety**: five kinds of panel (LCD, LED, diamond, honeycomb, RGB bars) and eight colours, in a new order every round, the difficulty unchanged; **Beam Path variety**: three recipes per line and lines mirrored at random (the beam from either side, the server anywhere) | ✅ 110 unit + 82 end-to-end tests |
 | **Last test** | before release | **On the tablet:** sound level, touch feel, smoothness of the effects, **two people touching at once (duel)**, a trial with 5–10 people, **tuning the step and round lengths** (Dead Pixel's last screen, Beam Path's line clocks, YEŞİLDE BAS), backup install | |
 | **Booth** | 4 Nov | Setup, sound and screen-on check, watching during the day | |
 
@@ -401,7 +405,7 @@ The core loop (eye → hack → five stages → result → error report) and the
 |---|---|---|
 | 1 | Name | **KERNEL PANIC** |
 | 2 | Overheat | "DOKUNMA!" cooling for 3 s. With plenty of time: no reward for holding off, a touch costs **−5 s**. With little time: holding off gives **+5 s**, a touch costs nothing (Faz 7) |
-| 3 | Emergency reward | **Time:** the risky channel gives +5 s if it ends green, −3 s if not |
+| 3 | ~~Emergency reward~~ | Emergency removed in Faz 10 (see #30) |
 | 4 | ~~Question tone~~ | Questions removed in Faz 6 (see 12) |
 | 5 | Device and sound | **Tablet**, sound **on**; no stage depends on sound |
 | 6 | Technology | **React + Vite + TypeScript** |
@@ -422,12 +426,15 @@ The core loop (eye → hack → five stages → result → error report) and the
 | 21 | Duel content | The same difficulty, other answers (dead pixel's place, colour order, words, command order); Beam Path the same for both |
 | 22 | Duel events | No Emergency; the random event is always a Glitch |
 | 23 | End of a duel | The solo result transition on the half of the player done first, shrunk to fit; the duel result once both transitions have played |
-| 24 | Emergency time | The screen freezes; 4 s to read (no countdown) + 8 s to choose |
+| 24 | ~~Emergency time~~ | Emergency removed in Faz 10 (see #30) |
 | 25 | Logo and name | Ring + circuit traces as on the banner; the club's name in Orbitron in the banner's colours; Dead Pixel 5 screens (the same difficulty levels) |
 | 26 | The button screen's hero | The **cyber eye** (from the prototype page's three eyes: cyber, red, living) in the hazard ring with "BASMAK ÜZERESİN"; pressing it is pressing the button |
 | 27 | The eye's looks | Somewhere else **every 3 s** (8 directions or straight ahead, never twice the same); looks **where the screen is touched** (1.8 s); idle 20 s: squints at the visitor and blinks twice |
 | 28 | Duel halves | Mirrored: each stage card's accent line on the outer edge |
 | 29 | Public repository | Code identifiers, file names, comments and documents in English; on-screen texts stay Turkish; the README ends with a Turkish section on how to play |
+| 30 | Emergency | **Removed** (Faz 10): every round, solo or duel, gets one Glitch on stage 2, 3 or 4 |
+| 31 | Dead Pixel variety | Five kinds of panel and eight colours, each screen of a round different; sizes, differences and clocks unchanged |
+| 32 | Beam Path variety | Three recipes of the same difficulty per line; every line mirrored at random (emitter left or right, server on any side) |
 
 ---
 

@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures.ts'
 import {
   expectTouchTarget,
+  holdClock,
   playStages,
   REAL_URL,
   ROUND_URL,
@@ -28,6 +29,34 @@ test.describe('Stages', () => {
     await expect(page.getByTestId('step-timer').first()).toHaveAttribute('data-running', 'true')
     await expect(page.getByTestId('integrity')).toHaveText('%0')
     await expectTouchTarget(page.locator('[data-odd="true"]'), 60)
+  })
+
+  test('Ölü Piksel: every screen is another kind of panel, named next to it', async ({ page }) => {
+    const PANEL: Record<string, string> = {
+      square: 'LCD',
+      led: 'LED',
+      diamond: 'elmas',
+      hex: 'petek',
+      bars: 'RGB',
+    }
+    await page.clock.install()
+    await startRound(page)
+    const stage = page.getByTestId('stage-pixel')
+    await expect(stage).toHaveAttribute('data-phase', 'find')
+    // the clock is held: on a slow machine no screen runs out while the test reads it
+    await holdClock(page)
+    const looks: string[] = []
+    for (let i = 1; i <= 5; i++) {
+      await expect(stage.getByTestId('stage-level')).toContainText(`${i}/5`)
+      await expect(stage).toHaveAttribute('data-phase', 'find')
+      const look = (await stage.getByTestId('pixel-grid').getAttribute('data-look')) ?? ''
+      looks.push(look)
+      await expect(stage.getByTestId('pixel-panel')).toHaveText(`panel ${PANEL[look]}`)
+      await stage.locator('[data-odd="true"]').tap()
+      await page.clock.runFor(1_500)
+    }
+    expect(new Set(looks).size).toBe(5)
+    expect(looks.indexOf('diamond')).toBeLessThanOrEqual(2)
   })
 
   test('a wrong pixel costs 2 s; out of time the pixel is shown and screen 2 comes', async ({

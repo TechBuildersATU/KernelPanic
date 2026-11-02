@@ -160,18 +160,6 @@ test.describe('Duel: the round', () => {
 })
 
 test.describe('Duel: fair and different', () => {
-  test('no Emergency in the duel, even when a test forces one', async ({ page }) => {
-    test.setTimeout(120_000)
-    await startDuel(page, '/?seed=4&fastTimers=1&event=emergency')
-    const left = page.getByTestId('half-1')
-    await playStages(page, 'right', 1, left)
-    await expect(left.locator('[data-testid="stage"][data-stage="colours"]')).toBeVisible({
-      timeout: 10_000,
-    })
-    await expect(page.getByTestId('emergency')).toHaveCount(0)
-    await expect(page.getByTestId('btn-safe')).toHaveCount(0)
-  })
-
   test('every result transition fits one half (preview)', async ({ page }) => {
     for (const title of ['system-savior', 'error-404', 'kernel-panic', 'almost-a-legend']) {
       await page.goto(`/?transition=${title}&half=1`)

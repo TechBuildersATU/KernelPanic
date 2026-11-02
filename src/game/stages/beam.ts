@@ -1,9 +1,11 @@
-import type { LineSize } from '../config'
-import { shuffle, type Rng } from '../rng'
+import { BEAM, type LineSize } from '../config'
+import { pickOne, shuffle, type Rng } from '../rng'
 
-// IŞIN YOLU (stage 3): the data beam leaves the emitter on the left and has to reach the server.
-// Tapping a mirror turns it ( / ↔ \ ). Lines are generated path-first — mirrors are put on the
-// turns of a random path, then scrambled — so every line can be solved.
+// IŞIN YOLU (stage 3): the data beam leaves the emitter and has to reach the server. Tapping a
+// mirror turns it ( / ↔ \ ). Lines are generated path-first — mirrors are put on the turns of a
+// random path, then scrambled — so every line can be solved. For variety (Faz 10) each line is
+// drawn from a few recipes of the same difficulty and then mirrored at random, so the emitter
+// sits on the left or the right and the server's side changes too.
 
 export type Mirror = '/' | '\\'
 
@@ -17,9 +19,9 @@ export interface MirrorSpot {
 export interface BeamLine {
   cols: number
   rows: number
-  /** Row of the emitter, just left of column 0. */
-  entry: number
-  /** The server sits just outside the grid: x === cols (right), y === -1 (top) or rows (bottom). */
+  /** The emitter, just outside the grid: x === -1 (shining right) or x === cols (shining left). */
+  source: { x: number; y: number }
+  /** The server, just outside the grid: x === -1 or cols (a side), y === -1 or rows (top, bottom). */
   server: { x: number; y: number }
   mirrors: readonly MirrorSpot[]
   walls: readonly { x: number; y: number }[]
@@ -28,19 +30,24 @@ export interface BeamLine {
 }
 
 export interface Beam {
-  /** Grid points the beam passes, from the emitter (x = -1) on. */
+  /** Grid points the beam passes, from the emitter on. */
   points: [number, number][]
   ok: boolean
+}
+
+/** Which way the emitter shines: +1 to the right (it sits on the left), −1 to the left. */
+export function sourceDir(line: BeamLine): 1 | -1 {
+  return line.source.x < 0 ? 1 : -1
 }
 
 export function traceBeam(line: BeamLine, orient: readonly Mirror[]): Beam {
   const at = new Map(line.mirrors.map((m, i) => [`${m.x},${m.y}`, i]))
   const walls = new Set(line.walls.map((w) => `${w.x},${w.y}`))
-  let x = 0
-  let y = line.entry
-  let dx = 1
+  let dx: number = sourceDir(line)
   let dy = 0
-  const points: [number, number][] = [[-1, line.entry]]
+  let x = line.source.x + dx
+  let y = line.source.y
+  const points: [number, number][] = [[line.source.x, line.source.y]]
   for (let n = 0; n < 400; n++) {
     if (x < 0 || x >= line.cols || y < 0 || y >= line.rows) {
       const ok = x === line.server.x && y === line.server.y
@@ -131,7 +138,15 @@ export function makeBeamLine(size: LineSize, rng: Rng): BeamLine {
     ]
     const walls = spare.slice(decoys, decoys + wallCount)
     const decoyOrient = mirrors.map((): Mirror => (rng() < 0.5 ? '/' : '\\'))
-    const line: BeamLine = { cols, rows, entry, server, mirrors, walls, start: [] }
+    const line: BeamLine = {
+      cols,
+      rows,
+      source: { x: -1, y: entry },
+      server,
+      mirrors,
+      walls,
+      start: [],
+    }
     if (!traceBeam(line, solutionOf(line, decoyOrient)).ok) continue
     for (let s = 0; s < 40; s++) {
       const start = mirrors.map((m, i): Mirror =>
@@ -141,4 +156,37 @@ export function makeBeamLine(size: LineSize, rng: Rng): BeamLine {
     }
   }
   throw new Error(`no beam line for ${size.join('×')}`)
+}
+
+const flip = (m: Mirror): Mirror => (m === '/' ? '\\' : '/')
+
+/**
+ * The same line seen in a mirror: left ↔ right (`across`) and/or top ↔ bottom (`upside`). A
+ * mirrored solution is still a solution and a scrambled start stays unsolved; a mirror turns
+ * ( / ↔ \ ) when the line is mirrored one way, and stays when it is mirrored both ways.
+ */
+export function mirrorLine(line: BeamLine, across: boolean, upside: boolean): BeamLine {
+  const X = (x: number) => (across ? line.cols - 1 - x : x)
+  const Y = (y: number) => (upside ? line.rows - 1 - y : y)
+  const turn = (m: Mirror): Mirror => (across !== upside ? flip(m) : m)
+  return {
+    ...line,
+    source: { x: X(line.source.x), y: Y(line.source.y) },
+    server: { x: X(line.server.x), y: Y(line.server.y) },
+    mirrors: line.mirrors.map((m) => ({
+      x: X(m.x),
+      y: Y(m.y),
+      solution: m.solution && turn(m.solution),
+    })),
+    walls: line.walls.map((w) => ({ x: X(w.x), y: Y(w.y) })),
+    start: line.start.map(turn),
+  }
+}
+
+/** The stage's three lines: a recipe per line, generated, then mirrored at random. */
+export function makeBeamLines(rng: Rng): BeamLine[] {
+  return BEAM.lines.map((recipes) => {
+    const line = makeBeamLine(pickOne(recipes, rng), rng)
+    return mirrorLine(line, rng() < 0.5, rng() < 0.5)
+  })
 }

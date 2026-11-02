@@ -1,5 +1,5 @@
 // Test-only URL flags: ?seed=N (deterministic stages and events), ?fastTimers=1 (shorter
-// animation waits), ?event=glitch|emergency|overheat-fast|overheat-slow|power|none (force an event, or none),
+// animation waits), ?event=glitch|overheat-fast|overheat-slow|power|none (force an event, or none),
 // ?transition=<title>&mood=<mood> (preview one result transition on its own; &half=1 in one half
 // of the duel), ?intro=1 (play the APK's opening animation in the browser).
 // They are compiled out of the production build unless VITE_TEST_FLAGS=1.
@@ -40,11 +40,10 @@ export const TITLE_IDS: readonly TitleId[] = [
   'almost-a-legend',
   'turn-it-off-and-on',
 ]
-const MOODS: readonly Mood[] = ['overheat', 'glitch', 'emergency', 'power', 'normal']
+const MOODS: readonly Mood[] = ['overheat', 'glitch', 'power', 'normal']
 
 const FORCEABLE: readonly ForcedEvent[] = [
   'glitch',
-  'emergency',
   'power',
   'overheat-fast',
   'overheat-slow',

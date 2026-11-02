@@ -1,7 +1,7 @@
 // Every tunable number of the game in one place (docs/ROADMAP.md). Balance changes after
 // the tablet test happen here, not in the screens.
 
-import type { RoundSeconds, StageId, Variant } from './types'
+import type { RoundSeconds, StageId } from './types'
 
 // ── Round (§4) ─────────────────────────────────────────────────────────────────────────────
 /** The five stages, always in this order; Basma Dedik is the final (§2.3). */
@@ -32,49 +32,48 @@ export const PIXEL = {
   revealMs: 1300,
 } as const
 
-export const COLOURS: {
-  lengths: Record<Variant, readonly number[]>
-  onMs: Record<Variant, readonly number[]>
-  swap: Record<Variant, readonly boolean[]>
-  gapMs: number
-  idleMs: number
-} = {
+export const COLOURS = {
   /** Three layers; the second one always has the same colour twice in a row. */
-  lengths: { normal: [3, 5, 5], safe: [3, 4, 4], risky: [5, 6, 7] },
+  lengths: [3, 5, 5],
   /** How long each colour lights up while the player watches (animation wait). */
-  onMs: { normal: [560, 400, 400], safe: [600, 480, 480], risky: [440, 330, 330] },
+  onMs: [560, 400, 400],
   /** The pads trade places after the show (Glitch adds the second layer). */
-  swap: { normal: [false, false, true], safe: [false, false, true], risky: [false, true, true] },
+  swap: [false, false, true],
   gapMs: 150,
   /** Each colour has to be tapped within this long after the previous one. */
   idleMs: 3000,
-}
+} as const
 
-/** [columns, rows, turns on the path, decoy mirrors, walls] for each of the three lines. */
+/** [columns, rows, turns on the path, decoy mirrors, walls]: one recipe for a line. */
 export type LineSize = readonly [number, number, number, number, number]
 
 export const BEAM: {
-  lines: Record<Variant, readonly LineSize[]>
+  lines: readonly (readonly LineSize[])[]
   limitsMs: readonly number[]
   glitchFlipMs: number
 } = {
-  lines: {
-    normal: [
+  /**
+   * The three lines, easy → medium → hard. Each line is drawn from its own recipes of about the
+   * same difficulty (mirrors to set: 2–3, 3–5, 4–6), and every line is also mirrored left/right
+   * and up/down at random, so the beam can come from either side (Faz 10: less repetition).
+   */
+  lines: [
+    [
       [6, 4, 2, 1, 0],
+      [6, 4, 3, 0, 1],
+      [6, 4, 2, 0, 1],
+    ],
+    [
       [7, 5, 4, 2, 2],
-      [8, 5, 5, 4, 2],
-    ],
-    safe: [
-      [5, 3, 2, 0, 0],
-      [6, 4, 2, 2, 1],
-      [6, 4, 3, 2, 1],
-    ],
-    risky: [
       [7, 5, 3, 3, 2],
-      [8, 6, 4, 5, 3],
-      [9, 6, 6, 6, 3],
+      [7, 5, 5, 1, 2],
     ],
-  },
+    [
+      [8, 5, 5, 4, 2],
+      [8, 5, 6, 3, 2],
+      [8, 5, 4, 5, 2],
+    ],
+  ],
   /** Each line has its own clock. */
   limitsMs: [8000, 10000, 12000],
   /** Glitch: one mirror turns by itself this often. */
@@ -84,7 +83,8 @@ export const BEAM: {
 export const TRAP = {
   /** Three words per part: first tap what the word says, then the colour it is painted in. */
   perPart: 3,
-  limitMs: { normal: 2600, safe: 3000, risky: 1800 } as Record<Variant, number>,
+  /** Each word has to be answered within this long. */
+  limitMs: 2600,
 } as const
 
 export const ORDERS = {
@@ -100,7 +100,7 @@ export const ORDERS = {
 
 // ── Events (§3) ────────────────────────────────────────────────────────────────────────────
 export const MAX_EVENTS_PER_ROUND = 2
-/** At least one random event (glitch or emergency) per round. */
+/** Every round gets one random event: a Glitch on one of stages 2–4. */
 export const MIN_RANDOM_EVENTS = 1
 /**
  * Stages a random event can land on, with their weights. Never stage 1 (warm-up) or 5 (the
@@ -121,15 +121,6 @@ export const COOLING_MS = 3000
 export const COOLING_SLOW_BONUS_SECONDS = 5
 /** Too fast: holding still earns nothing; a touch costs this much ("SİSTEM ISINDI"). */
 export const COOLING_FAST_PENALTY_SECONDS = 5
-
-// EMERGENCY MODE (§3.3) — safe (easy) or risky (hardest) version of the stage; solo only.
-/** The screen freezes and the choice is read first: no countdown yet (the clock stands still). */
-export const EMERGENCY_READ_MS = 4000
-/** Then this long to choose before the system picks the safe channel. */
-export const EMERGENCY_CHOOSE_MS = 8000
-/** The risky channel pays off when the stage ends green (good or perfect), else costs time. */
-export const RISKY_BONUS_SECONDS = 5
-export const RISKY_PENALTY_SECONDS = 3
 
 // POWER RESTORED (§3.4) — animation only, after this many green stages in a row.
 export const POWER_STREAK = 2

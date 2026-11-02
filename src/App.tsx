@@ -84,7 +84,6 @@ function previewStages(title: TitleId): StageRecord[] {
   return PREVIEW[title].map((share, i) => ({
     slot: i + 1,
     stage: STAGE_ORDER[i],
-    variant: 'normal',
     glitch: false,
     ok: Math.round(share * 12),
     miss: 12 - Math.round(share * 12),
@@ -181,7 +180,7 @@ function Game() {
       // the duel's two players get the same round (same difficulty, their own answers)
       start: () =>
         switchScreen(() => {
-          const round = newRound(mode === 'duel')
+          const round = newRound()
           game.start(round, mode === 'duel' ? 1 : 0)
           if (mode === 'duel') game2.start(round, 2)
         }),

@@ -5,32 +5,19 @@ import { seededRng } from '@/game/rng'
 import { NONE, playing, playStage, ROUND, stage, T0 } from './round'
 
 describe('planEvents (§3)', () => {
-  it('always plans 1–2 random events on stages 2–4, never twice the same kind', () => {
-    const plans = Array.from({ length: 2000 }, (_, seed) => planEvents(seededRng(seed)))
-    const slots = plans.map((plan) => [plan.glitch, plan.emergency].filter((s) => s !== null))
-    expect(slots.filter((list) => list.length < 1 || list.length > 2)).toEqual([])
-    expect(slots.flat().filter((slot) => ![2, 3, 4].includes(slot))).toEqual([])
-    const doubles = plans.filter((plan) => plan.glitch !== null && plan.emergency !== null)
-    expect(doubles.filter((plan) => plan.glitch === plan.emergency)).toEqual([])
-    expect(doubles.length / plans.length).toBeGreaterThan(0.3)
-    expect(doubles.length / plans.length).toBeLessThan(0.5)
-  })
-
-  it('the duel never gets an Emergency: its random event is one Glitch on stages 2–4', () => {
-    const plans = Array.from({ length: 2000 }, (_, seed) =>
-      planEvents(seededRng(seed), undefined, true),
-    )
-    expect(plans.filter((plan) => plan.emergency !== null)).toEqual([])
+  it('every round, solo or duel, gets one Glitch on stage 2, 3 or 4 (3 the most often)', () => {
+    const plans = Array.from({ length: 3000 }, (_, seed) => planEvents(seededRng(seed)))
+    expect(Object.keys(plans[0])).toEqual(['glitch'])
     expect(plans.filter((plan) => plan.glitch === null)).toEqual([])
-    expect(plans.filter((plan) => ![2, 3, 4].includes(plan.glitch!))).toEqual([])
-    // even when a test forces it
-    expect(planEvents(seededRng(1), 'emergency', true)).toEqual(NONE)
-    expect(planEvents(seededRng(1), 'glitch', true)).toEqual({ glitch: 2, emergency: null })
+    const count = (slot: number) => plans.filter((plan) => plan.glitch === slot).length
+    expect(count(2) + count(3) + count(4)).toBe(plans.length)
+    for (const slot of [2, 3, 4]) expect(count(slot) / plans.length).toBeGreaterThan(0.2)
+    expect(count(3)).toBeGreaterThan(count(2))
+    expect(count(3)).toBeGreaterThan(count(4))
   })
 
   it('forced events plan exactly that event (tests)', () => {
-    expect(planEvents(seededRng(1), 'glitch')).toEqual({ glitch: 2, emergency: null })
-    expect(planEvents(seededRng(1), 'emergency')).toEqual({ glitch: null, emergency: 2 })
+    expect(planEvents(seededRng(1), 'glitch')).toEqual({ glitch: 2 })
     expect(planEvents(seededRng(1), 'overheat-slow')).toEqual(NONE)
     expect(planEvents(seededRng(1), 'none')).toEqual(NONE)
   })
@@ -42,11 +29,10 @@ describe('planEvents (§3)', () => {
     expect(coolingShiftMs('fast', false)).toBe(-5000)
   })
 
-  it('result mood follows the priority Overheat > Glitch > Emergency > Power', () => {
+  it('result mood follows the priority Overheat > Glitch > Power', () => {
     expect(moodOf([])).toBe('normal')
     expect(moodOf(['power'])).toBe('power')
-    expect(moodOf(['power', 'emergency'])).toBe('emergency')
-    expect(moodOf(['emergency', 'glitch'])).toBe('glitch')
+    expect(moodOf(['power', 'glitch'])).toBe('glitch')
     expect(moodOf(['glitch', 'overheat', 'power'])).toBe('overheat')
   })
 })
@@ -107,45 +93,21 @@ describe('SYSTEM OVERHEAT (§3.1)', () => {
     expect(late.pendingOverheat).toBeNull()
   })
 
-  it('does not exceed two events when two random events are already planned', () => {
-    let state = playing({ glitch: 3, emergency: 4 }, 'natural')
+  it('can come on top of the Glitch still to come: two events at most', () => {
+    let state = playing({ glitch: 3 }, 'natural')
     state = playStage(state, 3, 0, T0, 2000)
     state = stage(state, 13, 0, T0 + 10_000, 2000)
-    expect(state.pendingOverheat).toBeNull()
-  })
-})
-
-describe('EMERGENCY MODE (§3.3)', () => {
-  it('asks for a channel before stage 2, with the clock standing still', () => {
-    let state = playStage(playing({ glitch: null, emergency: 2 }), 3, 0, T0)
-    expect(state.overlay).toMatchObject({ kind: 'emergency' })
-    expect(state.index).toBe(1)
-    const before = clockMs(state, T0 + 8000)
-    expect(clockMs(state, T0 + 12_000)).toBe(before)
-    state = gameReducer(state, { type: 'chooseChannel', now: T0 + 9000, channel: 'safe' })
-    expect(state).toMatchObject({ overlay: null, variant: 'safe' })
-  })
-
-  it('risky channel: +5 s if the stage ends green, −3 s if not', () => {
-    let state = playStage(playing({ glitch: null, emergency: 2 }), 3, 0, T0)
-    state = gameReducer(state, { type: 'chooseChannel', now: T0 + 9000, channel: 'risky' })
-    const won = stage(state, 17, 1, T0 + 10_000)
-    expect(won.lastShift?.deltaMs).toBe(5000)
-    expect(won.stages[1]).toMatchObject({ variant: 'risky' })
-    const lost = stage(state, 9, 9, T0 + 10_000)
-    expect(lost.lastShift?.deltaMs).toBe(-3000)
-  })
-
-  it('safe channel: no time change', () => {
-    let state = playStage(playing({ glitch: null, emergency: 2 }), 3, 0, T0)
-    state = gameReducer(state, { type: 'chooseChannel', now: T0 + 9000, channel: 'safe' })
-    expect(stage(state, 2, 9, T0 + 10_000).lastShift).toBeNull()
+    expect(state.pendingOverheat).toBe('fast')
+    state = gameReducer(state, { type: 'next', now: T0 + 20_000 })
+    state = gameReducer(state, { type: 'overheatReady', now: T0 + 22_000 })
+    state = gameReducer(state, { type: 'coolingDone', now: T0 + 25_000, ok: true })
+    expect(state.events.filter((kind) => kind !== 'power')).toEqual(['overheat', 'glitch'])
   })
 })
 
 describe('GLITCH DETECTED (§3.2)', () => {
   it('marks stage 2 as glitched in its record', () => {
-    let state = playStage(playing({ glitch: 2, emergency: null }), 3, 0, T0)
+    let state = playStage(playing({ glitch: 2 }), 3, 0, T0)
     expect(state.events).toEqual(['glitch'])
     state = playStage(state, 13, 0, T0 + 10_000)
     expect(state.stages.map((r) => r.glitch)).toEqual([false, true])

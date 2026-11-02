@@ -14,7 +14,6 @@ import { clockMs, integrity, isGlitchStage, stageAt, type GameState } from '@/ga
 import { isGreen, stageGrade, stageShare } from '@/game/grades'
 import type { EventKind } from '@/game/types'
 import { Cooling } from './play/Cooling'
-import { EmergencyChoice } from './play/EmergencyChoice'
 import { OverheatAlarm } from './play/OverheatAlarm'
 import { StageEnd } from './play/StageEnd'
 import { StageHost } from './play/StageHost'
@@ -26,7 +25,6 @@ const BANNER_MS = 1800
 const EVENT_SFX: Record<EventKind, Sfx> = {
   overheat: 'overheat',
   glitch: 'glitch',
-  emergency: 'emergency',
   power: 'power',
 }
 
@@ -38,7 +36,7 @@ function clock(ms: number): string {
 }
 
 /** Live background: the event on screen, or the calm after Power Restored (§3.4). */
-type LiveMood = 'overheat' | 'emergency' | 'glitch' | 'calm' | 'normal'
+type LiveMood = 'overheat' | 'glitch' | 'calm' | 'normal'
 
 function liveMood(state: GameState): LiveMood {
   if (state.overlay) return state.overlay.kind
@@ -54,9 +52,6 @@ function logLine(state: GameState): { text: string; tone: 'ok' | 'bad' | 'info' 
       ? { text: 'UYARI: çekirdek sıcaklığı kritik', tone: 'bad' }
       : { text: 'sogutma_protokolu.sys çalışıyor · dokunma', tone: 'info' }
   }
-  if (overlay?.kind === 'emergency') {
-    return { text: 'yedek kanallar açıldı, seçim bekleniyor', tone: 'bad' }
-  }
   const last = state.stages.at(-1)
   if (state.ended && last) {
     const pct = Math.round(stageShare(last) * 100)
@@ -66,7 +61,6 @@ function logLine(state: GameState): { text: string; tone: 'ok' | 'bad' | 'info' 
       : { text: `${file} hasarlı: %${pct}`, tone: 'bad' }
   }
   if (isGlitchStage(state)) return { text: 'veri bütünlüğü bozuldu: 0x6L1TCH', tone: 'bad' }
-  if (state.variant === 'risky') return { text: 'riskli kanal: yüksek gerilim', tone: 'bad' }
   const text = STAGE_TEXT[stageAt(state.index)].log
   return { text, tone: state.index === STAGE_COUNT - 1 ? 'bad' : 'info' }
 }
@@ -93,7 +87,7 @@ interface Props {
 /**
  * The round (§2.3): five stages in one card that stays put for the whole round — each stage's
  * game comes up under a title card, is played to its end and leaves its grade colour on its
- * module in the HUD. Overheat, Emergency, Glitch and Power Restored (§3) happen around it.
+ * module in the HUD. Overheat, Glitch and Power Restored (§3) happen around it.
  */
 export function Play({ state, game, layout = 'full', onHome }: Props) {
   const decided = state.outcome !== null
@@ -109,8 +103,6 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
 
   // the stage under an event panel or a grade card is the one that just ended
   const hostIndex = state.ended || overlay ? Math.max(0, state.stages.length - 1) : state.index
-  const hostRecord = hostIndex === state.index ? null : state.stages[hostIndex]
-  const hostVariant = hostRecord?.variant ?? state.variant
   const active = !state.ended && !overlay && !decided && hostIndex === state.index
   const ended = state.ended && !overlay ? state.stages.at(-1) : undefined
   const hostGlitch = isGlitchStage(state, hostIndex)
@@ -166,15 +158,7 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
   const showGlitchBanner = hostGlitch && active && now - entered.at < BANNER_MS + 1200
   const showPower = state.powerAt !== null && now - state.powerAt < BANNER_MS
   const showShift = state.lastShift !== null && now - state.lastShift.at < BANNER_MS
-  const kind = final
-    ? 'final'
-    : hostVariant === 'risky'
-      ? 'risky'
-      : hostVariant === 'safe'
-        ? 'safe'
-        : hostGlitch
-          ? 'glitch'
-          : 'main'
+  const kind = final ? 'final' : hostGlitch ? 'glitch' : 'main'
 
   return (
     <main
@@ -188,7 +172,6 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
       data-held={state.pausedAt !== null && !overlay}
       data-mood={mood}
       data-glitch={hostGlitch && !state.ended}
-      data-risky={hostVariant === 'risky'}
       data-stage={stageAt(state.index)}
     >
       {showPower && (
@@ -266,11 +249,10 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
         data-dim={overlay !== null}
       >
         <StageHost
-          key={`${state.round}-${hostIndex}-${hostVariant}`}
+          key={`${state.round}-${hostIndex}`}
           index={hostIndex}
           seed={state.seed}
           player={state.player}
-          variant={hostVariant}
           glitch={hostGlitch}
           active={active}
           onHold={game.hold}
@@ -280,9 +262,6 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
         {ended && <StageEnd key={ended.slot} record={ended} />}
       </section>
 
-      {overlay?.kind === 'emergency' && (
-        <EmergencyChoice since={overlay.since} onChoose={game.chooseChannel} />
-      )}
       {overlay?.kind === 'overheat' && overlay.step === 'alarm' && (
         <OverheatAlarm mode={overlay.mode} onReady={game.overheatReady} />
       )}

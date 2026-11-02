@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BEAM, COLOURS, ORDERS, PIXEL, TRAP } from '@/game/config'
 import { seededRng } from '@/game/rng'
 import { makeOrders } from '@/game/stages/orders'
-import { makeBeamLine, solutionOf } from '@/game/stages/beam'
+import { makeBeamLines, solutionOf } from '@/game/stages/beam'
 import { makePixelScreens } from '@/game/stages/pixel'
 import { makeLayers } from '@/game/stages/colours'
 import { makeTrapItems } from '@/game/stages/trap'
@@ -110,7 +110,7 @@ describe('Ölü Piksel runner', () => {
 })
 
 describe('Dört Renk runner', () => {
-  const layers = makeLayers('normal', false, seededRng(2))
+  const layers = makeLayers(false, seededRng(2))
   const showMs = (i: number) =>
     600 + layers[i].seq.length * (layers[i].onMs + COLOURS.gapMs) + (layers[i].swap ? 1100 : 250)
 
@@ -160,8 +160,7 @@ describe('Dört Renk runner', () => {
 })
 
 describe('Işın Yolu runner', () => {
-  const rng = seededRng(4)
-  const lines = BEAM.lines.normal.map((size) => makeBeamLine(size, rng))
+  const lines = makeBeamLines(seededRng(4))
 
   function solve(game: BeamRunner, line: number) {
     const target = solutionOf(lines[line], lines[line].start)
@@ -211,7 +210,7 @@ describe('Renk Tuzağı runner', () => {
 
   it('right, wrong and too late each cost or earn one word; the rule changes after three', () => {
     const log = record()
-    const game = new TrapRunner(items, TRAP.limitMs.normal, false, seededRng(7), log.io)
+    const game = new TrapRunner(items, TRAP.limitMs, false, seededRng(7), log.io)
     game.start()
     vi.advanceTimersByTime(450)
     expect(game.snapshot()).toMatchObject({ item: 0, phase: 'answer', rule: 0 })
@@ -219,7 +218,7 @@ describe('Renk Tuzağı runner', () => {
     vi.advanceTimersByTime(380)
     game.tap((items[1].answer + 1) % 4)
     expect(game.snapshot().phase).toBe('wrong')
-    vi.advanceTimersByTime(1100 + TRAP.limitMs.normal)
+    vi.advanceTimersByTime(1100 + TRAP.limitMs)
     expect(log).toMatchObject({ ok: 1, miss: 2 })
     expect(log.notes[1]).toMatch(/süre bitti, doğrusu/)
     vi.advanceTimersByTime(1100)

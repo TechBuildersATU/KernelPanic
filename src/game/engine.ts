@@ -10,8 +10,6 @@ import {
   FAST_REMAINING_RATIO,
   MAX_EVENTS_PER_ROUND,
   POWER_STREAK,
-  RISKY_BONUS_SECONDS,
-  RISKY_PENALTY_SECONDS,
   SLOW_MIN_LEFT,
   SLOW_REMAINING_RATIO,
   STAGE_COUNT,
@@ -20,14 +18,17 @@ import {
 import { coolingShiftMs, countedEvents, type EventPlan, type ForcedEvent } from './events'
 import { gradeOf, isGreen, stageShare } from './grades'
 import type { Player } from './stages/players'
-import type { EventKind, Phase, RoundOutcome, StageId, StageRecord, Variant } from './types'
+import type { EventKind, Phase, RoundOutcome, StageId, StageRecord } from './types'
 
 export type OverheatMode = 'fast' | 'slow'
 
-/** An event that takes the stage's place between two stages (§3.1, §3.3). */
-export type Overlay =
-  | { kind: 'overheat'; mode: OverheatMode; step: 'alarm' | 'cooling'; since: number }
-  | { kind: 'emergency'; since: number }
+/** An event that takes the stage's place between two stages (§3.1). */
+export type Overlay = {
+  kind: 'overheat'
+  mode: OverheatMode
+  step: 'alarm' | 'cooling'
+  since: number
+}
 
 /** The steps of the stage being played. */
 export interface Tally {
@@ -54,7 +55,6 @@ export interface GameState {
   player: Player
   /** The stage on screen (0–4). */
   index: number
-  variant: Variant
   tally: Tally
   /** Finished stages, in order. */
   stages: readonly StageRecord[]
@@ -99,14 +99,13 @@ export type GameAction =
   | { type: 'score'; ok: number; miss: number; note?: string }
   | { type: 'stageDone'; now: number }
   | { type: 'next'; now: number }
-  | { type: 'chooseChannel'; now: number; channel: 'safe' | 'risky' }
   | { type: 'overheatReady'; now: number }
   | { type: 'coolingDone'; now: number; ok: boolean }
   | { type: 'openReport' }
   | { type: 'closeReport' }
   | { type: 'restart' }
 
-const NO_PLAN: EventPlan = { glitch: null, emergency: null }
+const NO_PLAN: EventPlan = { glitch: null }
 const NO_TALLY: Tally = { ok: 0, miss: 0, notes: [] }
 /** Report lines kept per stage (the report has room for two). */
 const MAX_NOTES = 4
@@ -118,7 +117,6 @@ export const INITIAL_STATE: GameState = {
   seed: 0,
   player: 0,
   index: 0,
-  variant: 'normal',
   tally: NO_TALLY,
   stages: [],
   ended: false,
@@ -183,9 +181,7 @@ function overheatAfter(state: GameState, slot: number): OverheatMode | null {
   // never right before the final
   if (STAGE_COUNT - slot < SLOW_MIN_LEFT) return null
   // the per-round limit counts the random events still to come as well
-  const planned = [state.plan.glitch, state.plan.emergency].filter(
-    (s): s is number => s !== null && s > slot,
-  ).length
+  const planned = state.plan.glitch !== null && state.plan.glitch > slot ? 1 : 0
   if (countedEvents(state.events) + planned >= MAX_EVENTS_PER_ROUND) return null
 
   const left = state.endsAt - (state.pausedAt ?? 0)
@@ -194,24 +190,16 @@ function overheatAfter(state: GameState, slot: number): OverheatMode | null {
   return null
 }
 
-/** Moves on to stage `index`; an Emergency stage first asks for a channel (§3.3). */
+/** Moves on to stage `index` (a glitched one counts its Glitch as it comes up, §3.2). */
 function enterStage(state: GameState, index: number, now: number): GameState {
   const slot = index + 1
   const next: GameState = {
     ...state,
     ...pause(state, now),
     index,
-    variant: 'normal',
     tally: NO_TALLY,
     ended: false,
     overlay: null,
-  }
-  if (state.plan.emergency === slot && !state.events.includes('emergency')) {
-    return {
-      ...next,
-      overlay: { kind: 'emergency', since: now },
-      events: [...state.events, 'emergency'],
-    }
   }
   if (state.plan.glitch === slot && !state.events.includes('glitch')) {
     return { ...next, events: [...state.events, 'glitch'] }
@@ -269,17 +257,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const record: StageRecord = {
         slot,
         stage: stageAt(state.index),
-        variant: state.variant,
         glitch: isGlitchStage(state),
         ...state.tally,
       }
       const green = isGreen(gradeOf(record.ok, record.ok + record.miss))
       const paused = { ...state, ...pause(state, action.now) }
-      // risky Emergency channel: +5 s if the stage ends green, −3 s if not (§3.3)
-      const risky =
-        state.variant === 'risky'
-          ? shift(paused, (green ? RISKY_BONUS_SECONDS : -RISKY_PENALTY_SECONDS) * 1000, action.now)
-          : {}
       const streak = green ? state.streak + 1 : 0
       // Power Restored: animation only, once per round, never after the final (§3.4)
       const powerStreak = state.forced === 'power' ? 1 : POWER_STREAK
@@ -287,7 +269,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         green && streak >= powerStreak && slot < STAGE_COUNT && !state.events.includes('power')
       const next: GameState = {
         ...paused,
-        ...risky,
         stages: [...state.stages, record],
         tally: NO_TALLY,
         ended: true,
@@ -342,10 +323,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.now,
       )
     }
-
-    case 'chooseChannel':
-      if (state.overlay?.kind !== 'emergency') return state
-      return { ...state, overlay: null, variant: action.channel }
 
     case 'openReport':
       return state.phase === 'result' ? { ...state, phase: 'report' } : state

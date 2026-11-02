@@ -33,7 +33,6 @@ function useCountUp(to: number, delayMs: number): number {
 const BADGES: Record<EventKind, string> = {
   overheat: 'Aşırı ısınmayı atlattın',
   glitch: "Glitch'ten sağ çıktın",
-  emergency: 'Acil durumu yönettin',
   power: 'Enerjiyi geri getirdin',
 }
 

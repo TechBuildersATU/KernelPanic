@@ -71,7 +71,6 @@ export const TITLES: Readonly<Record<TitleId, TitleText>> = {
 export const EVENT_TEXT: Record<EventKind, { title: string; line: string }> = {
   overheat: { title: 'SYSTEM OVERHEAT!', line: 'Çekirdek sıcaklığı kritik seviyede' },
   glitch: { title: 'GLITCH DETECTED!', line: 'Bu aşamanın oyunu bozuldu' },
-  emergency: { title: 'EMERGENCY MODE!', line: 'Yedek kanallar devrede' },
   power: { title: 'POWER RESTORED!', line: 'Art arda iki yeşil aşama: enerji geri geldi' },
 }
 

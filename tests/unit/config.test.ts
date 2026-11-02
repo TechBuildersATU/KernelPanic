@@ -3,8 +3,6 @@ import {
   COOLING_FAST_PENALTY_SECONDS,
   COOLING_SLOW_BONUS_SECONDS,
   DEFAULT_ROUND_SECONDS,
-  EMERGENCY_CHOOSE_MS,
-  EMERGENCY_READ_MS,
   BEAM,
   MAX_EVENTS_PER_ROUND,
   MIN_RANDOM_EVENTS,
@@ -39,11 +37,6 @@ describe('game config (docs/ROADMAP.md)', () => {
     expect(MIN_RANDOM_EVENTS).toBeLessThanOrEqual(MAX_EVENTS_PER_ROUND)
   })
 
-  it('Emergency is read first (no countdown), then counts down calmly', () => {
-    expect(EMERGENCY_READ_MS).toBeGreaterThanOrEqual(3000)
-    expect(EMERGENCY_READ_MS + EMERGENCY_CHOOSE_MS).toBeGreaterThanOrEqual(10_000)
-  })
-
   it('Ölü Piksel has five screens on its three levels: two easy, two medium, one close look', () => {
     expect(PIXEL.sizes).toEqual([4, 5, 6, 7, 8])
     expect(PIXEL.levels).toEqual([0, 0, 1, 1, 2])
@@ -57,10 +50,8 @@ describe('game config (docs/ROADMAP.md)', () => {
   })
 
   it('every other stage has three steps of its own, each with its own clock', () => {
-    for (const variant of ['normal', 'safe', 'risky'] as const) {
-      expect(COLOURS.lengths[variant]).toHaveLength(3)
-      expect(BEAM.lines[variant]).toHaveLength(3)
-    }
+    expect(COLOURS.lengths).toHaveLength(3)
+    expect(BEAM.lines).toHaveLength(3)
     expect(BEAM.limitsMs).toHaveLength(3)
   })
 })
@@ -76,6 +67,10 @@ describe('test flags', () => {
       half: false,
       intro: false,
     })
+  })
+
+  it('Emergency left the game: ?event=emergency forces nothing any more', () => {
+    expect(parseTestFlags('?event=emergency').event).toBeUndefined()
   })
 
   it('ignores unknown events and bad seeds', () => {

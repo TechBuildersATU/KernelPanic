@@ -15,7 +15,7 @@ export function TrapStage(props: StageProps) {
     (io) =>
       new TrapRunner(
         trapItemsFor(props.seed, props.player),
-        TRAP.limitMs[props.variant],
+        TRAP.limitMs,
         props.glitch,
         seededRng(playerSeed(props.seed, SALT.trapButtons, props.player)),
         io,

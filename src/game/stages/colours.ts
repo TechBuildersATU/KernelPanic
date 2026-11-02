@@ -1,6 +1,5 @@
 import { COLOURS } from '../config'
 import { shuffle, type Rng } from '../rng'
-import type { Variant } from '../types'
 
 // DÖRT RENK (stage 2): the pads light up in a sequence and the player repeats it. Three layers:
 // easy, fast with a colour twice in a row, and one where the pads trade places after the show.
@@ -52,15 +51,15 @@ export function derange(order: readonly number[], rng: Rng): number[] {
   return [...order.slice(1), order[0]]
 }
 
-export function makeLayers(variant: Variant, glitch: boolean, rng: Rng): ColourLayer[] {
-  return COLOURS.lengths[variant].map((length, i) => ({
+export function makeLayers(glitch: boolean, rng: Rng): ColourLayer[] {
+  return COLOURS.lengths.map((length, i) => ({
     seq: makeSequence(length, i === 1, rng),
-    onMs: COLOURS.onMs[variant][i],
-    swap: COLOURS.swap[variant][i] || (glitch && i === 1),
+    onMs: COLOURS.onMs[i],
+    swap: COLOURS.swap[i] || (glitch && i === 1),
   }))
 }
 
 /** All the colours of the stage (its step count). */
-export function colourTotal(variant: Variant): number {
-  return COLOURS.lengths[variant].reduce((sum, n) => sum + n, 0)
+export function colourTotal(): number {
+  return COLOURS.lengths.reduce((sum, n) => sum + n, 0)
 }

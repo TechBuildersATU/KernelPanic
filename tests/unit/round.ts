@@ -4,7 +4,7 @@ import type { EventPlan, ForcedEvent } from '@/game/events'
 
 export const ROUND = 60_000
 export const T0 = 1_000_000
-export const NONE: EventPlan = { glitch: null, emergency: null }
+export const NONE: EventPlan = { glitch: null }
 
 /**
  * A round on stage 1, its title card up (the clock stands still until the first step). No

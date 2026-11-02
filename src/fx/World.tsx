@@ -16,7 +16,7 @@ import s from './World.module.css'
 export type WorldScene = 'idle' | 'alarm' | 'play' | 'result'
 
 /** Light of the room during a round (same rules as the stage screen). */
-type PlayMood = 'overheat' | 'emergency' | 'glitch' | 'calm' | 'normal'
+type PlayMood = 'overheat' | 'glitch' | 'calm' | 'normal'
 
 function playMood(state: GameState): PlayMood {
   if (state.overlay) return state.overlay.kind
@@ -30,7 +30,6 @@ const RAIN: Record<string, string> = {
   normal: PALETTE.alarm,
   calm: PALETTE.amber,
   overheat: PALETTE.warn,
-  emergency: PALETTE.warn,
   glitch: PALETTE.cyan,
   good: PALETTE.codeGreen,
   close: PALETTE.warn,
@@ -62,30 +61,19 @@ export function World({ scene, state }: { scene: WorldScene; state: GameState })
         speed={
           scene === 'alarm'
             ? 1.7
-            : light === 'emergency'
-              ? 0 // the screen freezes while the Emergency choice is read
-              : light === 'calm' || scene === 'result'
-                ? 0.6
-                : scene === 'idle'
-                  ? 0.9
-                  : 1.2
+            : light === 'calm' || scene === 'result'
+              ? 0.6
+              : scene === 'idle'
+                ? 0.9
+                : 1.2
         }
       />
       <div className={s.grid} />
-      {[
-        'idle',
-        'alarm',
-        'normal',
-        'calm',
-        'overheat',
-        'emergency',
-        'glitch',
-        'good',
-        'close',
-        'crash',
-      ].map((name) => (
-        <div key={name} className={s.light} data-light={name} data-on={light === name} />
-      ))}
+      {['idle', 'alarm', 'normal', 'calm', 'overheat', 'glitch', 'good', 'close', 'crash'].map(
+        (name) => (
+          <div key={name} className={s.light} data-light={name} data-on={light === name} />
+        ),
+      )}
       <div className={s.lowPulse} />
       <Embers active={scene === 'play' && mood === 'overheat'} />
     </div>

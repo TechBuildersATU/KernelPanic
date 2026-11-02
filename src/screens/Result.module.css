@@ -248,10 +248,6 @@
   --c: var(--cyan);
 }
 
-.badge[data-kind='emergency'] {
-  --c: var(--warn);
-}
-
 .badge[data-kind='power'] {
   --c: var(--ok);
 }

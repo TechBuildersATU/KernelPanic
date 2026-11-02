@@ -26,7 +26,7 @@ export function ColoursStage(props: StageProps) {
     props,
     (io) =>
       new ColourRunner(
-        colourLayersFor(props.seed, props.variant, props.glitch, props.player),
+        colourLayersFor(props.seed, props.glitch, props.player),
         seededRng(playerSeed(props.seed, SALT.coloursSwap, props.player)),
         io,
       ),

@@ -29,10 +29,6 @@
   --c: var(--amber);
 }
 
-.banner[data-kind='emergency'] {
-  --c: var(--warn);
-}
-
 @keyframes toast {
   0% {
     opacity: 0;

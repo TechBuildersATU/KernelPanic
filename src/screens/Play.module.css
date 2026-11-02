@@ -294,14 +294,9 @@
   pointer-events: none;
 }
 
-.card[data-kind='final'],
-.card[data-kind='risky'] {
+.card[data-kind='final'] {
   --accent: var(--alarm);
   box-shadow: 0 0 40px rgb(255 45 74 / 0.22);
-}
-
-.card[data-kind='safe'] {
-  --accent: var(--ok);
 }
 
 .card[data-kind='glitch'] {
@@ -415,7 +410,6 @@
 }
 
 /* the event panels take the half's card place, smaller */
-.root[data-layout='half'] :global([data-testid='emergency']),
 .root[data-layout='half'] :global([data-testid='overheat']),
 .root[data-layout='half'] :global([data-testid='cooling']) {
   top: 124px;
@@ -425,31 +419,11 @@
   padding: 10px 20px 0;
 }
 
-.root[data-layout='half'] :global([data-testid='emergency']) h2,
 .root[data-layout='half'] :global([data-testid='overheat']) h2 {
   font-size: 38px;
   letter-spacing: 2px;
 }
 
-.root[data-layout='half'] :global([data-testid='emergency']) > div:has(> button) {
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
-
-.root[data-layout='half'] :global([data-testid='emergency']) button {
-  min-height: 0;
-  padding: 16px 20px;
-}
-
-.root[data-layout='half'] :global([data-testid='emergency']) button span:first-child {
-  font-size: 24px;
-}
-
-.root[data-layout='half'] :global([data-testid='emergency']) button span:last-child {
-  font-size: 18px;
-}
-
-.root[data-layout='half'] :global([data-testid='emergency']) p,
 .root[data-layout='half'] :global([data-testid='overheat']) p,
 .root[data-layout='half'] :global([data-testid='cooling']) p {
   font-size: 20px;

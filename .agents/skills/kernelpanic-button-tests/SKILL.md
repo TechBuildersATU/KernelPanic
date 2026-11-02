@@ -24,10 +24,11 @@ description: >-
 ## Where tests go
 
 - `tests/unit/*.test.ts` — pure rules: `gradeOf` / `titleFor`, event triggers (fast/slow
-  overheat, power streak, random slots with a seed), cooling ±5 s (`coolingShiftMs`), emergency
-  ±seconds, duel points and winner (`duel.test.ts`), duel content per player
-  (`players.test.ts`: same difficulty, other answers, Işın Yolu the same), the
-  stage generators (`stages.test.ts`: every beam line solvable, …), reducer transitions, the
+  overheat, power streak, one Glitch on stage 2–4 with a seed), cooling ±5 s (`coolingShiftMs`),
+  duel points and winner (`duel.test.ts`), duel content per player (`players.test.ts`: same
+  difficulty, other answers, Beam Path the same), the stage generators (`stages.test.ts`: every
+  beam recipe solvable, mirrored lines too, the lines vary; every Dead Pixel screen of a round
+  another panel), reducer transitions, the
   five stage runners with fake timers (`runners.test.ts`: a mistake or a step running out
   only costs that step, the clock is held while the player only watches), and the eye's
   geometry (`eye.test.ts`: never the same look twice, `towards`, lids, blink).
@@ -49,8 +50,8 @@ description: >-
   ready eye takes the player's colour and looks across), the right half mirroring the left
   (`stage-card` accent on the outer edge), the
   dead pixel elsewhere on each half, one full duel round per half with its own ending
-  (`result-transition` inside `half-1`), the waiting card, the winner screen and restart, no
-  Emergency in a duel, the home button clear of both halves' texts, every ending fitting a half
+  (`result-transition` inside `half-1`), the waiting card, the winner screen and restart, the
+  home button clear of both halves' texts, every ending fitting a half
   (`?transition=<title>&half=1`).
 - `e2e/boot.spec.ts` — the APK's opening via `?intro=1` (plays, a tap skips it, sets
   `data-boot`).
@@ -105,14 +106,10 @@ trips between the test and the page can outlast a 2.6 s command or a 5 s screen)
 Check timing-heavy specs once with a slow CPU (a temporary `Emulation.setCPUThrottlingRate`,
 rate 4, through a CDP session in the fixture) and `--workers=2`.
 
-Emergency (`?event=emergency`, solo): 4 s to read (`data-reading="true"`, no countdown), then
-8 s to choose; test the auto-pick with `page.clock.fastForward`.
-
 Forced events: `?event=overheat-slow` shows the alarm, then "DOKUNMA!" for 3 s and +5 s when
 nothing touched the screen, no penalty for a touch; `?event=overheat-fast` takes −5 s for a
-touch and gives nothing for holding off; `?event=emergency` offers both channels before stage 2
-and picks SAFE after 4 + 8 s (risky = 5–6–7 colours, +5 s if green, −3 s if not); `?event=glitch`
-makes stage 2's pads trade places in layer 2 too; `?event=power` plays only an animation after
+touch and gives nothing for holding off; `?event=glitch` makes stage 2's pads trade places in
+layer 2 too (Emergency left the game in Faz 10; `?event=emergency` forces nothing); `?event=power` plays only an animation after
 one green stage (timer unchanged).
 
 Unit timers: `vi.useFakeTimers()` … `vi.advanceTimersByTime(ms)` … `vi.useRealTimers()`.

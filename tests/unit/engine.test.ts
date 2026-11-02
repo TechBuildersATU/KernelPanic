@@ -8,7 +8,7 @@ describe('gameReducer — booth loop (§2)', () => {
     const hack = gameReducer(INITIAL_STATE, { type: 'press' })
     expect(hack.phase).toBe('hack')
     const state = playing()
-    expect(state).toMatchObject({ phase: 'play', index: 0, variant: 'normal', seed: 7 })
+    expect(state).toMatchObject({ phase: 'play', index: 0, seed: 7 })
     expect(clockMs(state, T0 + 15_000)).toBe(ROUND)
   })
 
@@ -51,7 +51,6 @@ describe('gameReducer — booth loop (§2)', () => {
       {
         slot: 1,
         stage: 'pixel',
-        variant: 'normal',
         glitch: false,
         ok: 2,
         miss: 1,

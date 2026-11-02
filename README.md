@@ -60,9 +60,9 @@ on, and you get one of the "late" titles.
 
 | #   | Stage                                      | What you do                                                                                                                           | Steps                                                              |
 | --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 1   | **Dead Pixel** _(Ölü Piksel)_              | Find the square with a slightly different colour                                                                                      | 5 screens: 4×4 → 8×8, the difference shrinks from 10 % to 3.5 %    |
+| 1   | **Dead Pixel** _(Ölü Piksel)_              | Find the square with a slightly different colour, on a different kind of panel each time (LCD, LED, diamond, honeycomb, RGB bars)     | 5 screens: 4×4 → 8×8, the difference shrinks from 10 % to 3.5 %    |
 | 2   | **Four Colours** _(Dört Renk)_             | Watch the pads light up, then repeat the order                                                                                        | 3 layers: 3 colours slow → 5 fast → 5 with the pads trading places |
-| 3   | **Beam Path** _(Işın Yolu)_                | Tap mirrors so the laser reaches the server                                                                                           | 3 lines with more mirrors, decoys and walls                        |
+| 3   | **Beam Path** _(Işın Yolu)_                | Tap mirrors so the laser reaches the server; the beam can come from either side                                                       | 3 lines with more mirrors, decoys and walls                        |
 | 4   | **Colour Trap** _(Renk Tuzağı)_            | A colour name written in another colour: first tap what it _says_, then the rule flips and you tap its _ink_                          | 6 words                                                            |
 | 5   | **Don't Press** _(Basma Dedik)_, the final | One red button. Hold it, press it three times, press on green, don't touch it … then **reverse mode** flips "press" and "don't press" | 6 commands                                                         |
 
@@ -70,15 +70,13 @@ No stage depends on sound, so the game works at a noisy booth.
 
 ## Surprise events
 
-At most two per round, never on the first stage or the final:
+Never on the first stage or the final, at most two a round:
 
 - **SYSTEM OVERHEAT!** depends on how you play. Too fast: a "DON'T TOUCH!" cooling where touching
   costs 5 s. Too slow: keeping your hands off gives you 5 s back.
-- **GLITCH DETECTED!** breaks the next stage a little: pads swap again, a mirror turns by itself,
-  colour buttons move after every answer. The logic never breaks, only places change.
-- **EMERGENCY MODE!** (solo only) freezes the screen and offers a **safe** channel (the easy
-  version) or a **risky** one (the hardest version: +5 s if you make it, −3 s if not). Four
-  seconds to read, eight to choose.
+- **GLITCH DETECTED!** comes once every round and breaks a stage a little: pads swap again, a
+  mirror turns by itself, colour buttons move after every answer. The logic never breaks, only
+  places change.
 - **POWER RESTORED!** two good stages in a row turn the red alarm into a calmer orange.
 
 ## Grades and titles
@@ -137,13 +135,13 @@ npm run dev:tablet   # the same, reachable from a tablet on the local network
 
 Useful URL flags in development (test builds only):
 
-| Flag                       | Effect                                                                                      |
-| -------------------------- | ------------------------------------------------------------------------------------------- |
-| `?seed=4`                  | A fixed round: the same screens and events every time                                       |
-| `?fastTimers=1`            | Short animation waits (never the round clock or the step timers)                            |
-| `?event=glitch`            | Force an event: `glitch`, `emergency`, `power`, `overheat-fast`, `overheat-slow`, or `none` |
-| `?transition=one-bug-left` | Loop one title's ending (`&half=1`: inside a duel half)                                     |
-| `?intro=1`                 | Play the APK's opening in the browser                                                       |
+| Flag                       | Effect                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| `?seed=4`                  | A fixed round: the same screens and events every time                          |
+| `?fastTimers=1`            | Short animation waits (never the round clock or the step timers)               |
+| `?event=glitch`            | Force an event: `glitch`, `power`, `overheat-fast`, `overheat-slow`, or `none` |
+| `?transition=one-bug-left` | Loop one title's ending (`&half=1`: inside a duel half)                        |
+| `?intro=1`                 | Play the APK's opening in the browser                                          |
 
 The settings (the gear, top right) hold only the round length (45 / 60 / 75 s) and sound.
 
@@ -238,10 +236,12 @@ durur. Süre biterse tur kesilmez; sayaç kırmızıya döner ve ileri sayar.
    kendi süresi vardır. Yanlış yaparsan ya da süre biterse yalnızca o adımı kaybedersin, doğrusu
    gösterilir ve sıradaki adım gelir; aşama her zaman sonuna kadar oynanır.
    1. **Ölü Piksel:** rengi azıcık farklı kareyi bul. 5 ekran, her ekranda kareler çoğalır ve fark
-      azalır. Yanlış kare o ekranın süresinden 2 sn götürür.
+      azalır; her ekran başka bir panel (LCD, LED, elmas, petek, RGB) ve başka bir renk. Yanlış
+      kare o ekranın süresinden 2 sn götürür.
    2. **Dört Renk:** yanan renkleri izle, aynı sırayla tekrarla. 3 katman; son katmanda gösterimden
       sonra renk tuşları yer değiştirir.
-   3. **Işın Yolu:** aynalara dokunup çevir, ışın sunucuya ulaşsın. 3 hat, her hatta daha çok ayna.
+   3. **Işın Yolu:** aynalara dokunup çevir, ışın sunucuya ulaşsın. 3 hat, her hatta daha çok ayna;
+      ışın bazen soldan, bazen sağdan gelir, sunucu her yerde olabilir.
    4. **Renk Tuzağı:** bir renk adı başka renkte yazılır. Önce **yazısına** bas; "KURAL DEĞİŞTİ"
       uyarısından sonra **rengine** bas.
    5. **Basma Dedik (final):** tek kumanda kırmızı buton. BASILI TUT, 3 KEZ BAS, YEŞİLDE BAS,
@@ -254,15 +254,12 @@ durur. Süre biterse tur kesilmez; sayaç kırmızıya döner ve ileri sayar.
 
 ### Sürprizler
 
-Bir turda en fazla iki olay gelir:
+İlk ve son aşamada olay gelmez, bir turda en fazla iki olay olur:
 
 - **SYSTEM OVERHEAT!** Çok hızlıysan ekran "DOKUNMA!" der; dokunursan 5 sn kaybedersin. Çok
   yavaşsan dokunmadan beklersen 5 sn kazanırsın.
-- **GLITCH DETECTED!** Sıradaki aşama biraz bozulur: tuşlar yine yer değiştirir, bir ayna kendi
-  kendine döner, renk düğmeleri her cevaptan sonra kayar.
-- **EMERGENCY MODE!** (yalnız tek kişilikte) Ekran donar; **güvenli kanal** (kolay sürüm) ya da
-  **riskli kanal** (en zor sürüm; başarırsan +5 sn, başaramazsan −3 sn) seçersin. 4 sn okuma,
-  8 sn seçim süren var.
+- **GLITCH DETECTED!** Her turda bir kez gelir, bir aşama biraz bozulur: tuşlar yine yer
+  değiştirir, bir ayna kendi kendine döner, renk düğmeleri her cevaptan sonra kayar.
 - **POWER RESTORED!** Art arda iki iyi aşama kırmızı alarmı sakin bir turuncuya çevirir.
 
 ### 1v1 Düello
