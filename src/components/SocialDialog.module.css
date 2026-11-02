@@ -1,0 +1,110 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgb(4 6 12 / 0.72);
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.35s var(--ease-soft) backwards;
+}
+
+.box {
+  position: relative;
+  width: 560px;
+  padding: 30px 40px 32px;
+  border: 1px solid var(--rule);
+  border-left: 6px solid var(--cyan);
+  border-radius: var(--radius);
+  background: rgb(15 24 48 / 0.97);
+  box-shadow:
+    0 30px 80px rgb(0 0 0 / 0.55),
+    0 0 50px rgb(68 239 236 / 0.12);
+  text-align: center;
+  animation: rise-in 0.45s var(--ease-soft) backwards;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  padding: 19px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.close:active {
+  background: rgb(159 176 214 / 0.14);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+}
+
+.eyebrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.title {
+  margin: 10px 0 4px;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.lead {
+  margin: 0 0 18px;
+  font-size: 19px;
+  color: #d6def3;
+}
+
+/* the QR on white with a quiet zone, so any phone reads it */
+.qr {
+  display: inline-block;
+  padding: 14px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 0 40px rgb(68 239 236 / 0.25);
+}
+
+.qr img {
+  display: block;
+  width: 300px;
+  height: 300px;
+}
+
+.url {
+  margin: 16px 0 0;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+    filter: blur(4px);
+  }
+}

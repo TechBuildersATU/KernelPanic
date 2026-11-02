@@ -1,0 +1,279 @@
+.root {
+  --tone: var(--ok);
+  --tone-glow: 0 0 34px rgb(2 255 24 / 0.5);
+  position: absolute;
+  inset: 0;
+}
+
+.body {
+  position: absolute;
+  inset: 0;
+  /* see-through: the result sits in the same room (src/fx/World.tsx), a soft shade behind the text */
+  background: radial-gradient(ellipse at 50% 42%, rgb(9 14 29 / 0.62), transparent 72%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 70px;
+}
+
+/* everything rises a beat after the transition's words have gone — except the modules, which
+   are already flying out of the question screen (Result.tsx) */
+.body > :where(:not(ol:first-of-type)) {
+  animation: fade-in 0.7s 0.2s var(--ease-soft) backwards;
+}
+
+/* the title wears the stages' colour scale: green, lime, orange, red */
+.root[data-colour='good'] {
+  --tone: var(--grade-good);
+  --tone-glow: 0 0 34px rgb(184 245 61 / 0.45);
+}
+
+.root[data-colour='pass'] {
+  --tone: var(--grade-pass);
+  --tone-glow: 0 0 34px rgb(255 140 26 / 0.45);
+}
+
+.root[data-colour='fail'] {
+  --tone: var(--grade-fail);
+  --tone-glow: var(--glow-alarm);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.title {
+  margin: 14px 0 0;
+  font-family: var(--font-mono);
+  font-size: 84px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  line-height: 1.05;
+  text-align: center;
+  color: var(--tone);
+  text-shadow: var(--tone-glow);
+  animation: title-in 0.6s 0.15s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.title[data-long='true'] {
+  max-width: 1100px;
+  font-size: 54px;
+}
+
+@keyframes title-in {
+  from {
+    opacity: 0;
+    letter-spacing: 24px;
+    filter: blur(6px);
+  }
+}
+
+.line {
+  margin: 14px 0 32px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* stage name and score under each module */
+.captions {
+  display: flex;
+  gap: 22px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.captions li {
+  --c: var(--grade-fail);
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.captions li[data-grade='perfect'] {
+  --c: var(--grade-perfect);
+}
+
+.captions li[data-grade='good'] {
+  --c: var(--grade-good);
+}
+
+.captions li[data-grade='pass'] {
+  --c: var(--grade-pass);
+}
+
+.captions span {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.captions b {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--c);
+}
+
+.counts {
+  display: flex;
+  gap: 60px;
+  margin: 30px 0 0;
+}
+
+.count {
+  text-align: center;
+}
+
+.count dt {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.count dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.count[data-kind='ok'] dd {
+  color: var(--ok);
+}
+
+.count[data-kind='bad'] dd {
+  color: var(--alarm);
+}
+
+.count[data-kind='time'] dd {
+  color: var(--cyan);
+}
+
+.count[data-kind='time'] dd[data-over='true'] {
+  color: var(--alarm);
+}
+
+.unit {
+  margin-left: 6px;
+  font-family: var(--font-ui);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.actions {
+  position: absolute;
+  bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.primary,
+.secondary {
+  min-width: 260px;
+  min-height: 72px;
+  padding: 0 32px;
+  border-radius: var(--radius);
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+
+.primary {
+  border: 2px solid var(--cyan);
+  background: var(--cyan);
+  color: var(--night);
+  box-shadow: var(--glow-cyan);
+}
+
+.secondary {
+  border: 2px solid var(--rule);
+  background: rgb(15 24 48 / 0.9);
+  color: var(--ink);
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.96);
+}
+
+.clean {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  color: var(--ok);
+}
+
+.badges {
+  display: flex;
+  gap: 14px;
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badge {
+  --c: var(--cyan);
+  padding: 8px 16px;
+  border: 2px solid var(--c);
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c);
+  animation: badge-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation-delay: 1.2s;
+}
+
+.badge[data-kind='overheat'] {
+  --c: #ff9a52;
+}
+
+.badge[data-kind='glitch'] {
+  --c: var(--cyan);
+}
+
+.badge[data-kind='emergency'] {
+  --c: var(--warn);
+}
+
+.badge[data-kind='power'] {
+  --c: var(--ok);
+}
+
+@keyframes badge-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+/* A counter lands like a stamp when it reaches its final value. */
+.count dd[data-done='true'] {
+  animation: stamp 0.6s var(--ease-soft) both;
+}
+
+@keyframes stamp {
+  from {
+    transform: scale(1.18);
+    text-shadow: 0 0 24px currentColor;
+  }
+  to {
+    transform: scale(1);
+  }
+}

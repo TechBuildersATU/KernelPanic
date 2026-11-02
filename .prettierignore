@@ -1,0 +1,11 @@
+dist
+dev-dist
+docs
+public
+store
+playwright-report
+test-results
+package-lock.json
+android
+dist-apk
+.agents

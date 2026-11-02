@@ -1,0 +1,56 @@
+/* the four pads; their place on the 2×2 board is a translate, so trading places glides */
+.board {
+  --size: 250px;
+  --gap: 22px;
+  position: relative;
+  width: calc(var(--size) * 2 + var(--gap));
+  height: calc(var(--size) * 2 + var(--gap));
+}
+
+.pad {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  color: var(--c);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.22), transparent 48%), currentColor;
+  opacity: 0.28;
+  cursor: pointer;
+  transform: translate(
+    calc(var(--x) * (var(--size) + var(--gap))),
+    calc(var(--y) * (var(--size) + var(--gap)))
+  );
+  transition:
+    transform 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.14s,
+    box-shadow 0.14s,
+    scale 0.14s;
+}
+
+.board[data-input='true'] .pad {
+  opacity: 0.6;
+}
+
+.pad[data-lit='true'] {
+  opacity: 1;
+  scale: 1.04;
+  box-shadow:
+    0 0 50px currentColor,
+    inset 0 0 0 3px rgb(255 255 255 / 0.5);
+}
+
+.pad[data-wrong='true'] {
+  opacity: 0.9;
+  box-shadow:
+    0 0 0 5px var(--alarm),
+    0 0 36px rgb(255 45 74 / 0.6);
+}
+
+:global([data-layout='half']) .board {
+  --size: 200px;
+  --gap: 16px;
+}

@@ -1,0 +1,68 @@
+.banner {
+  --c: var(--alarm);
+  position: absolute;
+  left: 50%;
+  top: 92px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 520px;
+  padding: 10px 30px 12px;
+  border: 1px solid var(--c);
+  border-radius: 14px;
+  background: rgb(9 14 29 / 0.9);
+  box-shadow:
+    0 10px 40px rgb(0 0 0 / 0.45),
+    0 0 30px color-mix(in srgb, var(--c) 35%, transparent);
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: toast 1.8s var(--ease-soft) both;
+}
+
+.banner[data-kind='glitch'] {
+  --c: var(--cyan);
+}
+
+.banner[data-kind='power'] {
+  --c: var(--amber);
+}
+
+.banner[data-kind='emergency'] {
+  --c: var(--warn);
+}
+
+@keyframes toast {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -14px);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--c);
+  text-shadow: 0 0 20px var(--c);
+}
+
+.line {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}

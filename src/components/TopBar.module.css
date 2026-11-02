@@ -1,0 +1,160 @@
+.top {
+  position: absolute;
+  top: 18px;
+  left: 28px;
+  right: 28px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+/* the club signs its game: the logo, big, with its name next to it */
+.brand {
+  position: relative;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* a soft cyan light behind the logo (the artwork itself is never touched) */
+.halo {
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  width: 128px;
+  height: 128px;
+  margin-top: -64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(68 239 236 / 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+.logo {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* the club's name in its banner's colours: ATÜ white, TECH cyan, BUILDERS blue */
+.credit {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0 0 0 4px;
+  font-family: var(--font-brand);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.uni {
+  font-size: 17px;
+  letter-spacing: 0.32em;
+  color: var(--ink);
+}
+
+.club {
+  font-size: 24px;
+  letter-spacing: 0.06em;
+}
+
+.tech {
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgb(68 239 236 / 0.55);
+}
+
+.builders {
+  color: var(--cobalt-text);
+  text-shadow: 0 0 14px rgb(61 123 255 / 0.55);
+}
+
+.end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  transition:
+    color 0.8s var(--ease-in-out),
+    text-shadow 0.8s var(--ease-in-out);
+}
+
+.title[data-status='critical'] {
+  color: #ff8595;
+  text-shadow: var(--glow-alarm);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--muted);
+  transition:
+    border-color 0.6s,
+    background 0.6s,
+    color 0.6s;
+}
+
+.status[data-status='critical'] {
+  border-color: rgb(255 45 74 / 0.5);
+  background: rgb(255 45 74 / 0.12);
+  color: #ff8595;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 10px var(--ok);
+  transition:
+    background 0.4s,
+    box-shadow 0.4s;
+  animation: blink 2s steps(2, jump-none) infinite;
+}
+
+.status[data-status='critical'] .dot {
+  background: var(--alarm);
+  box-shadow: 0 0 14px var(--alarm);
+  animation-duration: 1s;
+}
+
+.statusText {
+  display: inline-block;
+  animation: status-in 0.5s var(--ease-soft) backwards;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes status-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    filter: blur(3px);
+  }
+}

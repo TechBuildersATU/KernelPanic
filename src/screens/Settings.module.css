@@ -1,0 +1,117 @@
+.root {
+  position: absolute;
+  inset: 0;
+  padding: 44px 90px;
+  background: var(--night);
+  animation: screen-in 0.6s var(--ease-soft) backwards;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.sub {
+  margin: 4px 0 14px;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: center;
+  gap: 8px 24px;
+  padding: 11px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.row h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.segment,
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.segment button,
+.toggle,
+.step,
+.close {
+  min-width: 64px;
+  min-height: 64px;
+  padding: 0 22px;
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--panel);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.segment button[aria-pressed='true'],
+.toggle[aria-pressed='true'] {
+  border-color: var(--cyan);
+  background: rgb(68 239 236 / 0.18);
+  color: var(--cyan);
+}
+
+.step:disabled {
+  opacity: 0.4;
+}
+
+.segment button:active,
+.toggle:active,
+.step:active,
+.close:active {
+  transform: scale(0.96);
+}
+
+.value {
+  min-width: 70px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  text-align: center;
+}
+
+.note {
+  grid-column: 2;
+  margin: 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.close {
+  position: absolute;
+  right: 90px;
+  bottom: 40px;
+  min-width: 220px;
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: var(--night);
+}
+
+/* Shared soft entrances (local to this module). */
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+    filter: blur(6px);
+  }
+}
+
+@keyframes soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+}

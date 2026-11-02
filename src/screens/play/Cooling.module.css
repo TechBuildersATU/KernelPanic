@@ -1,0 +1,131 @@
+.root {
+  position: absolute;
+  top: 118px;
+  left: 70px;
+  right: 70px;
+  bottom: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border: 2px solid var(--warn);
+  border-radius: var(--radius);
+  background: rgb(15 24 48 / 0.94);
+  animation: panel-in 0.45s var(--ease-soft) backwards;
+  transition:
+    border-color 0.5s,
+    box-shadow 0.5s;
+}
+
+.root[data-result='ok'] {
+  border-color: var(--cyan);
+  box-shadow: 0 0 50px rgb(68 239 236 / 0.25);
+}
+
+.root[data-result='fail'] {
+  border-color: var(--alarm);
+}
+
+/* too fast and touched: the core heats up again — the panel glows red from inside */
+.root[data-mode='fast'][data-result='fail'] {
+  box-shadow:
+    0 0 50px rgb(255 45 74 / 0.3),
+    inset 0 0 90px rgb(255 45 74 / 0.35);
+}
+
+.root[data-mode='fast'][data-result='fail'] .lead {
+  color: #ff8595;
+  font-weight: 700;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+    filter: blur(2px);
+  }
+}
+
+/* covers the whole stage (the panel's offsets reversed) */
+.catcher {
+  position: absolute;
+  top: -118px;
+  left: -70px;
+  right: -70px;
+  bottom: -70px;
+  z-index: 2;
+}
+
+.title {
+  margin: 0;
+  font-size: 84px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--warn);
+  text-shadow: 0 0 30px rgb(255 176 32 / 0.5);
+}
+
+.gauge {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: grid;
+  place-items: center;
+}
+
+.gauge svg {
+  position: absolute;
+  inset: 0;
+  rotate: -90deg;
+}
+
+.track,
+.ring {
+  fill: none;
+  stroke-width: 12;
+}
+
+.track {
+  stroke: rgb(159 176 214 / 0.15);
+}
+
+.ring {
+  --t: 0;
+  stroke: var(--cyan);
+  stroke-linecap: round;
+  stroke-dasharray: 540.4;
+  stroke-dashoffset: calc(540.4 * (1 - var(--t)));
+  filter: drop-shadow(0 0 8px rgb(68 239 236 / 0.6));
+}
+
+.root[data-result='fail'] .ring {
+  stroke: var(--alarm);
+  transition: stroke 0.4s;
+}
+
+.temp {
+  font-family: var(--font-mono);
+  font-size: 54px;
+  font-weight: 700;
+  transition: color 0.5s;
+}
+
+.temp[data-heat='hot'] {
+  color: var(--alarm);
+}
+
+.temp[data-heat='warm'] {
+  color: var(--warn);
+}
+
+.temp[data-heat='cool'] {
+  color: var(--cyan);
+}
+
+.lead {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  color: var(--ink);
+}

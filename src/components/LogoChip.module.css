@@ -1,0 +1,128 @@
+/* The logo in its chip (LogoChip.tsx): the frame sits around the logo, under it, and never takes
+   a touch. */
+.chip {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.chip > :not(.frame) {
+  position: relative;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.traces path {
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+
+.vias circle {
+  fill: var(--night);
+  stroke: var(--cyan);
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+
+/* light runs out along the traces now and then, from the ring to the via */
+.pulses path {
+  fill: none;
+  stroke: #c9fffb;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 9 200;
+  stroke-dashoffset: 9;
+  filter: drop-shadow(0 0 3px var(--cyan));
+  animation: pulse 3.4s linear infinite;
+}
+
+@keyframes pulse {
+  0% {
+    stroke-dashoffset: 9;
+  }
+  45%,
+  100% {
+    stroke-dashoffset: -100;
+  }
+}
+
+.outer {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+/* the ring glows like the banner's, breathing slowly */
+.ring {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 5px var(--cyan)) drop-shadow(0 0 12px rgb(68 239 236 / 0.6));
+  animation: breathe 4s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes breathe {
+  to {
+    filter: drop-shadow(0 0 3px var(--cyan)) drop-shadow(0 0 7px rgb(68 239 236 / 0.4));
+  }
+}
+
+/* the opening: the ring closes, then the traces draw out of it one after another and their
+   vias light up; the pulses wait until the traces are there */
+.chip[data-boot] .ring {
+  stroke-dasharray: 100;
+  animation:
+    ring-draw 0.8s 0.15s var(--ease-soft) backwards,
+    breathe 4s 1s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes ring-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+.chip[data-boot] .traces path {
+  stroke-dasharray: 100;
+  animation: trace-draw 0.7s calc(0.55s + var(--i) * 0.03s) var(--ease-soft) backwards;
+}
+
+@keyframes trace-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+.chip[data-boot] .vias circle {
+  animation: via-in 0.4s calc(1s + var(--i) * 0.03s) var(--ease-soft) backwards;
+}
+
+@keyframes via-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.chip[data-boot] .pulses {
+  animation: via-in 0.4s 1.6s backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulses {
+    display: none;
+  }
+
+  .ring {
+    animation: none;
+  }
+}

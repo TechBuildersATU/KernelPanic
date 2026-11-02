@@ -1,0 +1,159 @@
+.world {
+  --grid: var(--cyan);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #131a33, var(--night) 75%);
+}
+
+/* the floor: a perspective grid drifting towards the viewer, tinted by the room's light */
+.grid {
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  bottom: -30%;
+  height: 70%;
+  color: var(--grid);
+  background-image:
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: 0.16;
+  transform: perspective(420px) rotateX(64deg);
+  transform-origin: 50% 0;
+  mask: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+  animation: grid-drift 6s linear infinite;
+  transition: color 1.2s var(--ease-in-out);
+}
+
+@keyframes grid-drift {
+  to {
+    background-position: 0 64px;
+  }
+}
+
+.world[data-light='alarm'],
+.world[data-light='normal'],
+.world[data-light='crash'] {
+  --grid: var(--alarm);
+}
+
+.world[data-light='calm'],
+.world[data-light='overheat'],
+.world[data-light='emergency'],
+.world[data-light='close'] {
+  --grid: var(--warn);
+}
+
+.world[data-light='good'] {
+  --grid: var(--ok);
+}
+
+/* lights of the room: one per mood, cross-fading — the new light comes up first and the old one
+   lets go after it, so a change of mood never dips through a dark room */
+.light {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.3s var(--ease-in-out) 0.35s;
+}
+
+.light[data-on='true'] {
+  opacity: 1;
+  transition: opacity 0.9s var(--ease-in-out);
+}
+
+.light[data-light='idle'] {
+  background:
+    radial-gradient(circle at 50% 54%, rgb(255 45 74 / 0.12), transparent 40%),
+    radial-gradient(ellipse at 50% 0%, rgb(68 239 236 / 0.12), transparent 60%);
+}
+
+/* the crashed system: a red room breathing once a second (the breath is an inner layer: an
+   animation on the light's own opacity would stop it from fading out softly) */
+.light[data-light='alarm']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgb(60 6 18 / 0.5) 20%, rgb(255 45 74 / 0.5) 100%);
+  animation: breathe 2s ease-in-out infinite alternate;
+}
+
+/* during a round the red fades as modules get repaired (--crisis 1 → 0) */
+.light[data-light='normal'] {
+  background: radial-gradient(ellipse at center, transparent 40%, rgb(255 45 74 / 0.5) 100%);
+}
+
+.light[data-light='normal'][data-on='true'] {
+  opacity: calc(0.25 + var(--crisis) * 0.6);
+}
+
+/* after Power Restored the alarm cools to a calmer orange */
+.light[data-light='calm'] {
+  background: radial-gradient(ellipse at center, transparent 38%, rgb(255 140 60 / 0.45) 100%);
+}
+
+.light[data-light='overheat'] {
+  background: radial-gradient(ellipse at 50% 115%, rgb(255 110 40 / 0.6), transparent 70%);
+}
+
+.light[data-light='emergency'] {
+  background: radial-gradient(ellipse at center, transparent 42%, rgb(255 176 32 / 0.42) 100%);
+}
+
+.light[data-light='glitch'] {
+  background: radial-gradient(ellipse at center, transparent 42%, rgb(68 239 236 / 0.3) 100%);
+}
+
+.light[data-light='good'] {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgb(2 255 24 / 0.16), transparent 60%),
+    radial-gradient(ellipse at center, transparent 50%, rgb(2 255 24 / 0.12) 100%);
+}
+
+.light[data-light='close'] {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgb(255 176 32 / 0.14), transparent 60%),
+    radial-gradient(ellipse at center, transparent 50%, rgb(255 176 32 / 0.1) 100%);
+}
+
+.light[data-light='crash'] {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgb(255 45 74 / 0.16), transparent 60%),
+    radial-gradient(ellipse at center, transparent 45%, rgb(255 45 74 / 0.18) 100%);
+}
+
+/* the last ten seconds: the red breathes faster over everything */
+.lowPulse {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-in-out);
+}
+
+.lowPulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgb(255 45 74 / 0.55) 100%);
+  animation: breathe 1s ease-in-out infinite alternate;
+}
+
+.world[data-low='true'] .lowPulse {
+  opacity: 1;
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+[data-reduce-effects='true'] .grid {
+  animation: none;
+}

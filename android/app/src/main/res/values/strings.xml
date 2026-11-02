@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KERNEL PANIC</string>
+    <string name="title_activity_main">KERNEL PANIC</string>
+    <string name="package_name">com.atutechbuilders.kernelpanic</string>
+    <string name="custom_url_scheme">com.atutechbuilders.kernelpanic</string>
+</resources>

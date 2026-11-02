@@ -1,0 +1,238 @@
+.game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 48px 34px;
+}
+
+.top {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.part {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.part b {
+  color: var(--ink);
+}
+
+.part span {
+  color: #ffd166;
+}
+
+.middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.rule {
+  margin: 0;
+  padding: 10px 24px;
+  border: 2px solid rgb(255 255 255 / 0.55);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.06);
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  animation: pop-in 0.4s var(--ease-soft) backwards;
+}
+
+.rule[data-rule='1'] {
+  border-color: var(--warn);
+  color: var(--warn);
+  background: rgb(255 176 32 / 0.1);
+}
+
+.word {
+  margin: 0;
+  font-size: 128px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 40px currentColor;
+  animation: pop-in 0.3s var(--ease-soft) backwards;
+}
+
+.ready {
+  color: var(--ink);
+  text-shadow: none;
+  font-size: 72px;
+  opacity: 0.8;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+/* four colour buttons; their place in the row is a translate, so trading places glides */
+.row {
+  --w: 228px;
+  --gap: 26px;
+  position: relative;
+  width: calc(var(--w) * 4 + var(--gap) * 3);
+  height: 116px;
+}
+
+.swatch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--w);
+  height: 116px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: var(--sw);
+  box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.18);
+  cursor: pointer;
+  transform: translateX(calc(var(--place) * (var(--w) + var(--gap))));
+  transition:
+    transform 0.55s cubic-bezier(0.65, 0, 0.35, 1),
+    box-shadow 0.25s,
+    scale 0.12s,
+    opacity 0.3s;
+}
+
+.swatch:active {
+  scale: 0.96;
+}
+
+.swatch[data-show='ok'],
+.swatch[data-show='right'] {
+  box-shadow:
+    0 0 0 5px var(--night),
+    0 0 0 9px var(--ok),
+    0 0 30px rgb(2 255 24 / 0.6);
+}
+
+.swatch[data-show='no'] {
+  opacity: 0.55;
+  box-shadow:
+    0 0 0 5px var(--night),
+    0 0 0 9px var(--alarm);
+}
+
+.clock {
+  width: 460px;
+  margin-top: 22px;
+}
+
+.clock > div {
+  max-width: none;
+}
+
+/* the rule change: an amber panel over the game, its frame pulsing twice a second */
+.warn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-radius: var(--radius);
+  background: rgb(9 14 29 / 0.9);
+  box-shadow:
+    inset 0 0 0 3px var(--warn),
+    inset 0 0 90px rgb(255 176 32 / 0.3);
+  animation:
+    warn-in 0.35s var(--ease-soft) backwards,
+    warn-pulse 0.5s steps(2, end) 0.35s 3;
+}
+
+.warn b {
+  font-size: 76px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--warn);
+  text-shadow: 0 0 30px rgb(255 176 32 / 0.5);
+}
+
+.warn span {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  color: var(--ink);
+}
+
+@keyframes warn-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes warn-pulse {
+  50% {
+    box-shadow:
+      inset 0 0 0 3px transparent,
+      inset 0 0 90px transparent;
+  }
+}
+
+[data-reduce-effects='true'] .warn {
+  animation: warn-in 0.35s var(--ease-soft) backwards;
+}
+
+/* one player's half of the duel */
+:global([data-layout='half']) .game {
+  padding: 16px 18px 18px;
+}
+
+:global([data-layout='half']) .part {
+  font-size: 14px;
+}
+
+:global([data-layout='half']) .rule {
+  padding: 8px 16px;
+  font-size: 18px;
+}
+
+:global([data-layout='half']) .word {
+  font-size: 72px;
+}
+
+:global([data-layout='half']) .ready {
+  font-size: 44px;
+}
+
+:global([data-layout='half']) .row {
+  --w: 132px;
+  --gap: 12px;
+  height: 92px;
+}
+
+:global([data-layout='half']) .swatch {
+  height: 92px;
+}
+
+:global([data-layout='half']) .clock {
+  width: 300px;
+  margin-top: 14px;
+}
+
+:global([data-layout='half']) .warn b {
+  font-size: 42px;
+}
+
+:global([data-layout='half']) .warn span {
+  font-size: 20px;
+}

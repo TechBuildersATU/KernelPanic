@@ -1,0 +1,484 @@
+/* The round's screen. Motion rule: soft eases (--ease-soft), nothing jumps in from nowhere —
+   the stage card stays put, the stages change inside it, and the background moods
+   cross-fade as layers. */
+
+.root {
+  --crisis: 1;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* the room (code rain, grid, the light of each mood) is the shared world: src/fx/World.tsx */
+  /* the night background is there at once (the hack screen fades onto it); only the content rises in */
+}
+
+/* Power Restored: a soft light blooms out of the system HUD (top right). */
+.powerBloom {
+  position: absolute;
+  right: -260px;
+  top: -300px;
+  width: 760px;
+  height: 760px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgb(255 190 120 / 0.55),
+    rgb(255 140 60 / 0.25) 40%,
+    transparent 70%
+  );
+  animation: bloom 1.8s var(--ease-soft) both;
+}
+
+@keyframes bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* ── HUD ─────────────────────────────────────────────────────────────────── */
+.hud {
+  position: absolute;
+  top: 24px;
+  left: 36px;
+  right: 36px;
+  display: grid;
+  grid-template-columns: 220px 1fr 300px;
+  align-items: center;
+  gap: 32px;
+  animation: hud-in 0.5s 0.05s var(--ease-soft) backwards;
+}
+
+@keyframes hud-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+/* Power Restored: the HUD brightens gently, like the lights coming back. (On its children: a
+   new animation on the HUD itself would replay its entrance once the glow is over.) */
+.hud[data-power='true'] > * {
+  animation: hud-power 1.6s var(--ease-soft) both;
+}
+
+@keyframes hud-power {
+  0% {
+    filter: brightness(0.6);
+  }
+  35% {
+    filter: brightness(1.5) drop-shadow(0 0 14px rgb(255 154 82 / 0.7));
+  }
+  100% {
+    filter: none;
+  }
+}
+
+.mission {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.mission strong {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.stageName {
+  display: block;
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.timer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.bar {
+  flex: 1;
+  height: 22px;
+  padding: 3px;
+  border: 2px solid var(--rule);
+  border-radius: 6px;
+  background: rgb(9 14 29 / 0.8);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  transform-origin: left;
+  background: repeating-linear-gradient(90deg, var(--cyan) 0 14px, rgb(68 239 236 / 0.7) 14px 18px);
+  box-shadow: var(--glow-cyan);
+  transition:
+    transform 0.1s linear,
+    background 0.6s,
+    box-shadow 0.6s,
+    opacity 0.4s;
+}
+
+/* the player only watches (a title card, the colours lighting up, a grade card): the clock
+   stands still, its bar dims a little */
+.root[data-held='true'] .fill {
+  opacity: 0.6;
+}
+
+.time {
+  min-width: 112px;
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: color 0.6s;
+}
+
+.root[data-low='true'] .fill {
+  background: repeating-linear-gradient(90deg, var(--alarm) 0 14px, rgb(255 45 74 / 0.7) 14px 18px);
+  box-shadow: var(--glow-alarm);
+}
+
+.root[data-low='true'] .time {
+  color: var(--alarm);
+}
+
+/* the clock ran out: the stages are still played, the time counts on in red */
+.root[data-overtime='true'] .time {
+  color: var(--alarm);
+}
+
+.overChip {
+  position: absolute;
+  right: -2px;
+  top: -26px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--alarm);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  animation: soft-in var(--dur-m) var(--ease-soft) backwards;
+}
+
+/* Overheat: the round clock is frozen while the cooling runs on its own clock. */
+.root[data-paused='true'] .fill {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgb(160 230 255 / 0.9) 0 8px,
+    rgb(160 230 255 / 0.55) 8px 16px
+  );
+  box-shadow: 0 0 18px rgb(160 230 255 / 0.6);
+}
+
+.root[data-paused='true'] .time {
+  color: #a0e6ff;
+}
+
+.pausedChip {
+  position: absolute;
+  right: -2px;
+  top: -26px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: #a0e6ff;
+  color: var(--night);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  animation: soft-in var(--dur-m) var(--ease-soft) backwards;
+}
+
+/* "+8 sn" / "−3 sn" rising softly out of the timer. */
+.shift {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  animation: shift-up 1.8s var(--ease-soft) both;
+}
+
+.shift[data-tone='ok'] {
+  color: var(--ok);
+  text-shadow: 0 0 16px rgb(2 255 24 / 0.6);
+}
+
+.shift[data-tone='bad'] {
+  color: var(--alarm);
+  text-shadow: var(--glow-alarm);
+}
+
+@keyframes shift-up {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.integrity {
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.integrityLabel {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.integrityLabel strong {
+  color: var(--ink);
+}
+
+/* ── Stage card (stays put for the whole round; the stages change inside it) ─── */
+.card {
+  position: absolute;
+  top: 118px;
+  left: 70px;
+  right: 70px;
+  bottom: 70px;
+  border: 1px solid var(--rule);
+  border-left: 6px solid var(--cyan);
+  border-radius: var(--radius);
+  background: rgb(15 24 48 / 0.88);
+  overflow: hidden;
+  animation: rise-in 0.55s 0.1s var(--ease-soft) backwards;
+  transition:
+    border-color 0.6s,
+    box-shadow 0.6s,
+    opacity 0.35s var(--ease-soft),
+    transform 0.35s var(--ease-soft),
+    filter 0.35s var(--ease-soft);
+}
+
+/* An event panel takes the stage: the card sinks back and fades out under it. */
+.card[data-dim='true'] {
+  opacity: 0;
+  transform: scale(0.97);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.card[data-kind='final'],
+.card[data-kind='risky'] {
+  border-left-color: var(--alarm);
+  box-shadow: 0 0 40px rgb(255 45 74 / 0.22);
+}
+
+.card[data-kind='safe'] {
+  border-left-color: var(--ok);
+}
+
+.card[data-kind='glitch'] {
+  border-left-color: var(--warn);
+  box-shadow: 0 0 40px rgb(255 176 32 / 0.18);
+}
+
+/* ── Log + feedback ──────────────────────────────────────────────────────── */
+.log {
+  position: absolute;
+  left: 70px;
+  bottom: 30px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 19px;
+  color: var(--muted);
+  transition: color 0.4s;
+}
+
+.logText {
+  display: inline-block;
+  animation: soft-in 0.4s var(--ease-soft) backwards;
+}
+
+.log[data-tone='ok'] {
+  color: var(--ok);
+}
+
+.log[data-tone='bad'] {
+  color: #ff8595;
+}
+
+[data-reduce-effects='true'] .powerBloom {
+  animation: none;
+}
+
+/* the house: hold it to go back to the button screen */
+.home {
+  position: absolute;
+  right: 24px;
+  bottom: 4px;
+}
+
+/* ── One player's half of the duel (640 px wide; DuelPlay.tsx) ───────────────────────────── */
+.root[data-layout='half'] .hud {
+  top: 14px;
+  left: 18px;
+  right: 18px;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+}
+
+.root[data-layout='half'] .timer {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  gap: 12px;
+}
+
+.root[data-layout='half'] .integrity {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.root[data-layout='half'] .mission {
+  font-size: 18px;
+}
+
+.root[data-layout='half'] .mission strong {
+  font-size: 32px;
+}
+
+.root[data-layout='half'] .time {
+  min-width: 96px;
+  font-size: 28px;
+}
+
+.root[data-layout='half'] .bar {
+  height: 18px;
+}
+
+.root[data-layout='half'] .integrityLabel {
+  font-size: 14px;
+}
+
+.root[data-layout='half'] .card {
+  top: 124px;
+  left: 14px;
+  right: 14px;
+  bottom: 48px;
+}
+
+.root[data-layout='half'] .log {
+  left: 18px;
+  right: 150px;
+  bottom: 14px;
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.root[data-layout='half'] .powerBloom {
+  right: -380px;
+}
+
+/* the event panels take the half's card place, smaller */
+.root[data-layout='half'] :global([data-testid='emergency']),
+.root[data-layout='half'] :global([data-testid='overheat']),
+.root[data-layout='half'] :global([data-testid='cooling']) {
+  top: 124px;
+  left: 14px;
+  right: 14px;
+  bottom: 48px;
+  padding: 10px 20px 0;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) h2,
+.root[data-layout='half'] :global([data-testid='overheat']) h2 {
+  font-size: 38px;
+  letter-spacing: 2px;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) > div:has(> button) {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) button {
+  min-height: 0;
+  padding: 16px 20px;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) button span:first-child {
+  font-size: 24px;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) button span:last-child {
+  font-size: 18px;
+}
+
+.root[data-layout='half'] :global([data-testid='emergency']) p,
+.root[data-layout='half'] :global([data-testid='overheat']) p,
+.root[data-layout='half'] :global([data-testid='cooling']) p {
+  font-size: 20px;
+  text-align: center;
+}
+
+.root[data-layout='half'] :global([data-testid='cooling']) p:first-of-type {
+  font-size: 60px;
+}
+
+.root[data-layout='half'] :global([data-testid^='banner-']) {
+  min-width: 0;
+  width: 560px;
+  top: 112px;
+}
+
+/* Shared soft entrances (local to this module). */
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+    filter: blur(6px);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(3px);
+  }
+}
+
+@keyframes soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+}

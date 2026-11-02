@@ -1,0 +1,65 @@
+.home {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 19px;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: rgb(15 24 48 / 0.85);
+  color: var(--muted);
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  transition:
+    color 0.2s,
+    transform 0.1s;
+}
+
+.home[data-holding='true'] {
+  color: var(--ink);
+  transform: scale(0.95);
+}
+
+/* the ring fills while the button is held */
+.ring {
+  position: absolute;
+  inset: -1px;
+  rotate: -90deg;
+  pointer-events: none;
+}
+
+.ring circle {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 183;
+  stroke-dashoffset: 183;
+  filter: drop-shadow(0 0 6px rgb(68 239 236 / 0.6));
+}
+
+.home[data-holding='true'] .ring circle {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--hold) linear;
+}
+
+.hint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: 2px;
+  translate: -50% 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.home[data-holding='true'] .hint {
+  opacity: 1;
+}

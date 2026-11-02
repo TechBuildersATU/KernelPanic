@@ -1,0 +1,156 @@
+/* The board is drawn in grid units (one cell = 1); the SVG scales it to the field. */
+.board {
+  width: 100%;
+  height: 100%;
+  max-height: 540px;
+  overflow: visible;
+  animation: board-in 0.6s var(--ease-soft) backwards;
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(6px);
+  }
+}
+
+.plate {
+  fill: #070c1a;
+  stroke: rgb(68 239 236 / 0.22);
+  stroke-width: 0.02;
+}
+
+.gridLine {
+  stroke: rgb(159 176 214 / 0.08);
+  stroke-width: 0.015;
+}
+
+.wall {
+  fill: #1b2446;
+}
+
+.hatch {
+  stroke: rgb(159 176 214 / 0.25);
+  stroke-width: 0.035;
+  stroke-linecap: round;
+}
+
+.emitter {
+  fill: #16234a;
+  stroke: var(--cyan);
+  stroke-width: 0.025;
+}
+
+.emitterDot {
+  fill: var(--cyan);
+}
+
+.serverBox {
+  fill: #16234a;
+  stroke: rgb(159 176 214 / 0.55);
+  stroke-width: 0.025;
+  transition:
+    fill 0.4s,
+    stroke 0.4s;
+}
+
+.serverBar {
+  fill: rgb(159 176 214 / 0.35);
+  transition: fill 0.4s;
+}
+
+.board[data-linked='true'] .serverBox {
+  fill: rgb(2 255 24 / 0.22);
+  stroke: var(--ok);
+}
+
+.board[data-linked='true'] .serverBar {
+  fill: var(--ok);
+}
+
+/* the beam: a glowing line, with data running along it */
+.beam {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 0.1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: stroke 0.4s;
+}
+
+.flow {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.85);
+  stroke-width: 0.035;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 0.22 0.3;
+  animation: flow 0.9s linear infinite;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -0.52;
+  }
+}
+
+.board[data-linked='true'] .beam {
+  stroke: var(--ok);
+}
+
+.board[data-phase='reveal'][data-linked='true'] .beam {
+  stroke: var(--warn);
+}
+
+.blocked {
+  fill: var(--alarm);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blocked 0.9s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes blocked {
+  to {
+    scale: 1.6;
+    opacity: 0.55;
+  }
+}
+
+.spot {
+  cursor: pointer;
+}
+
+.hit {
+  fill: transparent;
+}
+
+.ring {
+  fill: rgb(68 239 236 / 0.06);
+  stroke: rgb(68 239 236 / 0.3);
+  stroke-width: 0.02;
+  transition:
+    fill 0.2s,
+    stroke 0.2s;
+}
+
+.spot:active .ring {
+  fill: rgb(68 239 236 / 0.18);
+  stroke: var(--cyan);
+}
+
+.mirror {
+  fill: #e8eeff;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: rotate 0.2s var(--ease-soft);
+}
+
+[data-reduce-effects='true'] .flow,
+[data-reduce-effects='true'] .blocked {
+  animation: none;
+}
+
+:global([data-layout='half']) .board {
+  max-height: 100%;
+}

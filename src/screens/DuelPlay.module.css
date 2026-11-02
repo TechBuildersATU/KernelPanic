@@ -1,0 +1,205 @@
+.root {
+  position: absolute;
+  inset: 0;
+}
+
+/* each half is its own screen: its own stacking and clip, so it only takes its own touches */
+.half {
+  --pc: var(--p1);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 632px;
+  overflow: hidden;
+  isolation: isolate;
+  animation: half-in 0.6s var(--ease-soft) backwards;
+}
+
+.half[data-side='1'] {
+  left: 0;
+}
+
+.half[data-side='2'] {
+  --pc: var(--p2);
+  right: 0;
+  animation-delay: 0.08s;
+}
+
+/* the player's colour runs along the top edge of their half */
+.half::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 4px;
+  background: var(--pc);
+  box-shadow: 0 0 14px var(--pc);
+  pointer-events: none;
+}
+
+@keyframes half-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+
+.tag {
+  position: absolute;
+  right: 18px;
+  bottom: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--pc);
+  pointer-events: none;
+}
+
+.tag b {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--pc);
+  color: var(--night);
+  letter-spacing: 0;
+}
+
+/* the seam between the halves, "VS" in the middle */
+.divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 632px;
+  width: 16px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--p1) 40%, transparent),
+    transparent 30%,
+    transparent 70%,
+    color-mix(in srgb, var(--p2) 40%, transparent)
+  );
+  pointer-events: none;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  width: 2px;
+  background: var(--rule);
+}
+
+.divider span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  translate: -50% -50%;
+  border: 2px solid var(--rule);
+  border-radius: 14px;
+  background: var(--night);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* the house sits on the seam right under VS: no text of either half is there (at the bottom it
+   covered player 1's tag and the corners of both cards) */
+.home {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 40px);
+  translate: -50% 0;
+}
+
+/* finished first: the half dims and shows the title, waiting for the other */
+.waiting {
+  --c: var(--grade-fail);
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: radial-gradient(ellipse at center, rgb(9 14 29 / 0.92), rgb(9 14 29 / 0.78) 80%);
+  animation: half-in 0.7s var(--ease-soft) backwards;
+}
+
+.waiting[data-colour='perfect'] {
+  --c: var(--grade-perfect);
+}
+
+.waiting[data-colour='good'] {
+  --c: var(--grade-good);
+}
+
+.waiting[data-colour='pass'] {
+  --c: var(--grade-pass);
+}
+
+.waiting p {
+  margin: 0;
+  text-align: center;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+
+.title {
+  max-width: 560px;
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--c) 50%, transparent);
+}
+
+.points {
+  font-size: 20px;
+  color: #d6def3;
+}
+
+.points b {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  color: var(--ink);
+}
+
+.wait {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--pc);
+}
+
+.wait span {
+  animation: dots 1.2s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  50% {
+    opacity: 0.2;
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- the night blue of the club logo, as in src/styles/tokens.css -->
+    <color name="ic_launcher_background">#090E1D</color>
+    <color name="night">#090E1D</color>
+</resources>

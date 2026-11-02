@@ -1,0 +1,59 @@
+/* KERNEL PANIC design tokens — taken from the club logo (store/logo/, sampled pixels).
+   Keep the hex values in sync with src/game/palette.ts. */
+:root {
+  /* Logo colours */
+  --night: #090e1d; /* logo background */
+  --cyan: #44efec; /* ring, "TECH" */
+  --cobalt: #0040e0; /* "BUILDERS" — fills and accents only, too dark for text on --night */
+  --cobalt-text: #3d7bff; /* "BUILDERS" as text on --night (the club banner's blue) */
+  --code-green: #02ff18; /* the { } in "TE{H" */
+  --white: #ffffff; /* "ATÜ" */
+
+  /* Surfaces */
+  --bg: var(--night);
+  --panel: #0f1830;
+  --panel-hi: #16234a;
+  --rule: rgb(68 239 236 / 0.28);
+
+  /* Text */
+  --ink: var(--white);
+  --muted: #9fb0d6;
+
+  /* Game states — not in the logo on purpose: the drama needs alarm colours, and the red
+     button is the strongest contrast on the night blue (§9). */
+  --alarm: #ff2d4a;
+  --alarm-deep: #9c0f26;
+  --warn: #ffb020;
+  --amber: #ff9a52; /* the calmer orange after Power Restored */
+  --ok: var(--code-green);
+
+  /* Duel (§2.5): the two players' colours, as in BuildArena — blue 1 on the left, orange 2 on
+     the right; always shown with the player's number */
+  --p1: #5b8cff;
+  --p2: #ff9a52;
+
+  /* Stage grades (§5.1): all right → green, more than 75 % → lime, 50–75 % → orange, less → red */
+  --grade-perfect: var(--code-green);
+  --grade-good: #b8f53d;
+  --grade-pass: #ff8c1a;
+  --grade-fail: var(--alarm);
+
+  /* Type */
+  --font-ui: 'Chakra Petch', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* the club's name only, like on its banner */
+  --font-brand: 'Orbitron', var(--font-ui);
+
+  /* Motion: soft eases only — things glide in and settle, nothing snaps (Faz 4). */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-s: 0.25s;
+  --dur-m: 0.45s;
+  --dur-l: 0.8s;
+
+  /* Shape and touch */
+  --radius: 14px;
+  --touch: 64px;
+  --glow-cyan: 0 0 24px rgb(68 239 236 / 0.45);
+  --glow-alarm: 0 0 40px rgb(255 45 74 / 0.6);
+}

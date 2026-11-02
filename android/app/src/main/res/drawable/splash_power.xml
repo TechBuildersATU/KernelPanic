@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launch screen icon (Android 12+): on the night blue, the red button's power symbol draws itself,
+  then a cyan ring draws around it and keeps turning while the game loads. MainActivity keeps the
+  launch screen up until the web app's opening animation is ready, so the wait is never an empty
+  page. 240dp canvas; everything stays inside the 160dp circle the system shows.
+-->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="240dp"
+            android:height="240dp"
+            android:viewportWidth="240"
+            android:viewportHeight="240">
+            <path
+                android:name="track"
+                android:pathData="M120,72 A48,48 0 1,1 119.99,72"
+                android:strokeColor="#1B2446"
+                android:strokeWidth="6" />
+            <group
+                android:name="spin"
+                android:pivotX="120"
+                android:pivotY="120">
+                <path
+                    android:name="ring"
+                    android:pathData="M120,72 A48,48 0 0,1 168,120"
+                    android:strokeColor="#44EFEC"
+                    android:strokeWidth="6"
+                    android:strokeLineCap="round"
+                    android:trimPathEnd="0" />
+            </group>
+            <path
+                android:name="powerArc"
+                android:pathData="M104.4,102 A22,22 0 1,0 135.6,102"
+                android:strokeColor="#FF2D4A"
+                android:strokeWidth="8"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+            <path
+                android:name="powerLine"
+                android:pathData="M120,92 L120,118"
+                android:strokeColor="#FF2D4A"
+                android:strokeWidth="8"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+        </vector>
+    </aapt:attr>
+
+    <target android:name="powerLine">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:duration="220"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+    <target android:name="powerArc">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:startOffset="160"
+                android:duration="380"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+    <target android:name="ring">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:startOffset="420"
+                android:duration="320"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+    <target android:name="spin">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="rotation"
+                android:valueFrom="0"
+                android:valueTo="360"
+                android:duration="1100"
+                android:repeatCount="infinite"
+                android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+</animated-vector>

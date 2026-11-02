@@ -1,0 +1,6 @@
+# LF in the repo and in every checkout, so Prettier passes on Windows clones too
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.png binary
+*.pdf binary

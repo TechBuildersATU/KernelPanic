@@ -1,0 +1,112 @@
+.cells {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  --c: rgb(159 176 214 / 0.35);
+  width: 34px;
+  height: 22px;
+  border: 2px solid var(--c);
+  border-radius: 4px;
+  background: rgb(15 24 48 / 0.8);
+  transition:
+    background 0.5s,
+    border-color 0.5s,
+    box-shadow 0.5s;
+}
+
+.cells[data-size='large'] {
+  gap: 22px;
+}
+
+.cells[data-size='large'] .cell {
+  width: 150px;
+  height: 72px;
+  border-width: 3px;
+  border-radius: 10px;
+  animation: cell-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  animation-delay: calc(var(--i) * 0.14s + 0.2s);
+}
+
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.85);
+  }
+}
+
+/* a finished stage: the module fills with the stage's grade colour */
+.cell[data-state='perfect'] {
+  --c: var(--grade-perfect);
+}
+
+.cell[data-state='good'] {
+  --c: var(--grade-good);
+}
+
+.cell[data-state='pass'] {
+  --c: var(--grade-pass);
+}
+
+.cell[data-state='fail'] {
+  --c: var(--grade-fail);
+}
+
+.cell:is([data-state='perfect'], [data-state='good'], [data-state='pass']) {
+  background: color-mix(in srgb, var(--c) 32%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+.cell[data-state='fail'] {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgb(255 45 74 / 0.45) 0 6px,
+    rgb(255 45 74 / 0.15) 6px 12px
+  );
+  box-shadow: 0 0 12px rgb(255 45 74 / 0.4);
+}
+
+/* in the HUD the colour lands a beat later, together with the grade on the stage card */
+.cells[data-size='small'] .cell:not([data-state='now'], [data-state='idle']) {
+  animation: cell-land 0.7s 0.8s var(--ease-soft) backwards;
+}
+
+@keyframes cell-land {
+  from {
+    border-color: var(--cyan);
+    background: rgb(15 24 48 / 0.8);
+    box-shadow: 0 0 10px rgb(68 239 236 / 0.5);
+  }
+}
+
+.cell[data-state='now'] {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgb(68 239 236 / 0.5);
+}
+
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* flying out of the stage screen's HUD (Result.tsx): already there, only the glow lands */
+.cells[data-flying] .cell {
+  animation: glow-land 0.9s calc(var(--i) * 0.07s + 0.6s) var(--ease-soft) backwards;
+}
+
+@keyframes glow-land {
+  from {
+    box-shadow: 0 0 0 transparent;
+  }
+  40% {
+    box-shadow: 0 0 28px var(--c);
+  }
+}

@@ -1,0 +1,161 @@
+.root {
+  position: absolute;
+  inset: 0;
+  padding: 56px 80px 0;
+  background: rgb(9 14 29 / 0.6);
+  animation: slide-in 0.6s var(--ease-soft) backwards;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+    filter: blur(4px);
+  }
+}
+
+.heading {
+  margin: 0 0 18px;
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--alarm);
+}
+
+.count {
+  margin-left: 14px;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px dashed var(--rule);
+}
+
+.row {
+  --c: var(--grade-fail);
+  display: grid;
+  grid-template-columns: 150px 220px 1fr;
+  grid-template-areas:
+    'slot stage grade'
+    'slot notes notes';
+  align-items: baseline;
+  gap: 4px 24px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--rule);
+  animation: row-in 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+
+.row[data-grade='good'] {
+  --c: var(--grade-good);
+}
+
+.row[data-grade='pass'] {
+  --c: var(--grade-pass);
+}
+
+.row:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.row:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.row:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.row:nth-child(5) {
+  animation-delay: 0.32s;
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.slot {
+  grid-area: slot;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.stage {
+  grid-area: stage;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.grade {
+  grid-area: grade;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c);
+}
+
+.notes {
+  grid-area: notes;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 19px;
+  line-height: 1.45;
+  color: #ff8595;
+}
+
+.notes li::before {
+  content: '> ';
+  color: var(--muted);
+}
+
+.notes .more {
+  color: var(--muted);
+}
+
+.actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.primary,
+.secondary {
+  min-width: 260px;
+  min-height: 72px;
+  padding: 0 32px;
+  border-radius: var(--radius);
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+
+.primary {
+  border: 2px solid var(--cyan);
+  background: var(--cyan);
+  color: var(--night);
+}
+
+.secondary {
+  border: 2px solid var(--rule);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.96);
+}

@@ -1,0 +1,298 @@
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 34px;
+  background: radial-gradient(ellipse at 50% 40%, rgb(9 14 29 / 0.6), transparent 75%);
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--muted);
+  animation: fade-in 0.5s var(--ease-soft) backwards;
+}
+
+/* the winner settles in last, after both sides are up */
+.banner {
+  margin: 8px 0 22px;
+  font-family: var(--font-mono);
+  font-size: 58px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-shadow: 0 0 30px rgb(255 255 255 / 0.25);
+  animation: title-in 0.8s 0.9s var(--ease-soft) backwards;
+}
+
+.root[data-winner='0'] .banner {
+  color: var(--p1);
+  text-shadow: 0 0 34px color-mix(in srgb, var(--p1) 60%, transparent);
+}
+
+.root[data-winner='1'] .banner {
+  color: var(--p2);
+  text-shadow: 0 0 34px color-mix(in srgb, var(--p2) 60%, transparent);
+}
+
+.columns {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  width: 1160px;
+}
+
+/* each side slides in from its own edge */
+.player {
+  --pc: var(--p1);
+  --c: var(--grade-fail);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 20px 22px;
+  border: 1px solid var(--rule);
+  border-top: 5px solid var(--pc);
+  border-radius: var(--radius);
+  background: rgb(15 24 48 / 0.88);
+  animation: side-in 0.7s var(--ease-soft) backwards;
+  transition:
+    transform 0.6s var(--ease-soft),
+    box-shadow 0.6s,
+    opacity 0.6s;
+}
+
+.player[data-side='1'] {
+  --side-from: -60px;
+}
+
+.player[data-side='2'] {
+  --pc: var(--p2);
+  --side-from: 60px;
+  animation-delay: 0.1s;
+}
+
+@keyframes side-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--side-from));
+    filter: blur(6px);
+  }
+}
+
+.player[data-colour='perfect'] {
+  --c: var(--grade-perfect);
+}
+
+.player[data-colour='good'] {
+  --c: var(--grade-good);
+}
+
+.player[data-colour='pass'] {
+  --c: var(--grade-pass);
+}
+
+/* the winner rises and glows in their colour; the other steps back a little */
+.player[data-won='true'] {
+  box-shadow: 0 0 60px color-mix(in srgb, var(--pc) 35%, transparent);
+  animation:
+    side-in 0.7s var(--ease-soft) backwards,
+    win 0.8s 1s var(--ease-soft) forwards;
+}
+
+@keyframes win {
+  to {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+.player[data-lost='true'] {
+  animation:
+    side-in 0.7s 0.1s var(--ease-soft) backwards,
+    lose 0.8s 1s var(--ease-soft) forwards;
+}
+
+@keyframes lose {
+  to {
+    opacity: 0.72;
+    transform: scale(0.98);
+  }
+}
+
+.crown {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  translate: -50% 0;
+  font-size: 56px;
+  line-height: 1;
+  color: #ffd166;
+  text-shadow: 0 0 24px rgb(255 209 102 / 0.7);
+  animation: crown 0.6s 1.2s var(--ease-soft) backwards;
+}
+
+@keyframes crown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.6);
+  }
+}
+
+.player p {
+  margin: 0;
+  text-align: center;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--pc);
+}
+
+.tag b {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--pc);
+  color: var(--night);
+  letter-spacing: 0;
+}
+
+.title {
+  min-height: 2.2em;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+.points {
+  font-family: var(--font-mono);
+  font-size: 60px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.points small {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.grades {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: 100%;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grades li {
+  --g: var(--grade-fail);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.grades li[data-grade='perfect'] {
+  --g: var(--grade-perfect);
+}
+
+.grades li[data-grade='good'] {
+  --g: var(--grade-good);
+}
+
+.grades li[data-grade='pass'] {
+  --g: var(--grade-pass);
+}
+
+.grades b {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--g);
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--cyan);
+}
+
+.versus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  translate: -50% -50%;
+  border: 2px solid var(--rule);
+  border-radius: 16px;
+  background: var(--night);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  animation: fade-in 0.5s 0.3s var(--ease-soft) backwards;
+}
+
+.home {
+  position: absolute;
+  bottom: 36px;
+  min-width: 260px;
+  min-height: 72px;
+  padding: 0 32px;
+  border: 2px solid var(--cyan);
+  border-radius: var(--radius);
+  background: var(--cyan);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--night);
+  box-shadow: var(--glow-cyan);
+  cursor: pointer;
+  transition: transform 0.08s;
+  animation: fade-in 0.5s 1.3s var(--ease-soft) backwards;
+}
+
+.home:active {
+  transform: scale(0.96);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes title-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.4em;
+    filter: blur(8px);
+  }
+}

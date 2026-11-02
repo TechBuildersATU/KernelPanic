@@ -1,0 +1,1266 @@
+/* The result transition plays ON the stage screen underneath (see ResultTransition.tsx): the
+   layers here dim, freeze or recolour what is already on screen, and one small piece of the
+   system tells the story on top of it. */
+
+/* No z-index, opacity or filter on the root: any of them would isolate it, and the blend
+   layers below (heal = colour, freeze = saturation) must blend with the screen underneath.
+   It paints above the stage screen because it comes later in the DOM. */
+.root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* the effects dissolve into the result: each layer fades on its own (keeps the blending),
+   driven from ResultTransition.tsx (dissolve) */
+.root[data-leaving='true'] {
+  pointer-events: none;
+}
+
+.root > * {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ── shared layers ─────────────────────────────────────────────────────────────────────── */
+
+.dim {
+  inset: 0;
+  background: rgb(9 14 29 / 0.72);
+  animation: fade-in 0.6s var(--ease-soft) backwards;
+}
+
+.dimSoft {
+  inset: 0;
+  background: rgb(9 14 29 / 0.42);
+  animation: fade-in 0.6s var(--ease-soft) backwards;
+}
+
+.blackout {
+  inset: 0;
+  background: rgb(4 6 12 / 0.9);
+  animation: fade-in 0.5s 0.1s var(--ease-soft) backwards;
+}
+
+/* recolours the screen underneath green, keeping its light and shapes ("healing") */
+.heal {
+  inset: 0;
+  background: rgb(2 255 24 / 0.45);
+  mix-blend-mode: color;
+  animation: fade-in 0.7s var(--ease-soft) backwards;
+}
+
+.healLate {
+  opacity: 0;
+  animation: appear 1s 1.3s var(--ease-soft) forwards;
+}
+
+/* drains the colour from the screen underneath: it freezes */
+.freeze {
+  inset: 0;
+  background: #808080;
+  mix-blend-mode: saturation;
+  animation: fade-in 0.35s var(--ease-soft) backwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* for layers that start hidden */
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* a window in the game's card style */
+.win {
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border: 1px solid var(--rule);
+  border-left: 6px solid var(--c, var(--cyan));
+  border-radius: var(--radius);
+  background: rgb(12 19 38 / 0.95);
+  box-shadow:
+    0 30px 80px rgb(0 0 0 / 0.55),
+    0 0 40px color-mix(in srgb, var(--c, var(--cyan)) 14%, transparent);
+  overflow: hidden;
+  animation: term-on 0.7s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.win[data-tone='good'] {
+  --c: var(--grade-good);
+}
+
+.win[data-tone='fail'] {
+  --c: var(--alarm);
+}
+
+.winBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.winBar i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgb(159 176 214 / 0.3);
+}
+
+.winBar i:first-child {
+  background: var(--c, var(--cyan));
+  box-shadow: 0 0 8px var(--c, var(--cyan));
+}
+
+.winBar span {
+  margin-left: 10px;
+}
+
+/* words fade in one by one out of a blur, over a soft dark band */
+.say {
+  left: 0;
+  right: 0;
+  top: 560px;
+  margin: 0;
+  padding: 24px 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  background: radial-gradient(ellipse at center, rgb(9 14 29 / 0.7), transparent 70%);
+}
+
+.say span {
+  display: inline-block;
+  margin: 0 0.3em;
+  animation: word-in 0.7s var(--ease-soft) backwards;
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(8px);
+  }
+}
+
+.say[data-tone='cyan'] {
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+}
+
+/* a big line settling from wide spacing and a blur */
+@keyframes title-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.5em;
+    filter: blur(8px);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: blur(6px);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: calc(var(--len) * 1px);
+  }
+}
+
+/* ── SYSTEM SAVIOR: five arcs close into a ring, a check draws itself ─────────────────────── */
+.restore {
+  left: 480px;
+  top: 150px;
+  width: 320px;
+  height: 320px;
+  animation: pop-in 0.5s var(--ease-soft) backwards;
+}
+
+.restore svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: ring-glow 1.3s 1.25s var(--ease-soft) both;
+}
+
+@keyframes ring-glow {
+  0% {
+    filter: drop-shadow(0 0 0 rgb(2 255 24 / 0));
+  }
+  35% {
+    filter: drop-shadow(0 0 30px rgb(2 255 24 / 0.95));
+  }
+  100% {
+    filter: drop-shadow(0 0 12px rgb(2 255 24 / 0.5));
+  }
+}
+
+.restoreTrack {
+  fill: none;
+  stroke: rgb(159 176 214 / 0.14);
+  stroke-width: 16;
+}
+
+.restoreArc {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 16;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: draw 0.4s var(--ease-soft) backwards;
+}
+
+.check {
+  --len: 150;
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 150;
+  animation: draw 0.45s 1.2s var(--ease-soft) backwards;
+}
+
+.caption {
+  left: 0;
+  right: 0;
+  top: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.caption p {
+  margin: 0;
+}
+
+.captionTitle {
+  font-family: var(--font-mono);
+  font-size: 58px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ok);
+  text-shadow: 0 0 30px rgb(2 255 24 / 0.55);
+  animation: title-in 0.7s 1.35s var(--ease-soft) backwards;
+}
+
+.captionLine {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  color: #d6def3;
+  animation: fade-in 0.5s 1.75s var(--ease-soft) backwards;
+}
+
+/* ── LAST SECOND HERO: the seconds that were left beat like a heart; colour comes back from
+      the clock outwards ── */
+@property --thaw {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.thaw {
+  mask: radial-gradient(
+    circle at 640px 330px,
+    transparent var(--thaw),
+    #000 calc(var(--thaw) + 160px)
+  );
+  animation:
+    fade-in 0.35s var(--ease-soft) backwards,
+    thaw 1.3s 1.25s var(--ease-in-out) forwards;
+}
+
+@keyframes thaw {
+  to {
+    --thaw: 1500px;
+  }
+}
+
+.heart {
+  left: 0;
+  right: 0;
+  top: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heart p {
+  margin: 0;
+}
+
+.beat {
+  position: absolute;
+  left: 50%;
+  top: 170px;
+  width: 340px;
+  height: 340px;
+  margin: -170px 0 0 -170px;
+  border: 3px solid rgb(255 255 255 / 0.8);
+  border-radius: 50%;
+  opacity: 0;
+  animation: beat 1s 0.15s var(--ease-soft) forwards;
+}
+
+.beatLate {
+  animation-delay: 0.45s;
+}
+
+@keyframes beat {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.55);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.heartLabel {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  animation: fade-in 0.4s var(--ease-soft) backwards;
+}
+
+.heartTime {
+  font-family: var(--font-mono);
+  font-size: 180px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--ink);
+  text-shadow: 0 0 40px rgb(255 255 255 / 0.35);
+  animation:
+    pop-in 0.4s var(--ease-soft) backwards,
+    thump 0.6s 0.12s var(--ease-soft) 2;
+}
+
+@keyframes thump {
+  0%,
+  100% {
+    scale: 1;
+  }
+  18% {
+    scale: 1.06;
+  }
+}
+
+.heartStamp {
+  margin-top: 14px !important;
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ok);
+  text-shadow: 0 0 26px rgb(2 255 24 / 0.6);
+  animation: stamp 0.55s 1.35s var(--ease-soft) backwards;
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    scale: 1.25;
+    filter: blur(6px);
+  }
+}
+
+/* ── ALL SYSTEMS GO: one status light per stage comes on in its colour ── */
+.rack {
+  width: 920px;
+}
+
+.bays {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 34px 30px 14px;
+  list-style: none;
+}
+
+.bays li {
+  --c: var(--grade-perfect);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.bays li[data-grade='good'] {
+  --c: var(--grade-good);
+}
+
+.led {
+  width: 62px;
+  height: 62px;
+  border: 3px solid var(--c);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, rgb(255 255 255 / 0.85) 0 9%, transparent 26%), var(--c);
+  box-shadow: 0 0 30px var(--c);
+  animation: led-on 0.55s calc(0.7s + var(--i) * 0.18s) var(--ease-soft) backwards;
+}
+
+@keyframes led-on {
+  from {
+    border-color: rgb(159 176 214 / 0.35);
+    background: #0b1226;
+    box-shadow: 0 0 0 transparent;
+  }
+}
+
+.bays span {
+  font-size: 19px;
+  font-weight: 600;
+  color: #d6def3;
+}
+
+.bays b {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--c);
+  animation: fade-in 0.4s calc(0.85s + var(--i) * 0.18s) var(--ease-soft) backwards;
+}
+
+.go {
+  margin: 18px 30px 28px;
+  padding: 16px 0;
+  border-radius: 10px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--night);
+  background: linear-gradient(90deg, var(--grade-good), var(--grade-perfect));
+  box-shadow: 0 0 34px rgb(150 255 60 / 0.4);
+  animation: wipe 0.6s 1.75s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+
+@keyframes wipe {
+  from {
+    clip-path: inset(0 100% 0 0 round 10px);
+  }
+}
+
+/* ── ONE BUG LEFT: an inspector lens comes out of the one broken module and shows the bug ── */
+.spot {
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--bug-x, 1100px) var(--bug-y, 62px),
+    transparent 34px,
+    rgb(9 14 29 / 0.7) 90px
+  );
+  animation: fade-in 0.6s var(--ease-soft) backwards;
+}
+
+.bugMark {
+  left: var(--bug-x, 1100px);
+  top: var(--bug-y, 62px);
+  width: 54px;
+  height: 40px;
+  margin: -20px 0 0 -27px;
+  border: 3px solid var(--alarm);
+  border-radius: 8px;
+  box-shadow: 0 0 22px var(--alarm);
+  animation:
+    fade-in 0.4s 0.2s var(--ease-soft) backwards,
+    mark 0.9s 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes mark {
+  to {
+    box-shadow: 0 0 6px var(--alarm);
+  }
+}
+
+.lens {
+  --lx: clamp(260px, var(--bug-x, 1100px), 1020px);
+  left: var(--lx);
+  top: 400px;
+  width: 250px;
+  height: 250px;
+  margin: -125px 0 0 -125px;
+  display: grid;
+  place-items: center;
+  border: 5px solid var(--cyan);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.14), transparent 40%),
+    radial-gradient(circle, rgb(20 30 60 / 0.95), rgb(9 14 29 / 0.97) 70%);
+  box-shadow:
+    0 0 40px rgb(68 239 236 / 0.35),
+    inset 0 0 30px rgb(0 0 0 / 0.6);
+  animation: lens-out 0.8s 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* the handle */
+.lens::after {
+  content: '';
+  position: absolute;
+  right: -46px;
+  bottom: -46px;
+  width: 26px;
+  height: 80px;
+  border-radius: 13px;
+  background: linear-gradient(90deg, #2b3a66, #16234a);
+  border: 2px solid rgb(68 239 236 / 0.5);
+  rotate: -45deg;
+}
+
+/* it grows out of the module it inspects */
+@keyframes lens-out {
+  from {
+    opacity: 0;
+    translate: calc(var(--bug-x, 1100px) - var(--lx)) calc(var(--bug-y, 62px) - 400px);
+    scale: 0.15;
+  }
+}
+
+.lensBug {
+  width: 132px;
+  fill: var(--alarm);
+  filter: drop-shadow(0 0 10px rgb(255 45 74 / 0.7));
+  animation: pop-in 0.45s 1s var(--ease-soft) backwards;
+}
+
+.bugHead {
+  fill: #ff8595;
+}
+
+.bugSeam {
+  fill: rgb(9 14 29 / 0.6);
+}
+
+/* the legs scuttle, about two and a half times a second */
+.legsA {
+  animation: legs 0.4s steps(1) infinite;
+}
+
+.legsB {
+  animation: legs 0.4s 0.2s steps(1) infinite;
+}
+
+@keyframes legs {
+  50% {
+    translate: 0 -1px;
+  }
+}
+
+.bugTag {
+  --lx: clamp(260px, var(--bug-x, 1100px), 1020px);
+  left: var(--lx);
+  top: 560px;
+  margin: 0;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  animation: fade-in 0.5s 1.35s var(--ease-soft) backwards;
+}
+
+.bugTag b {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  color: var(--alarm);
+  text-shadow: var(--glow-alarm);
+}
+
+.bugTag span {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  color: #d6def3;
+}
+
+/* ── BARELY BOOTED: a boot window opens over the dimmed screen and only just makes it ── */
+.term {
+  left: 50%;
+  top: 50%;
+  width: 760px;
+  margin-left: -380px;
+  transform: translateY(-50%);
+  border: 1px solid var(--rule);
+  border-left: 6px solid var(--warn);
+  border-radius: var(--radius);
+  background: rgb(12 19 38 / 0.94);
+  box-shadow:
+    0 30px 80px rgb(0 0 0 / 0.55),
+    0 0 40px rgb(255 176 32 / 0.12);
+  overflow: hidden;
+  animation: term-on 0.7s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* the window powers on like a tube: a line of light opens into the window */
+@keyframes term-on {
+  0% {
+    opacity: 0;
+    clip-path: inset(49.5% 30% 49.5% 30%);
+    filter: brightness(2.2);
+  }
+  35% {
+    opacity: 1;
+    clip-path: inset(49.5% 0 49.5% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.termBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.termBar i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgb(159 176 214 / 0.3);
+}
+
+.termBar i:first-child {
+  background: var(--warn);
+  box-shadow: 0 0 8px var(--warn);
+}
+
+.termBar span {
+  margin-left: 10px;
+}
+
+.termBody {
+  padding: 22px 30px 28px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  color: #c9d2e6;
+}
+
+.termBody p {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 10px;
+  animation: boot-line 0.45s var(--ease-soft) backwards;
+}
+
+@keyframes boot-line {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+    filter: blur(3px);
+  }
+}
+
+.leader {
+  flex: 1;
+  border-bottom: 2px dotted rgb(159 176 214 / 0.35);
+}
+
+.termBody b {
+  font-weight: 700;
+}
+
+.termBody b[data-tone='ok'] {
+  color: var(--ok);
+}
+
+.termBody b[data-tone='meh'] {
+  color: var(--warn);
+}
+
+/* block cursor, about one blink a second */
+.cursor {
+  width: 14px;
+  height: 26px;
+  align-self: center;
+  background: var(--warn);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* the bar runs, stalls, runs, stalls — and makes it to "enough" */
+.progress {
+  position: relative;
+  height: 14px;
+  margin-top: 22px;
+  border-radius: 7px;
+  background: rgb(255 176 32 / 0.12);
+  overflow: hidden;
+}
+
+.progress div {
+  height: 100%;
+  border-radius: 7px;
+  transform-origin: left;
+  background: linear-gradient(90deg, rgb(255 176 32 / 0.55), var(--warn));
+  box-shadow: 0 0 14px rgb(255 176 32 / 0.6);
+  animation: boot-load 1.7s 0.45s var(--ease-in-out) both;
+}
+
+.progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.4s 0.6s var(--ease-in-out) infinite;
+}
+
+@keyframes boot-load {
+  0% {
+    transform: scaleX(0);
+  }
+  32% {
+    transform: scaleX(0.52);
+  }
+  48% {
+    transform: scaleX(0.55);
+  }
+  68% {
+    transform: scaleX(0.74);
+  }
+  82% {
+    transform: scaleX(0.76);
+  }
+  100% {
+    transform: scaleX(0.94);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ── SAFE MODE: the old boot menu, the bar slides down to "Güvenli Mod" and picks it ── */
+.menu {
+  left: 50%;
+  top: 180px;
+  width: 780px;
+  margin-left: -390px;
+  padding: 28px 36px 24px;
+  border: 2px solid #c8c8c8;
+  background: #0a0a0a;
+  font-family: var(--font-mono);
+  color: #d0d0d0;
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.6);
+  transform-origin: center;
+  animation:
+    pop-in 0.45s 0.2s var(--ease-soft) backwards,
+    menu-off 0.45s 1.85s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+/* after the choice the menu folds into a line and goes, like an old screen changing mode */
+@keyframes menu-off {
+  60% {
+    opacity: 1;
+    transform: scaleY(0.02);
+    filter: brightness(2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4, 0.02);
+    filter: brightness(2);
+  }
+}
+
+.menu p {
+  margin: 0;
+}
+
+.menuTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.menuSub {
+  margin: 8px 0 18px !important;
+  font-size: 20px;
+  color: #9a9a9a;
+}
+
+.menuList {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 26px;
+}
+
+.menuList li {
+  height: 50px;
+  padding-left: 18px;
+  line-height: 50px;
+}
+
+/* the highlight inverts what it lies on, like the old menus */
+.menuList .menuBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 0;
+  background: #d0d0d0;
+  mix-blend-mode: difference;
+  animation:
+    menu-down 0.35s 0.95s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+    menu-pick 0.3s 1.5s steps(2, end) 1;
+}
+
+@keyframes menu-down {
+  to {
+    translate: 0 50px;
+  }
+}
+
+@keyframes menu-pick {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.menuKeys {
+  margin-top: 16px !important;
+  font-size: 18px;
+  color: #8a8a8a;
+}
+
+.safe {
+  inset: 0;
+}
+
+.safe span {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 30px;
+  color: #e9ecf2;
+  animation: fade-in 0.6s 2s var(--ease-soft) backwards;
+}
+
+.safe [data-corner='tl'] {
+  top: 24px;
+  left: 30px;
+}
+.safe [data-corner='tr'] {
+  top: 24px;
+  right: 30px;
+}
+.safe [data-corner='bl'] {
+  bottom: 24px;
+  left: 30px;
+}
+.safe [data-corner='br'] {
+  bottom: 24px;
+  right: 30px;
+}
+
+/* ── ERROR 404: the rescue page cannot be found ── */
+.page {
+  width: 760px;
+  padding-bottom: 34px;
+  text-align: center;
+}
+
+.big404 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 26px 0 0;
+  font-family: var(--font-mono);
+  font-size: 190px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--alarm);
+  text-shadow: 0 0 40px rgb(255 45 74 / 0.45);
+}
+
+.big404 span {
+  animation: pop-in 0.45s 0.55s var(--ease-soft) backwards;
+}
+
+.big404 span:last-child {
+  animation-delay: 0.85s;
+}
+
+/* the zero does not close: a broken ring */
+.zero {
+  width: 118px;
+  height: 150px;
+  overflow: visible;
+  filter: drop-shadow(0 0 16px rgb(255 45 74 / 0.6));
+}
+
+.zero ellipse {
+  --len: 256;
+  fill: none;
+  stroke: var(--alarm);
+  stroke-width: 15;
+  stroke-linecap: round;
+  stroke-dasharray: 205 256;
+  rotate: -60deg;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: draw 0.7s 0.7s var(--ease-soft) backwards;
+}
+
+.pageLine {
+  margin: 14px 0 22px;
+  font-size: 34px;
+  font-weight: 700;
+  animation: fade-in 0.5s 1.05s var(--ease-soft) backwards;
+}
+
+.search {
+  display: inline-flex;
+  align-items: center;
+  width: 440px;
+  margin: 0;
+  padding: 12px 24px;
+  border: 2px solid rgb(159 176 214 / 0.4);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  text-align: left;
+  animation: fade-in 0.4s 1.1s var(--ease-soft) backwards;
+}
+
+.searchText {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 14ch;
+  animation: type 0.6s 1.3s steps(14) backwards;
+}
+
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+
+.searchCaret {
+  width: 3px;
+  height: 26px;
+  margin-left: 3px;
+  background: var(--cyan);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+.noResult {
+  margin: 16px 0 0;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--alarm);
+  animation: fade-in 0.4s 2s var(--ease-soft) backwards;
+}
+
+/* ── KERNEL PANIC: the kernel's last words scroll up, then the name of the game ── */
+.dump {
+  left: 90px;
+  right: 90px;
+  top: 90px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  line-height: 1.5;
+  color: #c9d2e6;
+  animation: dump-back 0.6s 1.45s var(--ease-soft) forwards;
+}
+
+.dump p {
+  margin: 0;
+  white-space: pre;
+  animation: dump-line 0.22s var(--ease-soft) backwards;
+}
+
+.dump p[data-tone='fail'] {
+  color: var(--alarm);
+}
+
+.dump p[data-tone='warn'] {
+  color: var(--warn);
+}
+
+@keyframes dump-line {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes dump-back {
+  to {
+    opacity: 0.3;
+    filter: blur(1px);
+  }
+}
+
+.panicName {
+  left: 0;
+  right: 0;
+  top: 470px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+.panicName p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 104px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--alarm);
+  text-shadow: 0 0 46px rgb(255 45 74 / 0.6);
+  animation: title-in 0.7s 1.5s var(--ease-soft) backwards;
+}
+
+/* the keyboard light a real kernel panic blinks — once a second */
+.capsLed {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--alarm);
+  box-shadow: 0 0 18px var(--alarm);
+  animation:
+    fade-in 0.4s 1.5s var(--ease-soft) backwards,
+    blink 1s 1.9s steps(1) infinite;
+}
+
+/* ── ALMOST A LEGEND: the word fills like a gauge — and stops just short ── */
+.legend {
+  left: 0;
+  right: 0;
+  top: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  animation: fade-in 0.5s 0.2s var(--ease-soft) backwards;
+}
+
+.legendWord {
+  position: relative;
+  margin: 0;
+  font-size: 210px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.legendOutline {
+  color: transparent;
+  -webkit-text-stroke: 3px rgb(68 239 236 / 0.55);
+}
+
+.legendFill {
+  position: absolute;
+  inset: 0;
+  color: var(--cyan);
+  text-shadow: 0 0 34px rgb(68 239 236 / 0.55);
+  clip-path: inset(0 calc((1 - var(--fill)) * 100%) 0 0);
+  animation: legend-fill 1.7s 0.45s cubic-bezier(0.25, 0.8, 0.3, 1) backwards;
+}
+
+@keyframes legend-fill {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+/* the edge of the fill: it creeps on, then flickers where it gave up */
+.legendEdge {
+  position: absolute;
+  top: 6%;
+  bottom: 6%;
+  left: calc(var(--fill) * 100%);
+  width: 5px;
+  margin-left: -2px;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow:
+    0 0 16px #fff,
+    0 0 30px var(--cyan);
+  animation:
+    legend-edge 1.7s 0.45s cubic-bezier(0.25, 0.8, 0.3, 1) backwards,
+    flicker 0.5s 2.15s steps(2, end) 2;
+}
+
+@keyframes legend-edge {
+  from {
+    left: 0;
+  }
+}
+
+@keyframes flicker {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.legendLine {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  animation: title-in 0.7s 1.9s var(--ease-soft) backwards;
+}
+
+.legendLine span {
+  display: block;
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #d6def3;
+  text-shadow: none;
+}
+
+/* ── HAVE YOU TRIED…: the power button fills its ring ── */
+.power {
+  left: 50%;
+  top: 150px;
+  width: 300px;
+  height: 300px;
+  margin-left: -150px;
+  animation: pop-in 0.5s 0.85s var(--ease-soft) backwards;
+}
+
+.power svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.powerTrack {
+  fill: none;
+  stroke: rgb(159 176 214 / 0.18);
+  stroke-width: 10;
+}
+
+.powerRing {
+  --len: 440;
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  rotate: -90deg;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 10px rgb(68 239 236 / 0.6));
+  animation: draw 1.1s 1s var(--ease-in-out) backwards;
+}
+
+.powerIcon {
+  fill: none;
+  stroke: #e9ecf2;
+  stroke-width: 10;
+  stroke-linecap: round;
+  animation: power-on 0.6s 2.05s var(--ease-soft) forwards;
+}
+
+@keyframes power-on {
+  to {
+    stroke: var(--cyan);
+    filter: drop-shadow(0 0 14px var(--cyan));
+  }
+}
+
+[data-reduce-effects='true'] .bugMark,
+[data-reduce-effects='true'] .legsA,
+[data-reduce-effects='true'] .legsB,
+[data-reduce-effects='true'] .capsLed,
+[data-reduce-effects='true'] .legendEdge,
+[data-reduce-effects='true'] .menuBar {
+  animation-iteration-count: 1;
+}
+
+/* ── The duel (§2.5): each half plays its own ending, as big as that player's screen ──────── */
+/* The scene keeps its 1280×800 layout, zoomed to the half's width and centred in it. zoom makes
+   neither a stacking context nor an isolated group, so the colour layers still blend with the
+   half's stage screen underneath; the layers that cover the screen reach out to the half's top
+   and bottom edges, and the few things laid out against the screen's edges move in. */
+.root[data-layout='half'] {
+  inset: auto;
+  left: -113px;
+  top: 267px;
+  width: 1280px;
+  height: 800px;
+  overflow: visible;
+  zoom: 0.6;
+}
+
+.root[data-layout='half'] > :is(.dim, .dimSoft, .blackout, .heal, .freeze, .spot) {
+  inset: -280px 0;
+}
+
+.root[data-layout='half'] > .spot {
+  background: radial-gradient(
+    circle at var(--bug-x, 1100px) calc(var(--bug-y, 62px) + 280px),
+    transparent 34px,
+    rgb(9 14 29 / 0.7) 90px
+  );
+}
+
+.root[data-layout='half'] > .safe {
+  inset: -250px 120px;
+}
+
+.root[data-layout='half'] > .dump {
+  left: 140px;
+  right: 140px;
+}
+
+.root[data-layout='half'] .panicName p {
+  font-size: 84px;
+}
+
+/* the inspector lens (and its handle) stays well inside the half */
+.root[data-layout='half'] > :is(.lens, .bugTag) {
+  --lx: clamp(320px, var(--bug-x, 1100px), 900px);
+}

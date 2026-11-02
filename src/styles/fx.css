@@ -1,0 +1,289 @@
+/* Shared effect layers. Photosensitive rule: nothing flashes more than 3 times per second. */
+
+.code-rain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+/* Overheat embers (src/fx/Embers.tsx): a background layer that fades with the heat. */
+.embers {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.embers[data-active='true'] {
+  opacity: 1;
+}
+
+/* CRT glass: scanlines + vignette over the whole stage. */
+.crt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.55) 100%);
+}
+
+/* Glitch text: two colour-shifted copies sliced by moving clip rectangles. The element needs
+   data-text="same text". */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: var(--cyan);
+  transform: translate(-3px, 0);
+  mix-blend-mode: screen;
+  animation: glitch-slice 1.9s steps(1) infinite;
+}
+
+.glitch::after {
+  color: var(--alarm);
+  transform: translate(3px, 0);
+  mix-blend-mode: screen;
+  animation: glitch-slice 1.3s steps(1) infinite reverse;
+}
+
+@keyframes glitch-slice {
+  0% {
+    clip-path: inset(10% 0 78% 0);
+  }
+  20% {
+    clip-path: inset(62% 0 12% 0);
+  }
+  40% {
+    clip-path: inset(36% 0 44% 0);
+  }
+  60% {
+    clip-path: inset(84% 0 4% 0);
+  }
+  80% {
+    clip-path: inset(4% 0 90% 0);
+  }
+  100% {
+    clip-path: inset(48% 0 30% 0);
+  }
+}
+
+/* The same glitch, but only in short bursts every few seconds (the attract title). */
+.glitch-rare::before,
+.glitch-rare::after {
+  animation-name: glitch-rare;
+  animation-duration: 5.5s;
+  animation-timing-function: steps(1);
+  animation-iteration-count: infinite;
+}
+
+.glitch-rare::after {
+  animation-duration: 7s;
+}
+
+@keyframes glitch-rare {
+  0%,
+  88%,
+  100% {
+    clip-path: inset(100% 0 0 0);
+  }
+  89% {
+    clip-path: inset(12% 0 70% 0);
+  }
+  91% {
+    clip-path: inset(58% 0 20% 0);
+  }
+  93% {
+    clip-path: inset(30% 0 52% 0);
+  }
+  95% {
+    clip-path: inset(80% 0 6% 0);
+  }
+}
+
+/* A short horizontal shake (wrong answer, alarm). */
+.shake {
+  animation: shake 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(5px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-9px);
+  }
+  40%,
+  60% {
+    transform: translateX(9px);
+  }
+}
+
+/* "Efekt azalt" (settings) — calmer glitch, no shake. */
+[data-reduce-effects='true'] .glitch::before,
+[data-reduce-effects='true'] .glitch::after {
+  animation: none;
+  opacity: 0.35;
+}
+
+[data-reduce-effects='true'] .shake,
+[data-reduce-effects='true'] .glitch-rare::before,
+[data-reduce-effects='true'] .glitch-rare::after {
+  animation: none;
+  opacity: 0;
+}
+
+/* End of a round (App.tsx <Ending>): the stage screen stays under the result transition,
+   then recedes into the room while the result rises (its modules fly out of it, Result.tsx). */
+/* it is gone before the transition's colour layers let go, so its own colours never come back */
+.ending[data-title] > [data-testid='play'] {
+  pointer-events: none;
+  transition:
+    opacity 0.45s cubic-bezier(0.33, 1, 0.68, 1),
+    filter 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.ending[data-revealed] > [data-testid='play'] {
+  opacity: 0;
+  filter: blur(6px);
+}
+
+/* the final stage's grade card makes room for the ending's own words */
+.ending [data-testid='stage-end'] {
+  transition:
+    opacity 0.4s var(--ease-soft),
+    filter 0.4s var(--ease-soft);
+}
+
+.ending[data-title] [data-testid='stage-end'] {
+  opacity: 0;
+  filter: blur(6px);
+}
+
+/* the stage screen switches off like an old monitor: it folds into a bright line, the line
+   into a dot, and the room goes dark (HAVE YOU TRIED…, ResultTransition) */
+.ending[data-title='turn-it-off-and-on'] > [data-testid='play'] {
+  transform-origin: 50% 50%;
+  animation: crt-off 0.8s 0.1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes crt-off {
+  55% {
+    transform: scale(1, 0.006);
+    filter: brightness(3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0, 0.006);
+    filter: brightness(4);
+    opacity: 0;
+  }
+}
+
+.ending[data-title='barely-booted'] > [data-testid='play'] {
+  animation: reboot-dip 0.9s ease-in-out both;
+}
+
+@keyframes reboot-dip {
+  30% {
+    filter: brightness(0.3);
+  }
+  45% {
+    filter: brightness(0.8);
+  }
+  100% {
+    filter: brightness(0.5);
+  }
+}
+
+/* Screen switch (src/app/screenSwitch.ts): the old screen dissolves as a picture while the new
+   one rises live. The world (root) is never snapshotted — it stays live underneath. */
+[data-switching] .screens {
+  view-transition-name: screen;
+}
+
+/* the shared header (button ↔ hack) holds still: only its status light and colour change */
+[data-switching] [data-topbar] {
+  view-transition-name: topbar;
+}
+
+::view-transition-group(topbar),
+::view-transition-old(topbar),
+::view-transition-new(topbar) {
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* going to a screen without the header (the questions): it steps aside quickly */
+::view-transition-old(topbar):only-child {
+  animation-duration: 0.3s;
+}
+
+::view-transition-old(root) {
+  display: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(screen) {
+  animation: none;
+}
+
+::view-transition-old(screen) {
+  animation: switch-out 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-new(screen) {
+  animation: switch-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+@keyframes switch-out {
+  to {
+    opacity: 0;
+    filter: blur(5px);
+    transform: scale(1.015);
+  }
+}
+
+@keyframes switch-in {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+    transform: scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation-duration: 0.2s;
+    filter: none;
+  }
+}

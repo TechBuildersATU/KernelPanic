@@ -1,0 +1,221 @@
+.game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 26px 40px 30px;
+}
+
+.mode {
+  margin: 4px 0 0;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--night);
+  background: var(--warn);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.4s var(--ease-soft),
+    transform 0.4s var(--ease-soft);
+}
+
+.mode[data-on='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+.command {
+  margin: 0;
+  min-height: 1em;
+  font-size: 84px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  transition: color 0.3s;
+  animation: command-in 0.35s var(--ease-soft) backwards;
+}
+
+.command[data-tone='inv'] {
+  color: var(--warn);
+  text-shadow:
+    4px 0 rgb(255 45 74 / 0.75),
+    -4px 0 rgb(68 239 236 / 0.75);
+}
+
+.command[data-tone='ok'] {
+  color: var(--ok);
+}
+
+.command[data-tone='bad'] {
+  color: var(--alarm);
+}
+
+@keyframes command-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+.hint {
+  margin: 0;
+  min-height: 1.3em;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.hint span {
+  display: inline-block;
+  animation: command-in 0.3s var(--ease-soft) backwards;
+}
+
+/* the red button inside a ring: hold progress, taps, or the traffic light */
+.buttonWrap {
+  position: relative;
+  width: 290px;
+  height: 290px;
+  display: grid;
+  place-items: center;
+  margin: 6px 0;
+}
+
+.ring {
+  --p: 0;
+  --rc: var(--cyan);
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(var(--rc) calc(var(--p) * 1turn), rgb(159 176 214 / 0.14) 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  transition: filter 0.3s;
+}
+
+.game[data-ters='true'] .ring {
+  --rc: var(--warn);
+}
+
+.ring[data-c='r'] {
+  --rc: var(--alarm);
+}
+
+.ring[data-c='a'] {
+  --rc: var(--warn);
+}
+
+.ring[data-c='g'] {
+  --rc: var(--ok);
+  filter: drop-shadow(0 0 12px var(--ok));
+}
+
+/* the command is done: the ring closes all the way in green (the third tap, the full hold) —
+   the frame loop has stopped by then, so the result state fills it */
+.game[data-phase='ok'] .ring {
+  --p: 1 !important;
+  --rc: var(--ok) !important;
+  filter: drop-shadow(0 0 16px var(--ok));
+  animation: ring-done 0.5s var(--ease-soft);
+}
+
+.game[data-phase='miss'] .ring {
+  --rc: var(--alarm) !important;
+}
+
+@keyframes ring-done {
+  from {
+    scale: 0.94;
+  }
+}
+
+/* every tap gives the ring a small kick, so each of the three taps is felt */
+.game[data-phase='cmd'] .buttonWrap:has(.button[data-down='true']) .ring {
+  scale: 1.04;
+}
+
+.ring {
+  transition:
+    filter 0.3s,
+    scale 0.12s var(--ease-soft);
+}
+
+.button {
+  position: relative;
+  width: 230px;
+  height: 230px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  touch-action: none;
+  background: radial-gradient(
+    circle at 50% 34%,
+    #ff8597 0 8%,
+    var(--alarm) 40%,
+    var(--alarm-deep) 100%
+  );
+  box-shadow:
+    0 14px 0 #5a0716,
+    0 26px 50px rgb(255 45 74 / 0.45),
+    inset 0 -8px 18px rgb(0 0 0 / 0.35);
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+}
+
+.button[data-down='true'] {
+  transform: translateY(10px);
+  box-shadow:
+    0 4px 0 #5a0716,
+    0 8px 22px rgb(255 45 74 / 0.4),
+    inset 0 -4px 12px rgb(0 0 0 / 0.4);
+}
+
+.clock {
+  width: 360px;
+}
+
+.clock > div {
+  max-width: none;
+}
+
+/* one player's half of the duel */
+:global([data-layout='half']) .game {
+  gap: 8px;
+  padding: 18px 18px 22px;
+}
+
+:global([data-layout='half']) .command {
+  font-size: 54px;
+}
+
+:global([data-layout='half']) .hint {
+  font-size: 17px;
+}
+
+:global([data-layout='half']) .mode {
+  font-size: 15px;
+}
+
+:global([data-layout='half']) .buttonWrap {
+  width: 230px;
+  height: 230px;
+}
+
+:global([data-layout='half']) .button {
+  width: 180px;
+  height: 180px;
+}
+
+:global([data-layout='half']) .clock {
+  width: 260px;
+}

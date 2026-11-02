@@ -1,0 +1,212 @@
+.button {
+  position: relative;
+  width: 480px;
+  height: 480px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 8px;
+}
+
+/* Sonar rings pulsing out of the button: "press me" from across the booth. */
+.sonar {
+  position: absolute;
+  inset: 10px;
+  border: 3px solid rgb(255 45 74 / 0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sonar 3.2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+.sonarLate {
+  animation-delay: 1.6s;
+}
+
+@keyframes sonar {
+  from {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+.button[data-pressed='true'] .sonar {
+  animation: none;
+  opacity: 0;
+}
+
+/* Hazard stripes, masked to an outer ring, turning slowly. */
+.hazard {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--warn) 0deg 7.5deg, #10131c 7.5deg 15deg);
+  mask: radial-gradient(circle, transparent 0 219px, #000 220px);
+  animation: turn 40s linear infinite;
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.band {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bandFill {
+  fill: none;
+  stroke: #0b1226;
+  stroke-width: 46;
+}
+
+.bandLine {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1.5;
+}
+
+.bandText {
+  fill: var(--white);
+  font-family: var(--font-ui);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.bandMark {
+  fill: var(--warn);
+  font-size: 22px;
+}
+
+/* Brushed-metal ring around the cap. */
+.bezel {
+  position: absolute;
+  inset: 67px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg,
+    #4a5470,
+    #c9d2e6 12%,
+    #59627d 28%,
+    #2a3044 50%,
+    #aab4cc 70%,
+    #3c4459 86%,
+    #4a5470
+  );
+  box-shadow:
+    inset 0 2px 3px rgb(255 255 255 / 0.35),
+    inset 0 -3px 6px rgb(0 0 0 / 0.6),
+    0 10px 30px rgb(0 0 0 / 0.6);
+}
+
+/* The red dome: a 3D side (hard bottom shadow) that disappears when pressed. */
+.cap {
+  position: absolute;
+  inset: 90px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 36% 28%,
+    #ff9aa7 0%,
+    #ff4560 18%,
+    var(--alarm) 34%,
+    #c4132e 66%,
+    #7a0717 100%
+  );
+  box-shadow:
+    inset 0 -14px 26px rgb(0 0 0 / 0.45),
+    inset 0 12px 18px rgb(255 255 255 / 0.22),
+    0 14px 0 #5c0513,
+    0 22px 34px rgb(0 0 0 / 0.65);
+  transform: translateY(-8px);
+  transition:
+    transform 0.09s ease-out,
+    box-shadow 0.09s ease-out;
+}
+
+/* Slow "breathing" glow — about one cycle every 2.4 s, never a flash. */
+.cap::before {
+  content: '';
+  position: absolute;
+  inset: -26px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 45 74 / 0.55), transparent 68%);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.06);
+  }
+}
+
+.power {
+  width: 104px;
+  height: 104px;
+  fill: none;
+  stroke: rgb(255 255 255 / 0.82);
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 2px 0 rgb(90 5 19 / 0.8));
+}
+
+.button:active .cap,
+.button[data-pressed='true'] .cap {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 -8px 20px rgb(0 0 0 / 0.5),
+    inset 0 10px 16px rgb(255 255 255 / 0.18),
+    0 2px 0 #5c0513,
+    0 6px 14px rgb(0 0 0 / 0.6);
+}
+
+.button[data-pressed='true'] .cap::before {
+  animation: none;
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+.button[data-nudge='true'] {
+  animation: nudge 3.2s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0);
+  }
+  89% {
+    transform: rotate(-4deg);
+  }
+  92% {
+    transform: rotate(4deg);
+  }
+  95% {
+    transform: rotate(-2deg);
+  }
+}

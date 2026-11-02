@@ -1,0 +1,135 @@
+.host {
+  position: absolute;
+  inset: 0;
+}
+
+/* the game waits dimmed under its title card, then comes up to full light */
+.game {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  filter: blur(3px) saturate(0.7);
+  transform: scale(0.985);
+  transition:
+    opacity 0.6s var(--ease-soft),
+    filter 0.6s var(--ease-soft),
+    transform 0.6s var(--ease-soft);
+}
+
+.game[data-live='true'] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+/* over: it steps back under the stage's grade card (or an event panel) */
+.game[data-live='true'][data-active='false'] {
+  opacity: 0.28;
+  filter: blur(4px) saturate(0.6);
+  transform: scale(0.985);
+  pointer-events: none;
+}
+
+.intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgb(9 14 29 / 0.82), rgb(9 14 29 / 0.45) 75%);
+  transition:
+    opacity 0.5s var(--ease-soft),
+    filter 0.5s var(--ease-soft),
+    transform 0.5s var(--ease-soft);
+}
+
+.intro[data-hidden='true'] {
+  opacity: 0;
+  filter: blur(6px);
+  transform: scale(1.03);
+}
+
+.intro > * {
+  margin: 0;
+  animation: intro-in 0.6s var(--ease-soft) backwards;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--cyan);
+}
+
+.command {
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 34px rgb(68 239 236 / 0.35);
+  animation-delay: 0.08s !important;
+}
+
+.hint {
+  max-width: 760px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  color: #d6def3;
+  animation-delay: 0.16s !important;
+}
+
+.chip {
+  margin-top: 10px !important;
+  padding: 8px 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  animation-delay: 0.24s !important;
+}
+
+.chip[data-tone='risky'],
+.chip[data-tone='final'] {
+  color: var(--alarm);
+}
+
+.chip[data-tone='safe'] {
+  color: var(--ok);
+}
+
+.chip[data-tone='glitch'] {
+  color: var(--cyan);
+}
+
+@keyframes intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(5px);
+  }
+}
+
+/* one player's half of the duel */
+:global([data-layout='half']) .kicker {
+  font-size: 16px;
+}
+
+:global([data-layout='half']) .command {
+  font-size: 60px;
+}
+
+:global([data-layout='half']) .hint {
+  max-width: 520px;
+  font-size: 18px;
+}
+
+:global([data-layout='half']) .chip {
+  font-size: 14px;
+}

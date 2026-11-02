@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "search.exclude": { "**/node_modules": true, "dist": true, "dev-dist": true },
+  "files.exclude": { "test-results": true, "playwright-report": true }
+}
