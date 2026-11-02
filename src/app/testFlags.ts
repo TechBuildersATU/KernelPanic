@@ -1,7 +1,8 @@
 // Test-only URL flags: ?seed=N (deterministic stages and events), ?fastTimers=1 (shorter
 // animation waits), ?event=glitch|overheat-fast|overheat-slow|power|none (force an event, or none),
 // ?transition=<title>&mood=<mood> (preview one result transition on its own; &half=1 in one half
-// of the duel), ?intro=1 (play the APK's opening animation in the browser).
+// of the duel), ?intro=1 (play the APK's opening animation in the browser), ?perf=low (the light
+// mode a slow device gets, at once).
 // They are compiled out of the production build unless VITE_TEST_FLAGS=1.
 
 import type { ForcedEvent, Mood } from '@/game/events'
@@ -16,6 +17,8 @@ export interface TestFlags {
   /** The transition preview in one half of the duel's split screen. */
   half: boolean
   intro: boolean
+  /** Start in the light mode of a slow device (app/perf.ts). */
+  lowPerf: boolean
 }
 
 const NO_FLAGS: TestFlags = {
@@ -26,6 +29,7 @@ const NO_FLAGS: TestFlags = {
   mood: 'normal',
   half: false,
   intro: false,
+  lowPerf: false,
 }
 
 export const TITLE_IDS: readonly TitleId[] = [
@@ -65,6 +69,7 @@ export function parseTestFlags(search: string): TestFlags {
     mood: MOODS.find((m) => m === params.get('mood')) ?? 'normal',
     half: params.get('half') === '1',
     intro: params.get('intro') === '1',
+    lowPerf: params.get('perf') === 'low',
   }
 }
 

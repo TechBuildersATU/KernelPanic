@@ -82,6 +82,9 @@ export function Hack({
         </h2>
 
         <div className={s.panel} data-on={titleOn}>
+          <span className={s.edge} aria-hidden="true">
+            <span className={s.edgeLight} />
+          </span>
           <div className={s.loss} data-testid="system-loss">
             <span>Sistem kaybı</span>
             <div className={s.lossBar}>

@@ -6,30 +6,49 @@
   background: radial-gradient(circle at 50% 40%, #131a33, var(--night) 75%);
 }
 
-/* the floor: a perspective grid drifting towards the viewer, tinted by the room's light */
+/* the floor: a perspective grid drifting towards the viewer, tinted by the room's light.
+   Performance (the booth tablet): the drift moves an inner layer with a transform, which the GPU
+   does on its own. Animating background-position instead repainted this big, tilted, masked
+   layer on every frame and was the heaviest thing on the tablet. */
 .grid {
   position: absolute;
   left: -40%;
   right: -40%;
   bottom: -30%;
   height: 70%;
+  overflow: hidden;
+  opacity: 0.16;
+  transform: perspective(420px) rotateX(64deg);
+  transform-origin: 50% 0;
+  mask: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+}
+
+.grid::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -64px;
+  bottom: 0;
   color: var(--grid);
   background-image:
     linear-gradient(to right, currentColor 1px, transparent 1px),
     linear-gradient(to bottom, currentColor 1px, transparent 1px);
   background-size: 64px 64px;
-  opacity: 0.16;
-  transform: perspective(420px) rotateX(64deg);
-  transform-origin: 50% 0;
-  mask: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+  will-change: transform;
   animation: grid-drift 6s linear infinite;
   transition: color 1.2s var(--ease-in-out);
 }
 
 @keyframes grid-drift {
   to {
-    background-position: 0 64px;
+    transform: translateY(64px);
   }
+}
+
+/* a slow device (app/perf.ts): the floor holds still */
+:global(:root[data-perf='low']) .grid::before {
+  animation: none;
 }
 
 .world[data-light='alarm'],

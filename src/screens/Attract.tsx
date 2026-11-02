@@ -52,6 +52,21 @@ function useTypewriter(lines: readonly string[]): string {
   return lines[line].slice(0, chars)
 }
 
+/**
+ * The rotating disclaimer under the eye. Its own component on purpose: a letter is typed every
+ * 34 ms, and re-rendering the whole button screen (logo chip, eyes) that often made the booth
+ * tablet stutter.
+ */
+function TypedDisclaimer() {
+  const disclaimer = useTypewriter(DISCLAIMERS)
+  return (
+    <p className={s.disclaimer} data-testid="disclaimer" aria-live="off">
+      <span className={s.prompt}>&gt;</span> {disclaimer}
+      <span className={s.caret} aria-hidden="true" />
+    </p>
+  )
+}
+
 /** How long the "sudo" easter egg answer stays on screen. */
 const SUDO_MS = 4000
 
@@ -77,7 +92,6 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
   const [lastTouch, setLastTouch] = useState(0)
   const [social, setSocial] = useState(false)
   const abort = useRef<AbortController | null>(null)
-  const disclaimer = useTypewriter(DISCLAIMERS)
   const [sudo, setSudo] = useState(false)
   const taps = useRef<number[]>([])
   const [director] = useState(() => new GazeDirector(EYE_LOOK_MS, EYE_TOUCH_LOOK_MS))
@@ -265,10 +279,7 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
             kim kurtaracak?
           </p>
         ) : (
-          <p className={s.disclaimer} data-testid="disclaimer" aria-live="off">
-            <span className={s.prompt}>&gt;</span> {disclaimer}
-            <span className={s.caret} aria-hidden="true" />
-          </p>
+          <TypedDisclaimer />
         )}
       </div>
 

@@ -118,6 +118,9 @@ and waits; the higher share of the system saved wins, then the time left.
   grow out of something on screen.
 - **Sound** is synthesised with Web Audio: effects and generative music per scene, no audio
   files. Every cue also shows on screen.
+- **Smooth on a modest tablet:** the moving background runs on the GPU only, nothing repaints
+  every frame that does not change, and a slow device steps down to a lighter background by
+  itself (`app/perf.ts`).
 - **Photosensitive safety:** nothing flashes more than three times a second; the device's
   reduced-motion setting is respected.
 - **Tunable in one file:** round length, step timers, grade thresholds and event odds live in

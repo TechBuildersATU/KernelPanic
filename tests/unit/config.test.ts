@@ -66,6 +66,7 @@ describe('test flags', () => {
       mood: 'normal',
       half: false,
       intro: false,
+      lowPerf: false,
     })
   })
 
@@ -82,6 +83,7 @@ describe('test flags', () => {
       mood: 'normal',
       half: false,
       intro: false,
+      lowPerf: false,
     })
   })
 

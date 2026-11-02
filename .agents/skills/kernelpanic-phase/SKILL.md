@@ -31,6 +31,7 @@ description: >-
 | Faz 8 | 2 Nov ✅ | §2.1, §2.3, §2.5, §3.3 | duel content per player (`game/stages/players.ts`), no Emergency in a duel, `ResultTransition layout="half"`, Emergency freeze + reading time, Dead Pixel 5 screens, `LogoChip` + Orbitron |
 | Faz 9 | 2 Nov ✅ | §2.1, §2.5, §8, §11 #26–29 | the cyber eye (`components/eye`: `Eye`, `geometry`, `motion`), looks every 3 s and at touches; mirrored duel card; logo chip clipped during screen switches; English identifiers, file names and docs (`docs/ROADMAP.md`); speed-independent e2e |
 | Faz 10 | 2 Nov ✅ | §2.3, §3, §11 #30–32 | Emergency removed (no `Variant`, one Glitch a round), Dead Pixel colours (`PIXEL_COLOURS`), Beam Path recipes + `mirrorLine()` |
+| Faz 11 | 3 Nov ✅ | §7, §10, §11 #33, §12 | performance on the tablet: transform-only floor drift, stage-size code rain, eye writes only changes, isolated typewriter, `memo(StageHost)`, hack edge light as a rotating layer, `app/perf.ts` light mode |
 | Final | before release | §10–§12      | real-tablet test: sound level, touch feel, effect smoothness, two players touching at once, balance, backup install |
 
 ## 2. Order inside a phase

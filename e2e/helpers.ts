@@ -71,11 +71,23 @@ function playOf(plan: Plan, stage: StageId): Play {
   return (plan as Partial<Record<StageId, Play>>)[stage] ?? 'right'
 }
 
+/**
+ * An attribute, or null when the element went away in the meantime: the round never waits for
+ * the test, so a stage can end between finding an element and reading it (without the timeout
+ * the read would wait for an element that never comes back).
+ */
+function attr(locator: Locator, name: string): Promise<string | null> {
+  return locator
+    .first()
+    .getAttribute(name, { timeout: 1_000 })
+    .catch(() => null)
+}
+
 /** The live stage (its title card has gone), or null. */
 async function liveStage(scope: Scope): Promise<StageId | null> {
   const host = scope.locator('[data-testid="stage"][data-live="true"]')
   if ((await host.count()) === 0) return null
-  return (await host.first().getAttribute('data-stage')) as StageId
+  return (await attr(host, 'data-stage')) as StageId | null
 }
 
 /** Steps of the stage already decided (its dots, right or missed). */
@@ -123,7 +135,8 @@ export async function step(
 ): Promise<boolean> {
   const root = scope.getByTestId(`stage-${stage}`)
   if ((await root.count()) === 0) return false
-  const phase = await root.getAttribute('data-phase')
+  const phase = await attr(root, 'data-phase')
+  if (phase === null) return false
   const before = await settled(scope, stage)
   if (stage === 'pixel') {
     if (phase !== 'find') return false
@@ -135,7 +148,9 @@ export async function step(
   if (stage === 'colours') {
     const board = root.locator('[data-seq]')
     if ((await board.count()) === 0) return false
-    const rest = ((await board.getAttribute('data-seq')) ?? '').split(',').map(Number)
+    const seq = await attr(board, 'data-seq')
+    if (seq === null) return false
+    const rest = seq.split(',').map(Number)
     if (!right) {
       // a wrong colour ends the layer: wait for the next one
       const level = await root.getByTestId('stage-level').textContent()
@@ -170,8 +185,8 @@ export async function step(
     await nextStep(scope, stage, before)
     return true
   }
-  // basma
-  const eff = await root.getAttribute('data-eff')
+  // Don't Press (orders)
+  const eff = await attr(root, 'data-eff')
   if (!eff) return false
   const button = root.getByTestId('btn-press')
   const press = (right && eff !== 'dontPress') || (!right && eff === 'dontPress')

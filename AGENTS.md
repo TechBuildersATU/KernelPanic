@@ -193,7 +193,8 @@ while developing.** Follow `.agents/skills/kernelpanic-button-tests/SKILL.md`.
   the step limits), `?event=glitch|power|overheat-fast|overheat-slow|none` (`none`: a
   round without surprises), `?transition=<title>&mood=<mood>` (loops one result transition;
   `&half=1` inside a duel half),
-  `?intro=1` (plays the APK's opening in the browser).
+  `?intro=1` (plays the APK's opening in the browser), `?perf=low` (the light mode of a slow
+  device).
 - Scripted waits use `dur()` + `sleep(ms, signal)`; sequences are cancelled on unmount.
 
 ## Motion (the club's feedback — keep it)
@@ -227,6 +228,16 @@ while developing.** Follow `.agents/skills/kernelpanic-button-tests/SKILL.md`.
   `dissolve()`, words first via `data-words`), and the five HUD cells fly into the result's big
   cells (FLIP, `Result.tsx`). Never put `z-index`, `opacity` or `filter` on the transition
   root: that isolates the blend layers into flat colour panels.
+- **Performance (Faz 11, the booth tablet stuttered while a PC was fine):** on big or
+  long-running layers animate only `transform` and `opacity` (never `background-position`, a
+  gradient's angle or another custom property: they repaint the layer every frame); canvases
+  are drawn at the stage's 1280 × 800, not the device pixel ratio; SVG that moves is written
+  only when a value changes (`EyeMotion.set`); anything that updates often (a typewriter, the
+  round clock) lives in its own small component or above a `memo` (`StageHost`). A slow device
+  gets `<html data-perf="low">` from `app/perf.ts` (median frame > 25 ms in the first seconds;
+  `?perf=low` in tests): the floor stops, the rain halves its frame rate, the title glitch
+  rests. Measure with a 4× slower CPU, `deviceScaleFactor: 2` and a trace (Paint, RasterTask,
+  Commit) before and after.
 - A CSS transition never starts on a property an animation holds — the element just cuts. So:
   entry animations with from-only keyframes fill `backwards`, not `both`; a looping opacity
   animation (breathing light) lives on an inner `::before`; to fade a layer that has its own

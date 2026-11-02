@@ -86,6 +86,12 @@
   }
 }
 
+/* a slow device (app/perf.ts): the title's glitch rests */
+:root[data-perf='low'] .glitch::before,
+:root[data-perf='low'] .glitch::after {
+  display: none;
+}
+
 /* The same glitch, but only in short bursts every few seconds (the attract title). */
 .glitch-rare::before,
 .glitch-rare::after {

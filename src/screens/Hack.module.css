@@ -1,12 +1,6 @@
 /* The hack screen sits on the shared world (red now) under the same header as the button
    screen; its panel is cut like the question card so the round grows out of it. */
 
-@property --beam {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
 .root {
   position: absolute;
   inset: 0;
@@ -70,29 +64,41 @@
   filter: none;
 }
 
-.panel::after {
-  content: '';
+/* The light running round the edge: a cut-out ring (the mask) with a turning light inside it.
+   Performance (the booth tablet): the light is a layer that rotates, which the GPU does on its
+   own; turning the gradient's angle instead repainted the whole panel edge on every frame. */
+.edge {
   position: absolute;
   inset: -1px;
   padding: 2px;
+  overflow: hidden;
   border-radius: inherit;
-  background: conic-gradient(
-    from var(--beam),
-    transparent 0deg 290deg,
-    rgb(255 45 74 / 0.9) 335deg,
-    transparent 360deg
-  );
   mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   mask-composite: exclude;
   pointer-events: none;
+}
+
+.edgeLight {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1000px;
+  height: 1000px;
+  margin: -500px 0 0 -500px;
+  background: conic-gradient(
+    transparent 0deg 290deg,
+    rgb(255 45 74 / 0.9) 335deg,
+    transparent 360deg
+  );
+  will-change: transform;
   animation: beam 3.2s linear infinite;
 }
 
 @keyframes beam {
   to {
-    --beam: 360deg;
+    transform: rotate(1turn);
   }
 }
 

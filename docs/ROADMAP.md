@@ -1,7 +1,7 @@
 # KERNEL PANIC — Booth Game #2: Roadmap and Design Document
 
 **ATÜ TechBuilders · a five-stage "the system crashed" booth game**
-Version: 1.4 (Faz 10: Emergency left the game, every round gets one Glitch; Dead Pixel paints its screens from eighteen colours in many tones; Beam Path draws each line from several recipes and mirrors it, so the beam comes from either side. Faz 9: the cyber eye instead of the red button, a mirrored duel, English code and documents) · Date: 2 November 2026 · Status: pre-release, next: the last test on the tablet · Booth: **4 November 2026** · Code: `Desktop/KernelPanic`
+Version: 1.5 (Faz 11: the game ran smoothly on a PC but stuttered on the booth tablet — the moving background no longer repaints on every frame, and a slow device steps down to a light mode by itself. Faz 10: Emergency left the game, every round gets one Glitch; Dead Pixel paints its screens from eighteen colours in many tones; Beam Path draws each line from several recipes and mirrors it, so the beam comes from either side. Faz 9: the cyber eye instead of the red button, a mirrored duel, English code and documents) · Date: 2 November 2026 · Status: pre-release, next: the last test on the tablet · Booth: **4 November 2026** · Code: `Desktop/KernelPanic`
 
 The game speaks Turkish. This document quotes its on-screen texts in Turkish, with a translation where it helps. Phases are called "Faz" as in the club's plan.
 
@@ -385,6 +385,7 @@ Red and amber are not in the logo; they were added **on purpose**: the game's dr
 | **Faz 8** | 2 Nov | **Fair but different duel content** (the same difficulty; the dead pixel's place, the colour order, Colour Trap's words and Don't Press's command order differ per player; Beam Path the same); **no Emergency in a duel**; the first one done gets **their own result transition** on their half (as in a solo round, shrunk to fit); **Emergency freezes the screen**, 4 s to read + 8 s to choose; **Dead Pixel 5 screens**; the logo in the **banner's chip frame** (ring + circuit traces), the club's name in a **cyber typeface** (Orbitron, ATÜ white · TECH cyan · BUILDERS blue), "yapımı · stant oyunu #2" removed, the chip powers on in the opening; the duel's house button moved under VS | ✅ 105 unit + 83 end-to-end tests |
 | **Faz 9** | 2 Nov | **The cyber eye** replaces the red button (the club picked it from three eyes on the "Kernel Panic Göz" prototype page): it looks somewhere else **every 3 s**, looks **where the screen is touched**, squints at the visitor when idle, opens wide and turns red when pressed; two eyes in the duel, looking together; the duel's right half mirrors the left (card accent on the outer edge); the logo chip **no longer spills out** of the game during screen switches; **English identifiers, file names and documents** for the public repository (the UI stays Turkish); end-to-end tests made independent of the machine's speed (they failed on GitHub's slower runners) | ✅ 111 unit + 87 end-to-end tests |
 | **Faz 10** | 2 Nov | **Emergency removed** (one Glitch every round, solo and duel; the safe/risky versions of the stages are gone); **Dead Pixel colours**: eighteen colours in many tones instead of 4+1 (the plain squares and the difficulty unchanged); **Beam Path variety**: three recipes per line and lines mirrored at random (the beam from either side, the server anywhere) | ✅ 110 unit + 82 end-to-end tests |
+| **Faz 11** | 3 Nov | **Performance on the booth tablet** (the club's tablet test: "aşırı kasma", heavy stutter; fine on a PC). Measured with a 4× slower CPU and a tablet pixel ratio: the floor grid's drift repainted a big tilted layer every frame (85 % of the drawing work) and the code rain sent a 2560 × 1600 canvas to the GPU 30 times a second. Now the grid moves by a transform (the GPU alone), the rain is drawn at 1280 × 800, the eye repaints only while it moves, the typed disclaimer and the round clock no longer re-render the whole screen, the hack panel's light turns as a layer. Stage screen 24 → 60 fps, button screen 35 → 53 fps (same measurement). A slow device (median frame over 25 ms in the first seconds) gets a **light mode** by itself: the floor holds still, the rain falls at 15 fps, the title glitch rests | ✅ 115 unit + 84 end-to-end tests |
 | **Last test** | before release | **On the tablet:** sound level, touch feel, smoothness of the effects, **two people touching at once (duel)**, a trial with 5–10 people, **tuning the step and round lengths** (Dead Pixel's last screen, Beam Path's line clocks, YEŞİLDE BAS), backup install | |
 | **Booth** | 4 Nov | Setup, sound and screen-on check, watching during the day | |
 
@@ -435,6 +436,7 @@ The core loop (eye → hack → five stages → result → error report) and the
 | 30 | Emergency | **Removed** (Faz 10): every round, solo or duel, gets one Glitch on stage 2, 3 or 4 |
 | 31 | Dead Pixel variety | Only in the colours: eighteen colours, nudged every round; the squares, sizes, differences and clocks stay as they were |
 | 32 | Beam Path variety | Three recipes of the same difficulty per line; every line mirrored at random (emitter left or right, server on any side) |
+| 33 | Performance | Animate only transform and opacity on big layers, draw canvases at the stage size, keep fast-changing parts in their own components; a slow device steps down to the light mode (`<html data-perf="low">`) |
 
 ---
 
@@ -456,7 +458,7 @@ The core loop (eye → hack → five stages → result → error report) and the
 | Stages too easy / too hard | A trial with 5–10 people on the tablet; step clocks and differences tuned in one file (`config.ts`) |
 | A first-time visitor does not know what to do | Every stage's title card has a big command and a one-line hint; the clock stands still meanwhile |
 | Colour-blind visitors | Four Colours' pads keep their places (except swaps); Colour Trap's first part is about reading the word |
-| Animations tire the tablet | Effects are mostly CSS/GPU; in the duel two rounds run at once, to be checked on the tablet |
+| Animations tire the tablet | Faz 11: the background moves on the GPU only, the canvas is small, nothing repaints every frame that does not change; a slow device gets the light mode by itself; the duel (two rounds at once) to be checked on the tablet |
 | Crash / freeze | Error handling, automatic return to the start; a backup device |
 | End-to-end tests fail on slower machines (GitHub) | Timed checks hold the page's clock or act inside the page; checked with a 4× slower CPU (Faz 9) |
 

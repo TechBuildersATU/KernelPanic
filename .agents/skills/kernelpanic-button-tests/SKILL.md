@@ -55,6 +55,10 @@ description: >-
   (`?transition=<title>&half=1`).
 - `e2e/boot.spec.ts` — the APK's opening via `?intro=1` (plays, a tap skips it, sets
   `data-boot`).
+- `e2e/perf.spec.ts` — the background stays cheap (the floor's tiles move, not the tilted
+  layer; the code rain canvas is 1280 × 800 at pixel ratio 2) and `?perf=low` gives the light
+  mode; `tests/unit/perf.test.ts` — the frame-rate watch (60 fps keeps everything, 30 fps steps
+  down).
 - `e2e/*.pwa.spec.ts` — production build + service worker (URL flags are off there).
 
 ## Always

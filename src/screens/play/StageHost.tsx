@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react'
+import { memo, useEffect, useState, type ComponentType } from 'react'
 import { dur } from '@/app/timing'
 import { STAGE_TEXT } from '@/data/texts'
 import { STAGE_COUNT, STAGE_INTRO_MS } from '@/game/config'
@@ -37,7 +37,14 @@ interface Props {
  * One stage: its game is already on screen, dimmed, under a title card (number, name, the
  * command); the card lets go and the game comes up to full light and starts.
  */
-export function StageHost({ index, seed, player, glitch, active, ...on }: Props) {
+export const StageHost = memo(function StageHost({
+  index,
+  seed,
+  player,
+  glitch,
+  active,
+  ...on
+}: Props) {
   const stage = stageAt(index)
   const text = STAGE_TEXT[stage]
   const [live, setLive] = useState(false)
@@ -76,4 +83,4 @@ export function StageHost({ index, seed, player, glitch, active, ...on }: Props)
       </div>
     </div>
   )
-}
+})

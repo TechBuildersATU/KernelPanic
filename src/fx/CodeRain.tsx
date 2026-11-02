@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { STAGE_H, STAGE_W } from '@/components/stageSize'
 import { readReduceEffects } from '@/app/settings'
+import { isLowPerf } from '@/app/perf'
 import { prefersReducedMotion } from '@/app/timing'
 import { PALETTE } from '@/game/palette'
 
@@ -17,6 +18,8 @@ function rgb(hex: string): [number, number, number] {
 }
 const CELL = 20
 const FPS = 30
+/** A slow device (app/perf.ts): half the frames. */
+const LOW_FPS = 15
 
 interface Props {
   /** Character colour (hex). Changes without restarting the animation. */
@@ -36,10 +39,11 @@ export function CodeRain({ color = PALETTE.cyan, speed = 1 }: Props) {
     const el = canvas.current
     const g = el?.getContext('2d')
     if (!el || !g) return
-    const ratio = Math.min(2, window.devicePixelRatio || 1)
-    el.width = STAGE_W * ratio
-    el.height = STAGE_H * ratio
-    g.scale(ratio, ratio)
+    // Drawn at the stage's own 1280 × 800, not the screen's pixel ratio: the canvas goes to the GPU
+    // on every frame, and at ratio 2 that was four times the pixels — the second heaviest thing
+    // on the booth tablet. The rain is a faint background (16 % opacity); it stays crisp enough.
+    el.width = STAGE_W
+    el.height = STAGE_H
     g.font = `500 ${CELL - 4}px "JetBrains Mono", monospace`
     g.textBaseline = 'top'
 
@@ -73,7 +77,7 @@ export function CodeRain({ color = PALETTE.cyan, speed = 1 }: Props) {
     let raf = 0
     const loop = (t: number) => {
       raf = requestAnimationFrame(loop)
-      if (t - last < 1000 / FPS) return
+      if (t - last < 1000 / (isLowPerf() ? LOW_FPS : FPS)) return
       last = t
       frame()
     }

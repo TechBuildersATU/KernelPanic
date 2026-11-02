@@ -12,8 +12,10 @@ import {
 
 // The eye's motion: one GazeDirector per button screen decides where the eyes look and when they
 // blink (in the duel both eyes look together, like a face); each EyeMotion moves one eye's iris,
-// pupil and lids by writing the SVG's attributes on every frame. Kept out of React on purpose:
-// sixty attribute writes a second are not state.
+// pupil and lids by writing the SVG's attributes. Kept out of React on purpose: per-frame writes
+// are not state. Performance (the booth tablet): every write repaints the whole eye, so the eye
+// only moves while it glides, blinks, turns its ring or changes its lids, and holds perfectly
+// still in between — nothing is written while nothing changes.
 
 /** The parts of one eye's drawing that move. */
 export interface EyeParts {
@@ -45,9 +47,8 @@ export class EyeMotion {
   private pupilTarget = 1
   private spin = 0
   private boost = 0
-  private readonly phase = Math.random() * 20
   readonly parts: EyeParts
-  /** Reduced motion: slower glides, no tremor, no breathing pupil. */
+  /** Reduced motion: slower glides. */
   private readonly calm: boolean
 
   constructor(parts: EyeParts, calm: boolean) {
@@ -95,46 +96,47 @@ export class EyeMotion {
     return { x: r.left + r.width / 2, y: r.top + r.height / 2, reach: (230 * r.width) / 480 }
   }
 
+  /** Writes an attribute only when its value changed (an unchanged eye is never repainted). */
+  private set(el: Element, name: string, value: string): void {
+    if (el.getAttribute(name) !== value) el.setAttribute(name, value)
+  }
+
   update(now: number, dt: number): void {
     const k = Math.min(1, Math.max(0, (now - this.t0) / this.moveMs))
     const e = easeOut(k)
     this.gaze.x = this.from.x + (this.to.x - this.from.x) * e
     this.gaze.y = this.from.y + (this.to.y - this.from.y) * e
-    const p = this.phase
-    // a living eye never quite holds still
-    const jx = this.calm
-      ? 0
-      : 0.022 * Math.sin(now / 760 + p) + 0.01 * Math.sin(now / 290 + p * 1.7)
-    const jy = this.calm
-      ? 0
-      : 0.02 * Math.sin(now / 690 + p * 0.6) + 0.01 * Math.sin(now / 330 + p * 2.3)
-    const gx = this.gaze.x + jx
-    const gy = this.gaze.y + jy
+    const gx = this.gaze.x
+    const gy = this.gaze.y
     // the iris foreshortens along the way it looks, like a lens on a sphere
     const m = Math.min(1, Math.hypot(gx, gy))
     const a = ((Math.atan2(gy, gx) * 180) / Math.PI).toFixed(1)
-    const x = (240 + gx * TRAVEL.x).toFixed(2)
-    const y = (240 + gy * TRAVEL.y).toFixed(2)
-    const squash = (1 - 0.17 * m).toFixed(3)
-    this.parts.look.setAttribute(
+    const x = (240 + gx * TRAVEL.x).toFixed(1)
+    const y = (240 + gy * TRAVEL.y).toFixed(1)
+    const squash = (1 - 0.17 * m).toFixed(2)
+    this.set(
+      this.parts.look,
       'transform',
       `translate(${x} ${y}) rotate(${a}) scale(${squash} 1) rotate(${-Number(a)})`,
     )
 
     this.pupil += (this.pupilTarget - this.pupil) * Math.min(1, dt / 90)
-    const breath = this.calm ? 1 : 1 + 0.04 * Math.sin(now / 1500 + p)
-    this.parts.pupil.setAttribute('transform', `scale(${(this.pupil * breath).toFixed(3)})`)
+    if (Math.abs(this.pupilTarget - this.pupil) < 0.005) this.pupil = this.pupilTarget
+    this.set(this.parts.pupil, 'transform', `scale(${this.pupil.toFixed(2)})`)
 
     this.lid += (this.lidTarget - this.lid) * Math.min(1, dt / 120)
+    if (Math.abs(this.lidTarget - this.lid) < 0.005) this.lid = this.lidTarget
     this.blinks = this.blinks.filter((at) => now - at < BLINK_MS)
     const shut = Math.max(0, ...this.blinks.map((at) => blinkAmount(now - at)))
     const closed = this.lid + (1 - this.lid) * shut
-    this.parts.lidTop.setAttribute('d', lidPath('top', closed))
-    this.parts.lidBottom.setAttribute('d', lidPath('bottom', closed))
+    this.set(this.parts.lidTop, 'd', lidPath('top', closed))
+    this.set(this.parts.lidBottom, 'd', lidPath('bottom', closed))
 
+    // the lens' ring turns while the eye refocuses (a glance), then rests
     this.boost *= 0.5 ** (dt / 220)
-    this.spin = (this.spin + dt * (0.012 + 0.35 * this.boost)) % 360
-    this.parts.spin.setAttribute('transform', `rotate(${this.spin.toFixed(1)})`)
+    if (this.boost < 0.01) this.boost = 0
+    this.spin = (this.spin + dt * 0.35 * this.boost) % 360
+    this.set(this.parts.spin, 'transform', `rotate(${this.spin.toFixed(1)})`)
   }
 }
 
