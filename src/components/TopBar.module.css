@@ -1,18 +1,25 @@
 .top {
+  --edge-top: 18px;
+  --edge-left: 28px;
   position: absolute;
-  top: 18px;
-  left: 28px;
-  right: 28px;
+  top: var(--edge-top);
+  left: var(--edge-left);
+  right: var(--edge-left);
   z-index: 5;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
 }
 
-/* the club signs its game: the logo, big, with its name next to it */
+/* the club signs its game: the logo, big, with its name next to it.
+   The chip's traces run out past the screen's left and top edges. The stage clips them, but a
+   screen switch lifts the header out of the stage (the View Transition draws its snapshot on top
+   of the whole page), where nothing would: so they are cut at the stage's edges here. */
 .brand {
   position: relative;
   justify-self: start;
+  align-self: start;
+  clip-path: inset(calc(-1 * var(--edge-top)) -2000px -800px calc(-1 * var(--edge-left)));
   display: flex;
   align-items: center;
   gap: 14px;

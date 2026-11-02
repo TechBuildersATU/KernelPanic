@@ -1,8 +1,8 @@
 import { dur } from '@/app/timing'
 import { playSfx, type Sfx } from '@/audio/sfx'
-import { RENK } from '@/game/config'
+import { COLOURS } from '@/game/config'
 import type { Rng } from '@/game/rng'
-import { derange, PADS, type ColourLayer } from '@/game/stages/renk'
+import { derange, PADS, type ColourLayer } from '@/game/stages/colours'
 import { StageRunner, type Mark, type StageIO } from '../runner'
 
 export type ColourPhase = 'wait' | 'show' | 'swap' | 'input' | 'pass' | 'fail' | 'done'
@@ -112,7 +112,7 @@ export class ColourRunner extends StageRunner<ColourView> {
     this.marks = layer.seq.map(() => 'idle')
     this.io.hold(true)
     this.paint()
-    const gap = dur(RENK.gapMs)
+    const gap = dur(COLOURS.gapMs)
     const on = dur(layer.onMs)
     const lead = dur(600)
     layer.seq.forEach((pad, n) => {
@@ -141,8 +141,8 @@ export class ColourRunner extends StageRunner<ColourView> {
 
   private armIdle(): void {
     this.cancel(this.idle)
-    this.deadline = Date.now() + RENK.idleMs
-    this.idle = this.after(RENK.idleMs, () => this.fail(null))
+    this.deadline = Date.now() + COLOURS.idleMs
+    this.idle = this.after(COLOURS.idleMs, () => this.fail(null))
   }
 
   private afterLayer(): void {

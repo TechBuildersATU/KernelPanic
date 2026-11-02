@@ -1,6 +1,6 @@
 import { dur } from '@/app/timing'
 import { playSfx } from '@/audio/sfx'
-import { BASMA } from '@/game/config'
+import { ORDERS } from '@/game/config'
 import {
   COMMAND_TEXT,
   effectiveCommand,
@@ -8,10 +8,10 @@ import {
   windowOf,
   type Command,
   type Order,
-} from '@/game/stages/basma'
+} from '@/game/stages/orders'
 import { StageRunner, type Mark, type StageIO } from '../runner'
 
-export type PressPhase = 'wait' | 'ters' | 'cmd' | 'ok' | 'miss' | 'done'
+export type PressPhase = 'wait' | 'reverse' | 'cmd' | 'ok' | 'miss' | 'done'
 
 export interface PressView {
   idx: number
@@ -95,14 +95,14 @@ export class PressRunner extends StageRunner<PressView> {
     if (this.phase !== 'cmd' || !cmd || cmd.done) return
     playSfx('press')
     const t = Date.now() - cmd.t0
-    if (cmd.eff === 'bas') return this.resolve(true)
-    if (cmd.eff === 'basma') return this.resolve(false, `${fmt(t)} sn'de bastın`)
-    if (cmd.eff === 'uc') {
+    if (cmd.eff === 'press') return this.resolve(true)
+    if (cmd.eff === 'dontPress') return this.resolve(false, `${fmt(t)} sn'de bastın`)
+    if (cmd.eff === 'triple') {
       cmd.taps++
       if (cmd.taps >= 3) this.resolve(true)
       return
     }
-    if (cmd.eff === 'tut') {
+    if (cmd.eff === 'hold') {
       cmd.holdAt = Date.now()
       return
     }
@@ -117,11 +117,11 @@ export class PressRunner extends StageRunner<PressView> {
       this.paint()
     }
     const cmd = this.cmd
-    if (!cmd || cmd.done || cmd.eff !== 'tut' || !cmd.holdAt) return
+    if (!cmd || cmd.done || cmd.eff !== 'hold' || !cmd.holdAt) return
     const held = Date.now() - cmd.holdAt
     cmd.holdAt = 0
     // let go after the full hold, before a frame noticed it: still a hold
-    if (held >= BASMA.holdMs) return this.resolve(true)
+    if (held >= ORDERS.holdMs) return this.resolve(true)
     this.resolve(false, `${fmt(held)} sn'de bıraktın`)
   }
 
@@ -129,14 +129,14 @@ export class PressRunner extends StageRunner<PressView> {
   frame(): RingFrame {
     const cmd = this.cmd
     if (!cmd || cmd.done) return { progress: 0, colour: '' }
-    if (cmd.eff === 'tut') {
-      const progress = cmd.holdAt ? Math.min(1, (Date.now() - cmd.holdAt) / BASMA.holdMs) : 0
+    if (cmd.eff === 'hold') {
+      const progress = cmd.holdAt ? Math.min(1, (Date.now() - cmd.holdAt) / ORDERS.holdMs) : 0
       if (cmd.holdAt && progress >= 1) this.resolve(true)
       return { progress, colour: '' }
     }
-    if (cmd.order.kind === 'yesil')
+    if (cmd.order.kind === 'green')
       return { progress: 1, colour: ringColourAt(Date.now() - cmd.t0) }
-    if (cmd.eff === 'uc') return { progress: cmd.taps / 3, colour: '' }
+    if (cmd.eff === 'triple') return { progress: cmd.taps / 3, colour: '' }
     return { progress: 0, colour: '' }
   }
 
@@ -144,7 +144,7 @@ export class PressRunner extends StageRunner<PressView> {
     this.idx = i
     const order = this.orders[i]
     if (order.inverted && !this.orders[i - 1]?.inverted) {
-      this.phase = 'ters'
+      this.phase = 'reverse'
       this.cmd = null
       playSfx('alarm')
       this.paint()
@@ -177,13 +177,13 @@ export class PressRunner extends StageRunner<PressView> {
 
   private windowOver(cmd: Cmd): void {
     if (cmd !== this.cmd || cmd.done || cmd.holdAt) return
-    if (cmd.eff === 'basma') return this.resolve(true)
+    if (cmd.eff === 'dontPress') return this.resolve(true)
     const why =
-      cmd.eff === 'uc'
+      cmd.eff === 'triple'
         ? `${cmd.taps} kez bastın`
-        : cmd.eff === 'yesil'
+        : cmd.eff === 'green'
           ? 'yeşil yandı, basmadın'
-          : cmd.eff === 'tut'
+          : cmd.eff === 'hold'
             ? 'basılı tutmadın'
             : cmd.order.inverted
               ? 'TERS modda basman gerekiyordu'

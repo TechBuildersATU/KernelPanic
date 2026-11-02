@@ -1,9 +1,9 @@
 import { seededRng, stageSeed, type Rng } from '../rng'
 import type { Variant } from '../types'
-import { makeOrders, type Order } from './basma'
-import { makePixelScreens, type PixelScreen } from './piksel'
-import { makeLayers, type ColourLayer } from './renk'
-import { makeTrapItems, type TrapItem } from './tuzak'
+import { makeOrders, type Order } from './orders'
+import { makePixelScreens, type PixelScreen } from './pixel'
+import { makeLayers, type ColourLayer } from './colours'
+import { makeTrapItems, type TrapItem } from './trap'
 
 // The duel (§2.5): both players get the same stages at the same difficulty, but not the same
 // answers, so nobody can copy from the half next door — the dead pixel sits somewhere else, the
@@ -16,14 +16,14 @@ export type Player = 0 | 1 | 2
 
 /** The stages' seed salts (stageSeed): content, and the runners' own random parts. */
 export const SALT = {
-  piksel: 0,
-  renk: 1,
-  isin: 2,
-  tuzak: 3,
-  basma: 4,
-  renkSwap: 11,
-  isinGlitch: 12,
-  tuzakButtons: 13,
+  pixel: 0,
+  colours: 1,
+  beam: 2,
+  trap: 3,
+  orders: 4,
+  coloursSwap: 11,
+  beamGlitch: 12,
+  trapButtons: 13,
 } as const
 
 /** Player 2's seeds lie this far from the shared ones (one more step per new draw). */
@@ -71,9 +71,9 @@ export function elsewhere(size: number, odd: number, rng: Rng): number {
  * sits somewhere else, at least two squares away from player 1's.
  */
 export function pixelScreensFor(seed: number, player: Player): PixelScreen[] {
-  const screens = makePixelScreens(seededRng(stageSeed(seed, SALT.piksel)))
+  const screens = makePixelScreens(seededRng(stageSeed(seed, SALT.pixel)))
   if (player !== 2) return screens
-  const rng = seededRng(playerSeed(seed, SALT.piksel, 2))
+  const rng = seededRng(playerSeed(seed, SALT.pixel, 2))
   return screens.map((screen) => ({ ...screen, odd: elsewhere(screen.size, screen.odd, rng) }))
 }
 
@@ -86,7 +86,7 @@ export function colourLayersFor(
 ): ColourLayer[] {
   return apartFrom(
     seed,
-    SALT.renk,
+    SALT.colours,
     player,
     (rng) => makeLayers(variant, glitch, rng),
     (mine, theirs) => mine.every((layer, i) => layer.seq.join() !== theirs[i].seq.join()),
@@ -97,7 +97,7 @@ export function colourLayersFor(
 export function trapItemsFor(seed: number, player: Player): TrapItem[] {
   return apartFrom(
     seed,
-    SALT.tuzak,
+    SALT.trap,
     player,
     (rng) => makeTrapItems(rng),
     (mine, theirs) =>
@@ -109,7 +109,7 @@ export function trapItemsFor(seed: number, player: Player): TrapItem[] {
 export function ordersFor(seed: number, player: Player): Order[] {
   return apartFrom(
     seed,
-    SALT.basma,
+    SALT.orders,
     player,
     (rng) => makeOrders(rng),
     (mine, theirs) =>

@@ -122,7 +122,10 @@ test('"Bizi takip edin" opens the club QR; the cross or a tap outside closes it'
   await page.getByTestId('btn-social').tap()
   const qr = page.getByTestId('social-qr')
   await expect(qr).toBeVisible()
-  expect(await qr.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
+  // the picture may still be loading on a busy machine
+  await expect
+    .poll(() => qr.evaluate((img: HTMLImageElement) => (img.complete ? img.naturalWidth : 0)))
+    .toBeGreaterThan(0)
   await expect(page.getByTestId('social-dialog')).toContainText('linktr.ee/atutechbuilders')
   await expectTouchTarget(page.getByTestId('social-close'))
   await page.getByTestId('social-close').tap()

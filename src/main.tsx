@@ -20,7 +20,7 @@ import { setupNativeApp } from './app/native'
 import { unlockOnFirstTouch } from './audio/engine'
 
 setupNativeApp()
-// any first touch unlocks audio, so the menu music can start before the red button
+// any first touch unlocks audio, so the menu music can start before the eye is pressed
 unlockOnFirstTouch()
 
 createRoot(document.getElementById('root')!).render(

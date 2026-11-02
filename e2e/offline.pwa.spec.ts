@@ -18,11 +18,11 @@ test('launches offline after the first visit', async ({ page, context }) => {
   // the first stage works offline too (production timings, no test flags: any pixel will do)
   await page.getByTestId('btn-panic').tap()
   await expect(page.getByTestId('play')).toBeVisible({ timeout: 10_000 })
-  const stage = page.getByTestId('stage-piksel')
+  const stage = page.getByTestId('stage-pixel')
   await expect(stage).toHaveAttribute('data-phase', 'find', { timeout: 10_000 })
   await stage.getByRole('button', { name: 'piksel' }).first().tap()
   await expect(
-    page.getByTestId('penalty').or(page.locator('[data-testid="stage-piksel"][data-phase="hit"]')),
+    page.getByTestId('penalty').or(page.locator('[data-testid="stage-pixel"][data-phase="hit"]')),
   ).toBeVisible()
 })
 

@@ -1,4 +1,4 @@
-import { TUZAK } from '../config'
+import { TRAP } from '../config'
 import type { Rng } from '../rng'
 
 // RENK TUZAĞI (stage 4): a colour name painted in another colour (MAVİ in red). Two parts: first
@@ -28,8 +28,8 @@ export interface TrapItem {
 
 export function makeTrapItems(rng: Rng): TrapItem[] {
   const items: TrapItem[] = []
-  for (let n = 0; n < TUZAK.perPart * 2; n++) {
-    const part = n < TUZAK.perPart ? 0 : 1
+  for (let n = 0; n < TRAP.perPart * 2; n++) {
+    const part = n < TRAP.perPart ? 0 : 1
     const prev = items.at(-1)
     let word: number
     let ink: number

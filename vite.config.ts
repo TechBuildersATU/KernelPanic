@@ -10,7 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
-    // Offline launch + full screen kiosk on the booth tablet (YOL-HARITASI §8)
+    // Offline launch + full screen kiosk on the booth tablet (docs/ROADMAP.md §8)
     VitePWA({
       disable: mode === 'android',
       registerType: 'autoUpdate',

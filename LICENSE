@@ -30,8 +30,9 @@ Not covered by the MIT License above (all rights reserved by ATÜ TechBuilders):
   icons in android/app/src/main/res/mipmap-* and the splash images in
   android/app/src/main/res/drawable*/);
 - the club's Linktree QR code (public/social/);
-- the club's documents in docs/ (roadmap and design document with its PDFs,
-  the original sketches in docs/taslak/ and the archive in docs/arsiv/).
+- the club's documents in docs/ (the roadmap and design document with its PDF,
+  the original sketches in docs/sketches/, the screenshots in docs/screenshots/
+  and the archive in docs/archive/).
 
 Third-party packages installed through npm keep their own licenses (for example
 the fonts from @fontsource, SIL Open Font License).

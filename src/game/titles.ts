@@ -3,7 +3,7 @@ import { isGreen, stageGrade } from './grades'
 import type { Grade, RoundOutcome, TitleId } from './types'
 
 /**
- * The result title of a round (docs/YOL-HARITASI.md §5.1), from the colours of the five stages:
+ * The result title of a round (docs/ROADMAP.md §5.1), from the colours of the five stages:
  * how many are green (perfect or lime), how many red, and whether the clock held.
  */
 export function titleFor({ stages, remainingMs, roundMs }: RoundOutcome): TitleId {

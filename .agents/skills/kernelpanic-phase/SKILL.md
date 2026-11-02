@@ -2,7 +2,7 @@
 name: kernelpanic-phase
 description: >-
   Use when implementing, continuing or finishing a KERNEL PANIC phase ("Faz 1", "Faz 2",
-  "Faz 3", "faz 1'den devam et", "start the red button screen", "build the events"). Covers
+  "Faz 3", "faz 1'den devam et", "start the button screen", "build the events"). Covers
   which spec sections to read, the order of work inside each phase, the cut list when time runs
   out, tests and the definition of done. The booth is on 4 November 2026: three working days.
 ---
@@ -11,16 +11,16 @@ description: >-
 
 ## 1. Read before writing code
 
-- `docs/YOL-HARITASI.md` — the spec. §10 is the phase plan, §11 the final decisions.
-- `docs/taslak/1-4.png` — the club's original sketches (story, phases, events, titles).
+- `docs/ROADMAP.md` — the spec (English; it quotes the game's Turkish texts). §10 is the phase
+  plan, §11 the final decisions.
+- `docs/sketches/1-4.png` — the club's original sketches (story, phases, events, titles).
 - `src/game/stages/` — the five stage games' pure generators; their timed logic lives in
-  `src/screens/stages/runners/` (the quiz and `SORULAR.md` were retired in Faz 6; archive in
-  `docs/arsiv/`).
+  `src/screens/stages/runners/` (the quiz was retired in Faz 6; archive in `docs/archive/`).
 - `src/game/config.ts` — every number. Add new tunables there.
 
 | Phase | Day      | Read                | Main files                                                       |
 | ----- | -------- | ------------------- | ---------------------------------------------------------------- |
-| Faz 0 | 31 Oct ✅ | §8, §9              | setup, tokens, Stage, config, types, titles, SORULAR.md parser   |
+| Faz 0 | 31 Oct ✅ | §8, §9              | setup, tokens, Stage, config, types, titles, question parser     |
 | Faz 1 | 31 Oct ✅ | §2.1–2.3, §4, §7    | `game/engine.ts` (reducer), `game/picker.ts`, `game/rng.ts`, `screens/Attract`, `Hack`, `Play`, simple `Result`, `audio/` |
 | Faz 2 | 1 Nov ✅ | §3, §5, §6          | `game/events.ts`, event overlays, `Result` (blocks, title, badges), `Report`, transitions, hidden `Settings` |
 | Faz 3 | 1 Nov ✅ | §2–§5, §7          | animation pass: `fx/particles.ts` (sparks, embers, packets, shake), every screen's motion |
@@ -28,7 +28,8 @@ description: >-
 | Faz 5 | 1 Nov ✅ | §5.3, §7            | shared world, cross-fades, music per scene |
 | Faz 6 | 2 Nov ✅ | §2.3, §4, §5        | five stages instead of questions (`game/stages`, `screens/stages`), grades, new titles and transitions |
 | Faz 7 | 2 Nov ✅ | §2.0–2.5, §3.1      | 1v1 duel (`screens/DuelPlay`, `DuelResult`, `game/duel.ts`, `Play layout="half"`), `fx/BootIntro` + Android splash, logo + credit, gear settings, `SocialDialog`, `HomeButton`, Overheat ±5 |
-| Faz 8 | 2 Nov ✅ | §2.1, §2.3, §2.5, §3.3 | duel content per player (`game/stages/players.ts`), no Emergency in a duel, `ResultTransition layout="half"`, Emergency freeze + reading time, Ölü Piksel 5 screens, `LogoChip` + Orbitron |
+| Faz 8 | 2 Nov ✅ | §2.1, §2.3, §2.5, §3.3 | duel content per player (`game/stages/players.ts`), no Emergency in a duel, `ResultTransition layout="half"`, Emergency freeze + reading time, Dead Pixel 5 screens, `LogoChip` + Orbitron |
+| Faz 9 | 2 Nov ✅ | §2.1, §2.5, §8, §11 #26–29 | the cyber eye (`components/eye`: `Eye`, `geometry`, `motion`), looks every 3 s and at touches; mirrored duel card; logo chip clipped during screen switches; English identifiers, file names and docs (`docs/ROADMAP.md`); speed-independent e2e |
 | Final | before release | §10–§12      | real-tablet test: sound level, touch feel, effect smoothness, two players touching at once, balance, backup install |
 
 ## 2. Order inside a phase
@@ -64,4 +65,5 @@ button on the touched screens.
 
 What was built, test counts (unit / e2e), anything cut or deferred, and the manual checks
 still needed on the real tablet (sound level, touch feel, flash intensity, performance). Update
-the phase row in `docs/YOL-HARITASI.md` §10. Do not commit unless the user asks.
+the phase row in `docs/ROADMAP.md` §10 and rebuild its PDF. Write everything but the UI text in
+English (identifiers, ids, file names, comments, docs). Do not commit unless the user asks.

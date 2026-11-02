@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { PIKSEL } from '@/game/config'
+import { PIXEL } from '@/game/config'
 import { seededRng, stageSeed } from '@/game/rng'
-import { effectiveCommand, makeOrders } from '@/game/stages/basma'
-import { makePixelScreens } from '@/game/stages/piksel'
+import { effectiveCommand, makeOrders } from '@/game/stages/orders'
+import { makePixelScreens } from '@/game/stages/pixel'
 import {
   colourLayersFor,
   elsewhere,
@@ -11,8 +11,8 @@ import {
   SALT,
   trapItemsFor,
 } from '@/game/stages/players'
-import { makeLayers } from '@/game/stages/renk'
-import { makeTrapItems } from '@/game/stages/tuzak'
+import { makeLayers } from '@/game/stages/colours'
+import { makeTrapItems } from '@/game/stages/trap'
 
 // The duel (§2.5): the same stages at the same difficulty, but other answers for player 2.
 
@@ -26,17 +26,17 @@ describe('duel content per player (§2.5)', () => {
     expect(pixelScreensFor(seed, 1)).toEqual(makePixelScreens(seededRng(stageSeed(seed, 0))))
     expect(pixelScreensFor(seed, 0)).toEqual(pixelScreensFor(seed, 1))
     expect(colourLayersFor(seed, 'normal', false, 1)).toEqual(
-      makeLayers('normal', false, seededRng(stageSeed(seed, SALT.renk))),
+      makeLayers('normal', false, seededRng(stageSeed(seed, SALT.colours))),
     )
-    expect(trapItemsFor(seed, 1)).toEqual(makeTrapItems(seededRng(stageSeed(seed, SALT.tuzak))))
-    expect(ordersFor(seed, 1)).toEqual(makeOrders(seededRng(stageSeed(seed, SALT.basma))))
+    expect(trapItemsFor(seed, 1)).toEqual(makeTrapItems(seededRng(stageSeed(seed, SALT.trap))))
+    expect(ordersFor(seed, 1)).toEqual(makeOrders(seededRng(stageSeed(seed, SALT.orders))))
   })
 
   it('Ölü Piksel: the same five screens, the dead pixel two squares or more away', () => {
     for (const seed of SEEDS) {
       const one = pixelScreensFor(seed, 1)
       const two = pixelScreensFor(seed, 2)
-      expect(two).toHaveLength(PIKSEL.sizes.length)
+      expect(two).toHaveLength(PIXEL.sizes.length)
       two.forEach((screen, i) => {
         const { odd: a, ...same } = one[i]
         const { odd: b, ...mine } = screen
@@ -89,7 +89,7 @@ describe('duel content per player (§2.5)', () => {
       expect([...kinds(two)].sort()).toEqual([...kinds(one)].sort())
       expect(two.slice(4).every((o) => o.inverted && o.step === 4)).toBe(true)
       expect(two[0].kind).not.toBe(one[0].kind)
-      expect(two[0].kind).not.toBe('basma')
+      expect(two[0].kind).not.toBe('dontPress')
       expect(two.map(effectiveCommand)).toHaveLength(6)
     }
   })

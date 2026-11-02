@@ -1,10 +1,10 @@
 import { expect, test } from './fixtures.ts'
-import { expectTouchTarget, ROUND_URL, sounds } from './helpers.ts'
+import { expectTouchTarget, irisX, ROUND_URL, sounds } from './helpers.ts'
 
-// The red button screen (§2.1) and the hack intro (§2.2).
+// The button screen with its eye (§2.1) and the hack intro (§2.2).
 
-test.describe('Attract (red button)', () => {
-  test('shows the button, the warning around it and a typed disclaimer', async ({ page }) => {
+test.describe('Attract (the eye)', () => {
+  test('shows the eye, the warning around it and a typed disclaimer', async ({ page }) => {
     await page.goto('/')
     const button = page.getByRole('button', { name: /Basmak üzeresin/ })
     await expect(button).toBeVisible()
@@ -65,7 +65,9 @@ test.describe('Attract (red button)', () => {
     })
   })
 
-  test('the button nudges after 20 s without a touch, a touch calms it', async ({ page }) => {
+  test('the eye squints at the visitor after 20 s without a touch, a touch calms it', async ({
+    page,
+  }) => {
     await page.clock.install()
     await page.goto('/')
     const button = page.getByTestId('btn-panic')
@@ -75,4 +77,53 @@ test.describe('Attract (red button)', () => {
     await page.getByTestId('disclaimer').tap()
     await expect(button).toHaveAttribute('data-nudge', 'false')
   })
+
+  test('the eye looks somewhere else every 3 s, never twice the same way', async ({ page }) => {
+    await page.clock.install()
+    await page.goto('/')
+    const eye = page.getByTestId('btn-panic')
+    await expect(eye).toHaveAttribute('data-look', 'centre')
+    // the first look comes soon after the screen opens
+    await page.clock.fastForward(1_300)
+    await expect(eye).not.toHaveAttribute('data-look', 'centre')
+    for (let i = 0; i < 3; i++) {
+      const look = (await eye.getAttribute('data-look')) ?? ''
+      await page.clock.fastForward(2_000)
+      await expect(eye).toHaveAttribute('data-look', look)
+      await page.clock.fastForward(1_100)
+      await expect(eye).not.toHaveAttribute('data-look', look)
+    }
+  })
+
+  test('the eye looks where the screen is touched', async ({ page }) => {
+    await page.goto('/')
+    const eye = page.getByTestId('btn-panic')
+    await expect(eye).toBeVisible()
+    await page.touchscreen.tap(80, 420)
+    await expect(eye).toHaveAttribute('data-look', 'touch')
+    await expect.poll(() => irisX(eye)).toBeLessThan(200)
+    await page.touchscreen.tap(1200, 420)
+    await expect.poll(() => irisX(eye)).toBeGreaterThan(280)
+  })
+})
+
+test('the logo chip stays inside the screen while the screens switch', async ({ page }) => {
+  // a wider screen than the tablet: bars to the left and right of the 1280 × 800 game
+  await page.setViewportSize({ width: 1600, height: 800 })
+  await page.goto(ROUND_URL)
+  await expect(page.getByTestId('btn-panic')).toBeVisible()
+  // slow screen switches down, so they can be caught in the act
+  await page.addStyleTag({
+    content:
+      '::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 4s !important; }',
+  })
+  const bar = { x: 0, y: 0, width: 150, height: 800 }
+  const empty = await page.screenshot({ clip: bar })
+  await page.getByTestId('btn-panic').tap()
+  await expect(page.locator('html[data-switching]')).toBeAttached()
+  for (let i = 0; i < 4; i++) {
+    // the header is lifted out of the game for the switch: its traces must not reach the bar
+    expect(await page.screenshot({ clip: bar })).toEqual(empty)
+    await page.waitForTimeout(250)
+  }
 })

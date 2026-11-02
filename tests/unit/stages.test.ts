@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ISIN } from '@/game/config'
+import { BEAM } from '@/game/config'
 import { seededRng } from '@/game/rng'
-import { effectiveCommand, makeOrders, ringColourAt, windowOf } from '@/game/stages/basma'
-import { makeBeamLine, solutionOf, traceBeam } from '@/game/stages/isin'
-import { makePixelScreens } from '@/game/stages/piksel'
-import { colourTotal, derange, makeLayers, makeSequence } from '@/game/stages/renk'
-import { makeTrapItems } from '@/game/stages/tuzak'
+import { effectiveCommand, makeOrders, ringColourAt, windowOf } from '@/game/stages/orders'
+import { makeBeamLine, solutionOf, traceBeam } from '@/game/stages/beam'
+import { makePixelScreens } from '@/game/stages/pixel'
+import { colourTotal, derange, makeLayers, makeSequence } from '@/game/stages/colours'
+import { makeTrapItems } from '@/game/stages/trap'
 
 const SEEDS = Array.from({ length: 300 }, (_, i) => i + 1)
 
@@ -69,7 +69,7 @@ describe('Işın Yolu', () => {
     for (const variant of ['normal', 'safe', 'risky'] as const) {
       for (const seed of SEEDS) {
         const rng = seededRng(seed)
-        for (const size of ISIN.lines[variant]) {
+        for (const size of BEAM.lines[variant]) {
           const line = makeBeamLine(size, rng)
           expect(traceBeam(line, line.start).ok).toBe(false)
           expect(traceBeam(line, solutionOf(line, line.start)).ok).toBe(true)
@@ -84,7 +84,7 @@ describe('Işın Yolu', () => {
   })
 
   it('the beam stops at a wall and ends outside the grid at the server when solved', () => {
-    const line = makeBeamLine(ISIN.lines.normal[1], seededRng(9))
+    const line = makeBeamLine(BEAM.lines.normal[1], seededRng(9))
     const beam = traceBeam(line, solutionOf(line, line.start))
     expect(beam.points[0]).toEqual([-1, line.entry])
     expect(beam.points.at(-1)).toEqual([line.server.x, line.server.y])
@@ -115,21 +115,21 @@ describe('Basma Dedik', () => {
       const orders = makeOrders(seededRng(seed))
       expect(orders).toHaveLength(6)
       const four = orders.slice(0, 4)
-      expect(four.map((o) => o.kind).sort()).toEqual(['basma', 'tut', 'uc', 'yesil'])
-      expect(four[0].kind).not.toBe('basma')
+      expect(four.map((o) => o.kind).sort()).toEqual(['dontPress', 'green', 'hold', 'triple'])
+      expect(four[0].kind).not.toBe('dontPress')
       expect(four.every((o) => !o.inverted)).toBe(true)
-      const ters = orders.slice(4)
-      expect(ters.map((o) => o.kind).sort()).toEqual(['bas', 'basma'])
-      expect(ters.every((o) => o.inverted && o.step === 4)).toBe(true)
+      const reverse = orders.slice(4)
+      expect(reverse.map((o) => o.kind).sort()).toEqual(['dontPress', 'press'])
+      expect(reverse.every((o) => o.inverted && o.step === 4)).toBe(true)
     }
   })
 
   it('TERS MOD turns BAS into "do not press" and BASMA! into "press"', () => {
-    expect(effectiveCommand({ kind: 'bas', inverted: true, step: 4 })).toBe('basma')
-    expect(effectiveCommand({ kind: 'basma', inverted: true, step: 4 })).toBe('bas')
-    expect(effectiveCommand({ kind: 'uc', inverted: false, step: 0 })).toBe('uc')
-    expect(windowOf({ kind: 'basma', inverted: false, step: 1 })).toBe(2000)
-    expect(windowOf({ kind: 'bas', inverted: true, step: 4 })).toBe(2000)
+    expect(effectiveCommand({ kind: 'press', inverted: true, step: 4 })).toBe('dontPress')
+    expect(effectiveCommand({ kind: 'dontPress', inverted: true, step: 4 })).toBe('press')
+    expect(effectiveCommand({ kind: 'triple', inverted: false, step: 0 })).toBe('triple')
+    expect(windowOf({ kind: 'dontPress', inverted: false, step: 1 })).toBe(2000)
+    expect(windowOf({ kind: 'press', inverted: true, step: 4 })).toBe(2000)
   })
 
   it('YEŞİLDE BAS: red, then amber, then green, every 1.5 s', () => {

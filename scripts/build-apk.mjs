@@ -55,7 +55,7 @@ function findJdk() {
     if (ok(home)) found.push(home)
   found.sort((a, b) => javaMajor(b) - javaMajor(a))
   if (!found.length)
-    throw new Error('JDK 17–21 bulunamadı. Android Studio kurun ya da JAVA_HOME ayarlayın.')
+    throw new Error('JDK 17–21 not found. Install Android Studio or set JAVA_HOME.')
   return found[0]
 }
 
@@ -68,8 +68,7 @@ function findSdk() {
     process.env.HOME && join(process.env.HOME, 'Android/Sdk'),
   ]
   const sdk = candidates.find((p) => p && existsSync(join(p, 'platforms')))
-  if (!sdk)
-    throw new Error('Android SDK bulunamadı. Android Studio kurun ya da ANDROID_HOME ayarlayın.')
+  if (!sdk) throw new Error('Android SDK not found. Install Android Studio or set ANDROID_HOME.')
   return sdk
 }
 
@@ -95,4 +94,4 @@ const out = join(ROOT, 'dist-apk')
 mkdirSync(out, { recursive: true })
 const apk = join(out, `KernelPanic-${version}-debug.apk`)
 copyFileSync(join(ANDROID, 'app/build/outputs/apk/debug/app-debug.apk'), apk)
-console.log(`\nAPK hazır: ${apk}`)
+console.log(`\nAPK ready: ${apk}`)

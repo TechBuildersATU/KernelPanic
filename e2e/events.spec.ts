@@ -123,7 +123,7 @@ test.describe('EMERGENCY MODE', () => {
     await startRound(page, url('emergency'))
     await playStages(page, 'right', 1)
     await page.getByTestId('btn-risky').tap()
-    await playStages(page, { renk: 'wrong' }, 2)
+    await playStages(page, { colours: 'wrong' }, 2)
     await expect(page.locator('[data-testid="play"] [data-cell="2"]')).toHaveAttribute(
       'data-state',
       'fail',
@@ -176,7 +176,7 @@ test.describe('GLITCH DETECTED', () => {
     await expect(page.getByTestId('stage-intro')).toContainText('GLITCH')
     await expect(page.getByTestId('banner-glitch')).toBeVisible({ timeout: 8_000 })
     await expect(page.getByTestId('play')).toHaveAttribute('data-glitch', 'true')
-    const stage = page.getByTestId('stage-renk')
+    const stage = page.getByTestId('stage-colours')
     const board = stage.locator('[data-seq]')
     const placeOfPad0 = () => stage.locator('[data-k="0"]').boundingBox()
     // layer 1: the pads stay where they were
@@ -220,7 +220,7 @@ test.describe('Result transitions (§5.3)', () => {
   test('coming back from the report does not replay the transition', async ({ page }) => {
     test.setTimeout(120_000)
     await startRound(page)
-    await playStages(page, { piksel: { wrong: 1 } })
+    await playStages(page, { pixel: { wrong: 1 } })
     await expect(page.getByTestId('result-title')).toBeVisible()
     await page.getByTestId('btn-report').tap()
     await page.getByTestId('btn-back').tap()
@@ -256,7 +256,7 @@ test.describe('Natural rounds (random events on)', () => {
     test(`seed ${seed}: the round reaches the result through its events`, async ({ page }) => {
       test.setTimeout(150_000)
       await startRound(page, `/?seed=${seed}&fastTimers=1`)
-      await playStages(page, { piksel: { wrong: 1 }, tuzak: { wrong: 2 } })
+      await playStages(page, { pixel: { wrong: 1 }, trap: { wrong: 2 } })
       await expect(page.getByTestId('result-title')).toBeVisible()
       // at least one random event per round (§3)
       await expect(page.locator('[data-testid^="badge-"]').first()).toBeVisible()

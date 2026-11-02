@@ -1,7 +1,7 @@
 import { dur } from '@/app/timing'
 import { playSfx } from '@/audio/sfx'
 import { shuffle, type Rng } from '@/game/rng'
-import { INKS, type TrapItem } from '@/game/stages/tuzak'
+import { INKS, type TrapItem } from '@/game/stages/trap'
 import { StageRunner, type Mark, type StageIO } from '../runner'
 
 export type TrapPhase = 'wait' | 'answer' | 'right' | 'wrong' | 'warn' | 'done'

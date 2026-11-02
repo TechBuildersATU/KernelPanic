@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
-import { COMMAND_HINT, COMMAND_TEXT } from '@/game/stages/basma'
+import { COMMAND_HINT, COMMAND_TEXT } from '@/game/stages/orders'
 import { ordersFor } from '@/game/stages/players'
 import { Dots, StepTimer } from './kit'
 import { useRunner, type StageProps } from './runner'
-import { PressRunner } from './runners/basma'
-import s from './Basma.module.css'
+import { PressRunner } from './runners/orders'
+import s from './OrdersStage.module.css'
 
 /** BASMA DEDİK (stage 5, the final): the red button is the only control. */
-export function Basma(props: StageProps) {
+export function OrdersStage(props: StageProps) {
   const [game, view] = useRunner(
     props,
     (io) => new PressRunner(ordersFor(props.seed, props.player), io),
@@ -32,10 +32,10 @@ export function Basma(props: StageProps) {
   }, [running, view.idx, game])
 
   const order = view.order
-  const inverted = view.phase === 'ters' || (order?.inverted ?? false)
+  const inverted = view.phase === 'reverse' || (order?.inverted ?? false)
   let text = '· · ·'
   let hint = '6 komut · son ikisi TERS MOD'
-  if (view.phase === 'ters') {
+  if (view.phase === 'reverse') {
     text = 'TERS MOD'
     hint = 'artık tersini yap'
   } else if (order) {
@@ -53,9 +53,9 @@ export function Basma(props: StageProps) {
   return (
     <div
       className={s.game}
-      data-testid="stage-basma"
+      data-testid="stage-orders"
       data-phase={view.phase}
-      data-ters={inverted}
+      data-reverse={inverted}
       data-eff={TEST_FLAGS_ENABLED && running ? (view.eff ?? undefined) : undefined}
     >
       <Dots marks={view.marks} label="Komutlar" />
@@ -63,7 +63,7 @@ export function Basma(props: StageProps) {
         TERS MOD
       </p>
       <p
-        key={`${view.idx}-${view.phase === 'ters'}`}
+        key={`${view.idx}-${view.phase === 'reverse'}`}
         className={s.command}
         data-tone={
           view.phase === 'ok' ? 'ok' : view.phase === 'miss' ? 'bad' : inverted ? 'inv' : ''
@@ -82,7 +82,7 @@ export function Basma(props: StageProps) {
           type="button"
           className={s.button}
           data-down={view.down}
-          data-testid="btn-basma"
+          data-testid="btn-press"
           aria-label="Kırmızı buton"
           onPointerDown={(e) => {
             try {

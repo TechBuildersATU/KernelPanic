@@ -1,8 +1,8 @@
 import { dur } from '@/app/timing'
 import { playSfx } from '@/audio/sfx'
-import { ISIN } from '@/game/config'
+import { BEAM } from '@/game/config'
 import type { Rng } from '@/game/rng'
-import { traceBeam, type Beam, type BeamLine, type Mirror } from '@/game/stages/isin'
+import { traceBeam, type Beam, type BeamLine, type Mirror } from '@/game/stages/beam'
 import { StageRunner, type Mark, type StageIO } from '../runner'
 
 export type BeamPhase = 'wait' | 'play' | 'linked' | 'reveal' | 'done'
@@ -86,13 +86,13 @@ export class BeamRunner extends StageRunner<BeamView> {
   }
 
   private begin(i: number): void {
-    const limit = ISIN.limitsMs[i]
+    const limit = BEAM.limitsMs[i]
     this.line = i
     this.phase = 'play'
     this.turns = this.lines[i].start.map(() => 0)
     this.deadline = Date.now() + limit
     this.timeout = this.after(limit, () => this.expire())
-    if (this.glitch) this.glitchTimer = this.after(ISIN.glitchFlipMs, () => this.interfere())
+    if (this.glitch) this.glitchTimer = this.after(BEAM.glitchFlipMs, () => this.interfere())
     this.io.hold(false)
     this.paint()
   }
@@ -124,7 +124,7 @@ export class BeamRunner extends StageRunner<BeamView> {
     this.check()
     this.paint()
     if (this.phase === 'play') {
-      this.glitchTimer = this.after(ISIN.glitchFlipMs, () => this.interfere())
+      this.glitchTimer = this.after(BEAM.glitchFlipMs, () => this.interfere())
     }
   }
 

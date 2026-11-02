@@ -1,4 +1,4 @@
-// The booth loop as a pure state machine (docs/YOL-HARITASI.md §2–§3): attract → hack → play →
+// The booth loop as a pure state machine (docs/ROADMAP.md §2–§3): attract → hack → play →
 // result ⇄ report → attract. A round is five stages, always in the same order and always played
 // to the end; each stage is a small game whose screen reports every step (`score`), when the
 // player only watches (`hold`: the round clock stands still) and when it is over (`stageDone`).

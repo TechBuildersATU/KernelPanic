@@ -1,11 +1,11 @@
-import { BASMA } from '../config'
+import { ORDERS } from '../config'
 import { shuffle, type Rng } from '../rng'
 
 // BASMA DEDİK (stage 5, the final): the red button is the only control. Four steps bring every
 // command once in a mixed order (BASILI TUT, 3 KEZ BAS, YEŞİLDE BAS, BASMA!), step five is always
 // TERS MOD: BAS means "don't press", BASMA! means "press".
 
-export type Command = 'bas' | 'basma' | 'tut' | 'uc' | 'yesil'
+export type Command = 'press' | 'dontPress' | 'hold' | 'triple' | 'green'
 
 export interface Order {
   kind: Command
@@ -15,29 +15,29 @@ export interface Order {
 }
 
 export const COMMAND_TEXT: Readonly<Record<Command, string>> = {
-  bas: 'BAS',
-  basma: 'BASMA!',
-  tut: 'BASILI TUT',
-  uc: '3 KEZ BAS',
-  yesil: 'YEŞİLDE BAS',
+  press: 'BAS',
+  dontPress: 'BASMA!',
+  hold: 'BASILI TUT',
+  triple: '3 KEZ BAS',
+  green: 'YEŞİLDE BAS',
 }
 
 export const COMMAND_HINT: Readonly<Record<Command, string>> = {
-  bas: 'bir kez dokun',
-  basma: '2 saniye dokunma',
-  tut: '2 saniye bırakma',
-  uc: 'üç kez dokun',
-  yesil: 'halka yeşil yanınca dokun',
+  press: 'bir kez dokun',
+  dontPress: '2 saniye dokunma',
+  hold: '2 saniye bırakma',
+  triple: 'üç kez dokun',
+  green: 'halka yeşil yanınca dokun',
 }
 
 export function makeOrders(rng: Rng): Order[] {
   let four: Command[]
   do {
-    four = shuffle(['tut', 'uc', 'yesil', 'basma'] as Command[], rng)
-  } while (four[0] === 'basma')
+    four = shuffle(['hold', 'triple', 'green', 'dontPress'] as Command[], rng)
+  } while (four[0] === 'dontPress')
   return [
     ...four.map((kind, step) => ({ kind, inverted: false, step })),
-    ...shuffle(['bas', 'basma'] as Command[], rng).map((kind) => ({
+    ...shuffle(['press', 'dontPress'] as Command[], rng).map((kind) => ({
       kind,
       inverted: true,
       step: 4,
@@ -48,16 +48,16 @@ export function makeOrders(rng: Rng): Order[] {
 /** What the player actually has to do. */
 export function effectiveCommand(order: Order): Command {
   if (!order.inverted) return order.kind
-  return order.kind === 'bas' ? 'basma' : 'bas'
+  return order.kind === 'press' ? 'dontPress' : 'press'
 }
 
 export function windowOf(order: Order): number {
-  if (order.inverted) return BASMA.invertedMs[order.kind === 'bas' ? 'bas' : 'basma']
-  return BASMA.windowMs[order.kind]
+  if (order.inverted) return ORDERS.invertedMs[order.kind === 'press' ? 'press' : 'dontPress']
+  return ORDERS.windowMs[order.kind]
 }
 
 /** YEŞİLDE BAS: the ring's colour `t` ms after the command appeared. */
 export function ringColourAt(t: number): 'r' | 'a' | 'g' {
-  const p = ((t % BASMA.ringCycleMs) + BASMA.ringCycleMs) % BASMA.ringCycleMs
+  const p = ((t % ORDERS.ringCycleMs) + ORDERS.ringCycleMs) % ORDERS.ringCycleMs
   return p < 700 ? 'r' : p < 1000 ? 'a' : 'g'
 }

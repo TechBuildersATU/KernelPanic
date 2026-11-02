@@ -1,12 +1,12 @@
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
-import { PIKSEL } from '@/game/config'
-import { PIXEL_TAGS } from '@/game/stages/piksel'
+import { PIXEL } from '@/game/config'
+import { PIXEL_TAGS } from '@/game/stages/pixel'
 import { pixelScreensFor } from '@/game/stages/players'
 import { Dots, Level, Say, StepTimer } from './kit'
 import { TONES, useRunner, type StageProps } from './runner'
-import { PixelRunner } from './runners/piksel'
+import { PixelRunner } from './runners/pixel'
 import k from './Stage.module.css'
-import s from './Piksel.module.css'
+import s from './PixelStage.module.css'
 
 const pct = (n: number) => String(n).replace('.', ',')
 
@@ -19,16 +19,16 @@ const SAY = {
 }
 
 /** ÖLÜ PİKSEL (stage 1): find the square that is a shade off, on five screens. */
-export function Piksel(props: StageProps) {
+export function PixelStage(props: StageProps) {
   const [game, view] = useRunner(
     props,
     (io) => new PixelRunner(pixelScreensFor(props.seed, props.player), io),
   )
   const screen = game.screens[view.screen]
-  const level = PIKSEL.levels[view.screen]
+  const level = PIXEL.levels[view.screen]
 
   return (
-    <div className={k.game} data-testid="stage-piksel" data-phase={view.phase}>
+    <div className={k.game} data-testid="stage-pixel" data-phase={view.phase}>
       <aside className={k.side}>
         <Level
           label="EKRAN"
@@ -45,7 +45,7 @@ export function Piksel(props: StageProps) {
           <StepTimer deadline={view.deadline} total={screen.limitMs} />
           {view.penalty > 0 && view.phase === 'find' && (
             <span key={view.penalty} className={k.penalty} data-testid="penalty">
-              −{PIKSEL.wrongPenaltyMs / 1000} sn
+              −{PIXEL.wrongPenaltyMs / 1000} sn
             </span>
           )}
         </div>

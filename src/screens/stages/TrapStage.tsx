@@ -1,23 +1,23 @@
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
-import { TUZAK } from '@/game/config'
+import { TRAP } from '@/game/config'
 import { seededRng } from '@/game/rng'
 import { playerSeed, SALT, trapItemsFor } from '@/game/stages/players'
-import { INKS, TRAP_RULES } from '@/game/stages/tuzak'
+import { INKS, TRAP_RULES } from '@/game/stages/trap'
 import { Dots, StepTimer } from './kit'
 import { useRunner, type StageProps } from './runner'
-import { TrapRunner } from './runners/tuzak'
-import s from './Tuzak.module.css'
+import { TrapRunner } from './runners/trap'
+import s from './TrapStage.module.css'
 
 /** RENK TUZAĞI (stage 4): tap what the word says, then — the rule changes — its colour. */
-export function Tuzak(props: StageProps) {
+export function TrapStage(props: StageProps) {
   const [game, view] = useRunner(
     props,
     (io) =>
       new TrapRunner(
         trapItemsFor(props.seed, props.player),
-        TUZAK.limitMs[props.variant],
+        TRAP.limitMs[props.variant],
         props.glitch,
-        seededRng(playerSeed(props.seed, SALT.tuzakButtons, props.player)),
+        seededRng(playerSeed(props.seed, SALT.trapButtons, props.player)),
         io,
       ),
   )
@@ -25,7 +25,7 @@ export function Tuzak(props: StageProps) {
   const showWord = view.phase === 'answer' || view.phase === 'right' || view.phase === 'wrong'
 
   return (
-    <div className={s.game} data-testid="stage-tuzak" data-phase={view.phase} data-rule={view.rule}>
+    <div className={s.game} data-testid="stage-trap" data-phase={view.phase} data-rule={view.rule}>
       <div className={s.top}>
         <p className={s.part}>
           BÖLÜM <b>{view.rule + 1}/2</b> · <span>{TRAP_RULES[view.rule]}</span>

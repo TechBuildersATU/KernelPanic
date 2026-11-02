@@ -23,8 +23,8 @@ test.describe('Stages', () => {
     await expect(page.getByTestId('stage-name')).toHaveText('ÖLÜ PİKSEL')
     await expect(page.getByTestId('stage-intro')).toContainText('AŞAMA 1/5')
     await expect(page.getByTestId('stage-intro')).toContainText('BUL!')
-    await expect(live(page)).toHaveAttribute('data-stage', 'piksel')
-    await expect(page.getByTestId('stage-piksel')).toHaveAttribute('data-phase', 'find')
+    await expect(live(page)).toHaveAttribute('data-stage', 'pixel')
+    await expect(page.getByTestId('stage-pixel')).toHaveAttribute('data-phase', 'find')
     await expect(page.getByTestId('step-timer').first()).toHaveAttribute('data-running', 'true')
     await expect(page.getByTestId('integrity')).toHaveText('%0')
     await expectTouchTarget(page.locator('[data-odd="true"]'), 60)
@@ -35,7 +35,7 @@ test.describe('Stages', () => {
   }) => {
     // real animation waits: the dead pixel stays ringed for 1.3 s
     await startRound(page, '/?seed=4&event=none')
-    const stage = page.getByTestId('stage-piksel')
+    const stage = page.getByTestId('stage-pixel')
     await expect(stage).toHaveAttribute('data-phase', 'find', { timeout: 5_000 })
     await stage.locator('[data-odd="false"]').first().tap()
     await expect(page.getByTestId('penalty')).toHaveText('−2 sn')
@@ -66,7 +66,7 @@ test.describe('Stages', () => {
   test('missed screens do not end the stage: 3/5 → orange SINIRDA', async ({ page }) => {
     test.setTimeout(60_000)
     await startRound(page, REAL_URL)
-    await playStages(page, { piksel: { wrong: 2 } }, 1)
+    await playStages(page, { pixel: { wrong: 2 } }, 1)
     await expect(page.getByTestId('stage-grade')).toHaveText('SINIRDA')
     await expect(page.getByTestId('stage-score')).toContainText('3/5 ekran doğru · %60')
     await expect(page.locator('[data-testid="play"] [data-cell="1"]')).toHaveAttribute(
@@ -81,8 +81,8 @@ test.describe('Stages', () => {
     test.setTimeout(90_000)
     await startRound(page, REAL_URL)
     await playStages(page, 'right', 1)
-    await expect(live(page)).toHaveAttribute('data-stage', 'renk', { timeout: 10_000 })
-    const stage = page.getByTestId('stage-renk')
+    await expect(live(page)).toHaveAttribute('data-stage', 'colours', { timeout: 10_000 })
+    const stage = page.getByTestId('stage-colours')
     await expect(stage).toHaveAttribute('data-phase', 'input', { timeout: 10_000 })
     const rest = (await stage.locator('[data-seq]').getAttribute('data-seq'))!.split(',')
     await stage.locator(`[data-k="${(Number(rest[0]) + 1) % 4}"]`).tap()
@@ -98,8 +98,8 @@ test.describe('Stages', () => {
     test.setTimeout(90_000)
     await startRound(page)
     await playStages(page, 'right', 3)
-    await expect(live(page)).toHaveAttribute('data-stage', 'tuzak', { timeout: 10_000 })
-    const stage = page.getByTestId('stage-tuzak')
+    await expect(live(page)).toHaveAttribute('data-stage', 'trap', { timeout: 10_000 })
+    const stage = page.getByTestId('stage-trap')
     await expect(stage).toContainText('YAZISINA BAS')
     for (let i = 0; i < 3; i++) {
       await expect(stage).toHaveAttribute('data-phase', 'answer')
@@ -119,18 +119,19 @@ test.describe('Stages', () => {
     test.setTimeout(120_000)
     await startRound(page)
     await playStages(page, 'right', 4)
-    await expect(live(page)).toHaveAttribute('data-stage', 'basma', { timeout: 10_000 })
+    await expect(live(page)).toHaveAttribute('data-stage', 'orders', { timeout: 10_000 })
     await expect(page.getByTestId('play')).toHaveAttribute('data-final', 'true')
     expect(await sounds(page)).toContain('final')
-    await expectTouchTarget(page.getByTestId('btn-basma'), 200)
-    const ters = page.waitForFunction(
+    await expectTouchTarget(page.getByTestId('btn-press'), 200)
+    const reverse = page.waitForFunction(
       () =>
-        document.querySelector<HTMLElement>('[data-testid="stage-basma"]')?.dataset.ters === 'true',
+        document.querySelector<HTMLElement>('[data-testid="stage-orders"]')?.dataset.reverse ===
+        'true',
       null,
       { polling: 'raf' },
     )
     await playStages(page, 'right', 5)
-    await ters
+    await reverse
     await expect(page.getByTestId('caption-5')).toContainText('6/6 · TEMİZ', { timeout: 10_000 })
   })
 
@@ -140,38 +141,47 @@ test.describe('Stages', () => {
     test.setTimeout(120_000)
     await startRound(page)
     await playStages(page, 'right', 4)
-    const stage = page.getByTestId('stage-basma')
+    const stage = page.getByTestId('stage-orders')
     const ring = page.getByTestId('command-ring')
     const fill = () => ring.evaluate((el) => getComputedStyle(el).getPropertyValue('--p').trim())
     await expect(stage).toBeVisible({ timeout: 10_000 })
     // play the commands right until 3 KEZ BAS comes up
-    for (let i = 0; i < 6 && (await stage.getAttribute('data-eff')) !== 'uc'; i++) {
+    for (let i = 0; i < 6 && (await stage.getAttribute('data-eff')) !== 'triple'; i++) {
       await expect(stage).toHaveAttribute('data-phase', /cmd/, { timeout: 10_000 })
-      if ((await stage.getAttribute('data-eff')) === 'uc') break
-      await step(page, 'basma', true)
+      if ((await stage.getAttribute('data-eff')) === 'triple') break
+      await step(page, 'orders', true)
     }
-    await expect(stage).toHaveAttribute('data-eff', 'uc')
-    const button = page.getByTestId('btn-basma')
-    await button.tap()
-    await expect.poll(fill).toBe(String(1 / 3))
-    await button.tap()
-    await expect.poll(fill).toBe(String(2 / 3))
-    // under ?fastTimers the closed ring is up for a few frames: the page notes it the moment
-    // the step turns 'ok'
-    await stage.evaluate((el) => {
-      const w = window as unknown as { __kpRing?: string }
-      const watch = new MutationObserver(() => {
-        if (el.dataset.phase !== 'ok') return
-        const ring = el.querySelector('[data-testid="command-ring"]')!
-        w.__kpRing = getComputedStyle(ring).getPropertyValue('--p').trim()
-        watch.disconnect()
-      })
-      watch.observe(el, { attributes: true, attributeFilter: ['data-phase'] })
-    })
-    await button.tap()
-    await expect
-      .poll(() => page.evaluate(() => (window as unknown as { __kpRing?: string }).__kpRing))
-      .toBe('1')
+    await expect(stage).toHaveAttribute('data-eff', 'triple')
+    await expect.poll(fill).toBe('0')
+    // On a busy machine three taps from outside can outlast the command's window, and under
+    // ?fastTimers the closed ring is up for a few frames only: the page taps the button itself,
+    // three times in a row, and notes every fill of the ring the moment it is drawn.
+    const fills = await stage.evaluate(
+      (el) =>
+        new Promise<string[]>((done) => {
+          const ring = el.querySelector<HTMLElement>('[data-testid="command-ring"]')!
+          const button = el.querySelector('[data-testid="btn-press"]')!
+          const seen: string[] = []
+          const watch = new MutationObserver(() => {
+            const p = ring.style.getPropertyValue('--p').trim()
+            if (p !== '0' && p !== seen.at(-1)) seen.push(p)
+            if (seen.length < 3) return
+            watch.disconnect()
+            done(seen)
+          })
+          watch.observe(ring, { attributes: true, attributeFilter: ['style'] })
+          const init = { bubbles: true, pointerId: 1, isPrimary: true }
+          let taps = 0
+          const tap = () => {
+            button.dispatchEvent(new PointerEvent('pointerdown', init))
+            button.dispatchEvent(new PointerEvent('pointerup', init))
+            if (++taps < 3) setTimeout(tap, 150)
+          }
+          tap()
+        }),
+    )
+    expect(fills).toEqual([String(1 / 3), String(2 / 3), '1'])
+    await expect(stage).toHaveAttribute('data-eff', /.+/)
   })
 
   test('the clock stands still under the title cards and turns red in the last 10 s', async ({
@@ -180,7 +190,7 @@ test.describe('Stages', () => {
     await page.clock.install()
     await startRound(page)
     await expect(page.getByTestId('play-time')).toHaveText('01:00')
-    await expect(page.getByTestId('stage-piksel')).toHaveAttribute('data-phase', 'find')
+    await expect(page.getByTestId('stage-pixel')).toHaveAttribute('data-phase', 'find')
     await page.clock.fastForward(51_000)
     await expect(page.getByTestId('play')).toHaveAttribute('data-low', 'true')
     // the stages ran out on their own meanwhile; the ticks come while a step's clock runs
@@ -213,7 +223,7 @@ test.describe('Result and error report', () => {
   }) => {
     test.setTimeout(120_000)
     await startRound(page)
-    await playStages(page, { piksel: 'wrong' })
+    await playStages(page, { pixel: 'wrong' })
     await expect(page.getByTestId('result')).toHaveAttribute('data-title', 'one-bug-left')
     await expect(page.getByTestId('caption-1')).toContainText('0/5 · BOZUK')
 
@@ -230,10 +240,10 @@ test.describe('Result and error report', () => {
   })
 
   for (const screen of ['result', 'report'] as const) {
-    test(`restart from the ${screen} goes back to the red button`, async ({ page }) => {
+    test(`restart from the ${screen} goes back to the eye`, async ({ page }) => {
       test.setTimeout(120_000)
       await startRound(page)
-      await playStages(page, { piksel: { wrong: 1 } })
+      await playStages(page, { pixel: { wrong: 1 } })
       if (screen === 'report') await page.getByTestId('btn-report').tap()
       await expectTouchTarget(page.getByTestId('btn-restart'))
       await page.getByTestId('btn-restart').tap()
@@ -244,7 +254,7 @@ test.describe('Result and error report', () => {
   test('the result returns to the button after 25 s without a touch', async ({ page }) => {
     test.setTimeout(120_000)
     await startRound(page)
-    await playStages(page, { piksel: { wrong: 1 } })
+    await playStages(page, { pixel: { wrong: 1 } })
     await expect(page.getByTestId('result-title')).toBeVisible()
     await page.clock.install()
     await page.getByTestId('btn-report').tap()

@@ -1,14 +1,14 @@
 import { useId } from 'react'
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
-import { ISIN } from '@/game/config'
+import { BEAM } from '@/game/config'
 import { seededRng, stageSeed } from '@/game/rng'
-import { makeBeamLine } from '@/game/stages/isin'
+import { makeBeamLine } from '@/game/stages/beam'
 import { SALT } from '@/game/stages/players'
 import { Dots, Level, Say, StepTimer } from './kit'
 import { TONES, useRunner, type StageProps } from './runner'
-import { BeamRunner } from './runners/isin'
+import { BeamRunner } from './runners/beam'
 import k from './Stage.module.css'
-import s from './Isin.module.css'
+import s from './BeamStage.module.css'
 
 const TAGS = ['kolay', 'orta', 'zor']
 const SAY = {
@@ -23,11 +23,11 @@ const SAY = {
  * IŞIN YOLU (stage 3): turn the mirrors until the data beam reaches the server; three lines. In
  * the duel both players get the very same lines (another line could be an easier one).
  */
-export function Isin(props: StageProps) {
+export function BeamStage(props: StageProps) {
   const [game, view] = useRunner(props, (io) => {
-    const rng = seededRng(stageSeed(props.seed, SALT.isin))
-    const lines = ISIN.lines[props.variant].map((size) => makeBeamLine(size, rng))
-    const flips = seededRng(stageSeed(props.seed, SALT.isinGlitch))
+    const rng = seededRng(stageSeed(props.seed, SALT.beam))
+    const lines = BEAM.lines[props.variant].map((size) => makeBeamLine(size, rng))
+    const flips = seededRng(stageSeed(props.seed, SALT.beamGlitch))
     return new BeamRunner(lines, props.glitch, flips, io)
   })
   const glow = `glow${useId().replace(/[^a-z0-9]/gi, '')}`
@@ -38,7 +38,7 @@ export function Isin(props: StageProps) {
   const points = beam.points.map(([x, y], i) => `${i === 0 ? x + 0.28 : x},${y}`).join(' ')
 
   return (
-    <div className={k.game} data-testid="stage-isin" data-phase={view.phase} data-line={view.line}>
+    <div className={k.game} data-testid="stage-beam" data-phase={view.phase} data-line={view.line}>
       <aside className={k.side}>
         <Level
           label="HAT"
@@ -49,7 +49,7 @@ export function Isin(props: StageProps) {
         />
         <Say {...SAY[view.phase]} />
         <Dots marks={view.marks} label="Hatlar" />
-        <StepTimer deadline={view.deadline} total={ISIN.limitsMs[view.line]} />
+        <StepTimer deadline={view.deadline} total={BEAM.limitsMs[view.line]} />
         <p className={k.info}>{view.taps} dokunuş</p>
       </aside>
       <div className={k.field}>

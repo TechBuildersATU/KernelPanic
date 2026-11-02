@@ -1,11 +1,11 @@
-// Every tunable number of the game in one place (docs/YOL-HARITASI.md). Balance changes after
+// Every tunable number of the game in one place (docs/ROADMAP.md). Balance changes after
 // the tablet test happen here, not in the screens.
 
 import type { RoundSeconds, StageId, Variant } from './types'
 
 // ── Round (§4) ─────────────────────────────────────────────────────────────────────────────
 /** The five stages, always in this order; Basma Dedik is the final (§2.3). */
-export const STAGE_ORDER: readonly StageId[] = ['piksel', 'renk', 'isin', 'tuzak', 'basma']
+export const STAGE_ORDER: readonly StageId[] = ['pixel', 'colours', 'beam', 'trap', 'orders']
 export const STAGE_COUNT = STAGE_ORDER.length
 export const ROUND_SECONDS_OPTIONS: readonly RoundSeconds[] = [45, 60, 75]
 export const DEFAULT_ROUND_SECONDS: RoundSeconds = 60
@@ -17,7 +17,7 @@ export const GRADE_GOOD_ABOVE = 0.75
 export const GRADE_PASS_FROM = 0.5
 
 // ── Stages (§2.3). Step limits are game rules: ?fastTimers never shortens them. ───────────────
-export const PIKSEL = {
+export const PIXEL = {
   /** Five screens: two easy, two medium, one to look closely at (same levels as before, more). */
   sizes: [4, 5, 6, 7, 8],
   /** Each screen's level (PIXEL_TAGS): 0 easy, 1 medium, 2 look closely. */
@@ -32,7 +32,7 @@ export const PIKSEL = {
   revealMs: 1300,
 } as const
 
-export const RENK: {
+export const COLOURS: {
   lengths: Record<Variant, readonly number[]>
   onMs: Record<Variant, readonly number[]>
   swap: Record<Variant, readonly boolean[]>
@@ -53,7 +53,7 @@ export const RENK: {
 /** [columns, rows, turns on the path, decoy mirrors, walls] for each of the three lines. */
 export type LineSize = readonly [number, number, number, number, number]
 
-export const ISIN: {
+export const BEAM: {
   lines: Record<Variant, readonly LineSize[]>
   limitsMs: readonly number[]
   glitchFlipMs: number
@@ -81,19 +81,19 @@ export const ISIN: {
   glitchFlipMs: 2200,
 }
 
-export const TUZAK = {
+export const TRAP = {
   /** Three words per part: first tap what the word says, then the colour it is painted in. */
   perPart: 3,
   limitMs: { normal: 2600, safe: 3000, risky: 1800 } as Record<Variant, number>,
 } as const
 
-export const BASMA = {
+export const ORDERS = {
   /** BASILI TUT: hold this long. */
   holdMs: 2000,
   /** Command windows (BASMA! = do not touch for this long). */
-  windowMs: { bas: 2400, uc: 2600, yesil: 3300, tut: 3800, basma: 2000 },
+  windowMs: { press: 2400, triple: 2600, green: 3300, hold: 3800, dontPress: 2000 },
   /** TERS MOD: BAS means "don't" (2 s), BASMA! means "press" (2.2 s). */
-  invertedMs: { bas: 2000, basma: 2200 },
+  invertedMs: { press: 2000, dontPress: 2200 },
   /** YEŞİLDE BAS: the ring goes red → amber → green on this cycle. */
   ringCycleMs: 1500,
 } as const
@@ -149,7 +149,7 @@ export const STAGE_END_MS = 1900
 export const LOW_TIME_MS = 10_000
 
 // ── Booth / kiosk (§2.1, §6) ────────────────────────────────────────────────────────────────
-/** The red button's press + CRT power-off before the hack screen (§2.2). */
+/** The eye's press + CRT power-off before the hack screen (§2.2). */
 export const PRESS_MS = 600
 /** Hack intro: SYSTEM FAILURE + log lines + message, then the 3-2-1 countdown (§2.2). */
 export const HACK_INTRO_MS = 2600
@@ -157,8 +157,12 @@ export const COUNTDOWN_STEP_MS = 650
 export const DISCLAIMER_ROTATE_MS = 4000
 /** Duel: a player who pressed waits this long for the other, then the buttons let go. */
 export const DUEL_READY_WAIT_MS = 12_000
-/** The red button shakes ("bas artık") after this long without a touch. */
+/** After this long without a touch the eye turns to the visitor, squints and blinks twice. */
 export const ATTRACT_NUDGE_MS = 20_000
+/** The eye on the button screen looks somewhere else this often (§2.1). */
+export const EYE_LOOK_MS = 3000
+/** A touch on the button screen: the eye looks there this long before it looks around again. */
+export const EYE_TOUCH_LOOK_MS = 1800
 /** Result and report screens go back to the button after this long without a touch. */
 export const IDLE_RESET_MS = 25_000
 /** Taps on the logo for the "sudo" easter egg. */

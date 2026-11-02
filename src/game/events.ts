@@ -1,4 +1,4 @@
-// Surprise events (docs/YOL-HARITASI.md §3): which stages get a random event, the cooling bonus
+// Surprise events (docs/ROADMAP.md §3): which stages get a random event, the cooling bonus
 // and the background "mood" the result transition picks up.
 
 import {

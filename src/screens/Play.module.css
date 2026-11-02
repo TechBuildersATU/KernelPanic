@@ -271,8 +271,9 @@
   left: 70px;
   right: 70px;
   bottom: 70px;
+  --accent: var(--cyan);
   border: 1px solid var(--rule);
-  border-left: 6px solid var(--cyan);
+  border-left: 6px solid var(--accent);
   border-radius: var(--radius);
   background: rgb(15 24 48 / 0.88);
   overflow: hidden;
@@ -295,16 +296,16 @@
 
 .card[data-kind='final'],
 .card[data-kind='risky'] {
-  border-left-color: var(--alarm);
+  --accent: var(--alarm);
   box-shadow: 0 0 40px rgb(255 45 74 / 0.22);
 }
 
 .card[data-kind='safe'] {
-  border-left-color: var(--ok);
+  --accent: var(--ok);
 }
 
 .card[data-kind='glitch'] {
-  border-left-color: var(--warn);
+  --accent: var(--warn);
   box-shadow: 0 0 40px rgb(255 176 32 / 0.18);
 }
 
@@ -390,6 +391,13 @@
   left: 14px;
   right: 14px;
   bottom: 48px;
+}
+
+/* the right half mirrors the left: its card's accent runs along the outer (right) edge, so the
+   seam between the players stays clear (DuelPlay marks the half with data-side) */
+[data-side='2'] .root[data-layout='half'] .card {
+  border-left: 1px solid var(--rule);
+  border-right: 6px solid var(--accent);
 }
 
 .root[data-layout='half'] .log {

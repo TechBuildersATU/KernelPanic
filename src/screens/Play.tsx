@@ -259,7 +259,12 @@ export function Play({ state, game, layout = 'full', onHome }: Props) {
         </div>
       </header>
 
-      <section className={s.card} data-kind={kind} data-dim={overlay !== null}>
+      <section
+        className={s.card}
+        data-testid="stage-card"
+        data-kind={kind}
+        data-dim={overlay !== null}
+      >
         <StageHost
           key={`${state.round}-${hostIndex}-${hostVariant}`}
           index={hostIndex}

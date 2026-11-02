@@ -1,13 +1,13 @@
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
-import { RENK } from '@/game/config'
+import { COLOURS } from '@/game/config'
 import { seededRng } from '@/game/rng'
 import { colourLayersFor, playerSeed, SALT } from '@/game/stages/players'
-import { PADS } from '@/game/stages/renk'
+import { PADS } from '@/game/stages/colours'
 import { Dots, Level, Say, StepTimer } from './kit'
 import { TONES, useRunner, type StageProps } from './runner'
-import { ColourRunner } from './runners/renk'
+import { ColourRunner } from './runners/colours'
 import k from './Stage.module.css'
-import s from './Renk.module.css'
+import s from './ColoursStage.module.css'
 
 const TAGS = ['kolay', 'hızlı', 'yer değiştirir']
 const SAY = {
@@ -21,19 +21,19 @@ const SAY = {
 }
 
 /** DÖRT RENK (stage 2): watch the pads light up, then repeat them; three layers. */
-export function Renk(props: StageProps) {
+export function ColoursStage(props: StageProps) {
   const [game, view] = useRunner(
     props,
     (io) =>
       new ColourRunner(
         colourLayersFor(props.seed, props.variant, props.glitch, props.player),
-        seededRng(playerSeed(props.seed, SALT.renkSwap, props.player)),
+        seededRng(playerSeed(props.seed, SALT.coloursSwap, props.player)),
         io,
       ),
   )
 
   return (
-    <div className={k.game} data-testid="stage-renk" data-phase={view.phase}>
+    <div className={k.game} data-testid="stage-colours" data-phase={view.phase}>
       <aside className={k.side}>
         <Level
           label="KATMAN"
@@ -44,7 +44,7 @@ export function Renk(props: StageProps) {
         />
         <Say {...SAY[view.phase]} />
         <Dots marks={view.marks} label="Renkler" />
-        <StepTimer deadline={view.deadline} total={RENK.idleMs} />
+        <StepTimer deadline={view.deadline} total={COLOURS.idleMs} />
       </aside>
       <div className={k.field}>
         <div

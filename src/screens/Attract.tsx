@@ -1,11 +1,18 @@
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { dur, ignoreAbort, sleep } from '@/app/timing'
 import { enterFullscreen, keepAwake } from '@/app/kiosk'
 import { usePressGuard } from '@/app/usePress'
 import { unlockAudio } from '@/audio/engine'
 import { playSfx } from '@/audio/sfx'
 import { GearIcon, QrIcon } from '@/components/icons'
-import { PanicButton } from '@/components/PanicButton'
+import { Eye } from '@/components/eye/Eye'
+import { GazeDirector } from '@/components/eye/motion'
 import { SocialDialog } from '@/components/SocialDialog'
 import { TopBar } from '@/components/TopBar'
 import { DISCLAIMERS } from '@/data/texts'
@@ -14,6 +21,8 @@ import {
   DISCLAIMER_ROTATE_MS,
   DUEL_READY_WAIT_MS,
   EASTER_EGG_TAPS,
+  EYE_LOOK_MS,
+  EYE_TOUCH_LOOK_MS,
   PRESS_MS,
 } from '@/game/config'
 import s from './Attract.module.css'
@@ -49,15 +58,16 @@ const SUDO_MS = 4000
 interface Props {
   mode: Mode
   onMode: (mode: Mode) => void
-  /** The red button was pressed (solo), or both players pressed theirs (duel). */
+  /** The eye was pressed (solo), or both players pressed theirs (duel). */
   onPress: () => void
   onSettings: () => void
 }
 
 /**
- * The button screen (§2.1). Solo: one big red button. Duel (§2.5): two red buttons, one per
- * player — the system only falls once both have pressed theirs; a lone press waits for the
- * other player and lets go after a while.
+ * The button screen (§2.1). Solo: one big eye in the hazard ring, looking around (pressing it is
+ * pressing the button). Duel (§2.5): two eyes, one per player, looking together — the system only
+ * falls once both have pressed theirs; a lone press waits for the other player and lets go after
+ * a while. Wherever the screen is touched, the eyes look there.
  */
 export function Attract({ mode, onMode, onPress, onSettings }: Props) {
   const [pressed, setPressed] = useState(false)
@@ -70,6 +80,12 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
   const disclaimer = useTypewriter(DISCLAIMERS)
   const [sudo, setSudo] = useState(false)
   const taps = useRef<number[]>([])
+  const [director] = useState(() => new GazeDirector(EYE_LOOK_MS, EYE_TOUCH_LOOK_MS))
+
+  useEffect(() => {
+    director.start()
+    return () => director.stop()
+  }, [director])
 
   // Logo: five quick taps → the "sudo" easter egg (the settings have their own button now).
   const logoTap = () => {
@@ -100,9 +116,12 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
     const id = window.setTimeout(() => setNudge(true), ATTRACT_NUDGE_MS)
     return () => window.clearTimeout(id)
   }, [lastTouch])
-  const touched = () => {
+  const touched = (e: ReactPointerEvent) => {
     setNudge(false)
     setLastTouch((n) => n + 1)
+    // the eyes look where the screen was touched (a press on an eye is that eye's own business)
+    if (!(e.target instanceof Element && e.target.closest('[data-eye]')))
+      director.touch(e.clientX, e.clientY)
   }
 
   /** The button goes down, the room dims and leans in, then the hack. */
@@ -127,6 +146,11 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
     playSfx('press')
     fall()
   }, 1000)
+
+  // bored eyes squint at the visitor until somebody touches the screen
+  useEffect(() => {
+    director.setNudge(nudge && !pressed)
+  }, [director, nudge, pressed])
 
   const pressSide = (side: 0 | 1) => {
     if (pressed || ready[side]) return
@@ -195,7 +219,7 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
       <div className={s.screen} data-off={off}>
         {mode === 'solo' ? (
           <div className={s.stage}>
-            <PanicButton onPress={press} pressed={pressed} nudge={nudge && !pressed} />
+            <Eye director={director} onPress={press} pressed={pressed} nudge={nudge && !pressed} />
           </div>
         ) : (
           <div className={s.duel} data-testid="duel-ready">
@@ -205,10 +229,13 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
                   <b>{side + 1}</b> OYUNCU {side + 1}
                 </p>
                 <div className={s.small}>
-                  <PanicButton
+                  <Eye
+                    director={director}
                     testId={`btn-panic-${side + 1}`}
+                    player={side === 0 ? 1 : 2}
                     onPress={() => pressSide(side)}
-                    pressed={ready[side] || pressed}
+                    ready={ready[side]}
+                    pressed={pressed}
                     nudge={nudge && !ready[side]}
                   />
                 </div>
@@ -217,7 +244,7 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
                     ? both
                       ? 'HAZIR ✓'
                       : 'HAZIR ✓ · rakip bekleniyor'
-                    : 'Basınca hazırsın'}
+                    : 'Dokununca hazırsın'}
                 </p>
               </div>
             ))}
@@ -234,7 +261,7 @@ export function Attract({ mode, onMode, onPress, onSettings }: Props) {
           </p>
         ) : mode === 'duel' ? (
           <p className={s.disclaimer} data-testid="disclaimer">
-            <span className={s.prompt}>&gt;</span> İkiniz de kendi butonunuza basın. Sistemi önce
+            <span className={s.prompt}>&gt;</span> İkiniz de kendi gözünüze dokunun. Sistemi önce
             kim kurtaracak?
           </p>
         ) : (

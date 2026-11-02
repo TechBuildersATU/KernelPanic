@@ -5,20 +5,20 @@ import { STAGE_COUNT, STAGE_INTRO_MS } from '@/game/config'
 import { stageAt } from '@/game/engine'
 import type { Player } from '@/game/stages/players'
 import type { StageId, Variant } from '@/game/types'
-import { Basma } from '../stages/Basma'
-import { Isin } from '../stages/Isin'
+import { OrdersStage } from '../stages/OrdersStage'
+import { BeamStage } from '../stages/BeamStage'
 import type { StageProps } from '../stages/runner'
-import { Piksel } from '../stages/Piksel'
-import { Renk } from '../stages/Renk'
-import { Tuzak } from '../stages/Tuzak'
+import { PixelStage } from '../stages/PixelStage'
+import { ColoursStage } from '../stages/ColoursStage'
+import { TrapStage } from '../stages/TrapStage'
 import s from './StageHost.module.css'
 
 const GAMES: Record<StageId, ComponentType<StageProps>> = {
-  piksel: Piksel,
-  renk: Renk,
-  isin: Isin,
-  tuzak: Tuzak,
-  basma: Basma,
+  pixel: PixelStage,
+  colours: ColoursStage,
+  beam: BeamStage,
+  trap: TrapStage,
+  orders: OrdersStage,
 }
 
 interface Props {

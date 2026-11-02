@@ -1,18 +1,19 @@
 import type { EventKind, StageId, TitleId } from '@/game/types'
 
-/** The red button's fixed label (§2.1). */
+/** The fixed label around the eye (§2.1). */
 export const BUTTON_LABEL = 'BASMAK ÜZERESİN. SONUÇLARINDAN SORUMLU DEĞİLİZ.'
 
 /** Rotating "legal" lines under the button, typed out one by one (§2.1). */
 export const DISCLAIMERS: readonly string[] = [
   'Basarsan format atılır. Yedek yok.',
+  'Göz seni izliyor. Kırpmadan bas.',
   'Bu butona basan şartları kabul etmiş sayılır. Şartları kimse bilmiyor.',
   'Garanti kapsamı dışında. Aklınız dahil.',
   "Önce bas, sonra Stack Overflow'a sor.",
+  'Bakışma yarışı değil bu. Bas.',
   'Yönetici izni gerekmiyor. Cesaret yeterli.',
   'Pişmanlık %100, eğlence %100.',
   'Son kullanma tarihi: şimdi.',
-  'Bu buton kırmızı. Bir bildikleri vardır.',
 ]
 
 export interface TitleText {
@@ -91,7 +92,7 @@ export interface StageText {
 
 /** The five stages (§2.3). */
 export const STAGE_TEXT: Readonly<Record<StageId, StageText>> = {
-  piksel: {
+  pixel: {
     name: 'Ölü Piksel',
     command: 'BUL!',
     hint: 'rengi azıcık farklı olan kareye dokun',
@@ -99,7 +100,7 @@ export const STAGE_TEXT: Readonly<Record<StageId, StageText>> = {
     file: 'ekran',
     step: 'ekran',
   },
-  renk: {
+  colours: {
     name: 'Dört Renk',
     command: 'İZLE, TEKRARLA',
     hint: 'yanan renkleri aynı sırayla tekrarla',
@@ -108,7 +109,7 @@ export const STAGE_TEXT: Readonly<Record<StageId, StageText>> = {
     file: 'duvar',
     step: 'renk',
   },
-  isin: {
+  beam: {
     name: 'Işın Yolu',
     command: 'YÖNLENDİR!',
     hint: 'aynalara dokun, ışını sunucuya ulaştır',
@@ -117,7 +118,7 @@ export const STAGE_TEXT: Readonly<Record<StageId, StageText>> = {
     file: 'hat',
     step: 'hat',
   },
-  tuzak: {
+  trap: {
     name: 'Renk Tuzağı',
     command: 'TUZAĞA DÜŞME!',
     hint: 'önce yazana bas; kural değişince yazının rengine',
@@ -126,7 +127,7 @@ export const STAGE_TEXT: Readonly<Record<StageId, StageText>> = {
     file: 'filtre',
     step: 'kelime',
   },
-  basma: {
+  orders: {
     name: 'Basma Dedik',
     command: 'BASMA DEDİK',
     hint: "ne yazıyorsa onu yap; TERS MOD'da tersini",

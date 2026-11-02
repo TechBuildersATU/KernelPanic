@@ -50,7 +50,7 @@ describe('gameReducer — booth loop (§2)', () => {
     expect(state.stages).toEqual([
       {
         slot: 1,
-        stage: 'piksel',
+        stage: 'pixel',
         variant: 'normal',
         glitch: false,
         ok: 2,
@@ -72,7 +72,7 @@ describe('gameReducer — booth loop (§2)', () => {
     }
     expect(order).toEqual(['0', '1', '2', '3', '4'])
     expect(state.phase).toBe('result')
-    expect(state.stages.map((r) => r.stage)).toEqual(['piksel', 'renk', 'isin', 'tuzak', 'basma'])
+    expect(state.stages.map((r) => r.stage)).toEqual(['pixel', 'colours', 'beam', 'trap', 'orders'])
   })
 
   it('the last stage decides the round: 5 × 4 s of play → SYSTEM SAVIOR with 40 s left', () => {

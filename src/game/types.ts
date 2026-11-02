@@ -1,4 +1,4 @@
-// Domain model of KERNEL PANIC (docs/YOL-HARITASI.md §2–§6).
+// Domain model of KERNEL PANIC (docs/ROADMAP.md §2–§6).
 
 /** Round length chosen in the hidden settings (§1). */
 export type RoundSeconds = 45 | 60 | 75
@@ -7,7 +7,7 @@ export type RoundSeconds = 45 | 60 | 75
 export type Phase = 'attract' | 'hack' | 'play' | 'result' | 'report'
 
 /** The five stages of a round, always in this order (§2.3). */
-export type StageId = 'piksel' | 'renk' | 'isin' | 'tuzak' | 'basma'
+export type StageId = 'pixel' | 'colours' | 'beam' | 'trap' | 'orders'
 
 /**
  * Which version of a stage is played. Emergency (§3.3) lets the player pick the safe (easy) or

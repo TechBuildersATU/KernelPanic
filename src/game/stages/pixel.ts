@@ -1,4 +1,4 @@
-import { PIKSEL } from '../config'
+import { PIXEL } from '../config'
 import { pickOne, shuffle, type Rng } from '../rng'
 
 // ÖLÜ PİKSEL (stage 1): one square on the screen is a shade off. Five screens, each harder and
@@ -21,19 +21,19 @@ export const PIXEL_TAGS = ['kolay', 'orta', 'dikkatli bak'] as const
 
 export function makePixelScreens(rng: Rng): PixelScreen[] {
   const hues = [...shuffle([186, 132, 34, 226], rng), pickOne([262, 205, 95, 330], rng)]
-  return PIKSEL.sizes.map((size, i) => {
+  return PIXEL.sizes.map((size, i) => {
     const hue = hues[i]
     const light = hue === 226 || hue === 262 ? 58 : hue === 34 ? 52 : 48
     const sign = rng() < 0.5 ? 1 : -1
-    const diff = PIKSEL.diffs[i]
-    const last = i === PIKSEL.sizes.length - 1
+    const diff = PIXEL.diffs[i]
+    const last = i === PIXEL.sizes.length - 1
     return {
       size,
       odd: Math.floor(rng() * size * size),
       base: `hsl(${hue} 82% ${light}%)`,
       dead: `hsl(${last ? hue + 3 : hue} 82% ${light + sign * diff}%)`,
       diff,
-      limitMs: PIKSEL.limitsMs[i],
+      limitMs: PIXEL.limitsMs[i],
     }
   })
 }

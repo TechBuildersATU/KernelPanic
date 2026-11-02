@@ -1,7 +1,7 @@
 import { GRADE_GOOD_ABOVE, GRADE_PASS_FROM } from './config'
 import type { Grade, StageRecord } from './types'
 
-// The colour of a stage (docs/YOL-HARITASI.md §5.1): every stage is played to its end and then
+// The colour of a stage (docs/ROADMAP.md §5.1): every stage is played to its end and then
 // graded by its share of right steps — all right is green, more than 75 % lime, 50–75 % orange,
 // less than half red.
 

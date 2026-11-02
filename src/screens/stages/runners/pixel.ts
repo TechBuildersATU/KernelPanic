@@ -1,7 +1,7 @@
 import { dur } from '@/app/timing'
 import { playSfx } from '@/audio/sfx'
-import { PIKSEL } from '@/game/config'
-import type { PixelScreen } from '@/game/stages/piksel'
+import { PIXEL } from '@/game/config'
+import type { PixelScreen } from '@/game/stages/pixel'
 import { StageRunner, type Mark, type StageIO } from '../runner'
 
 export type PixelPhase = 'wait' | 'find' | 'hit' | 'reveal' | 'done'
@@ -80,7 +80,7 @@ export class PixelRunner extends StageRunner<PixelView> {
     this.wrong++
     this.nudge = { cell, flip: !this.nudge?.flip }
     this.penalty++
-    this.deadline -= PIKSEL.wrongPenaltyMs
+    this.deadline -= PIXEL.wrongPenaltyMs
     playSfx('miss')
     this.cancel(this.timeout)
     if (this.deadline <= Date.now()) return this.expire()
@@ -116,6 +116,6 @@ export class PixelRunner extends StageRunner<PixelView> {
     this.io.score(0, 1, `${this.screen + 1}. ekran · süre bitti`)
     playSfx('wrong')
     this.paint()
-    this.after(dur(PIKSEL.revealMs), () => this.next())
+    this.after(dur(PIXEL.revealMs), () => this.next())
   }
 }

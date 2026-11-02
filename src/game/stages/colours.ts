@@ -1,4 +1,4 @@
-import { RENK } from '../config'
+import { COLOURS } from '../config'
 import { shuffle, type Rng } from '../rng'
 import type { Variant } from '../types'
 
@@ -53,14 +53,14 @@ export function derange(order: readonly number[], rng: Rng): number[] {
 }
 
 export function makeLayers(variant: Variant, glitch: boolean, rng: Rng): ColourLayer[] {
-  return RENK.lengths[variant].map((length, i) => ({
+  return COLOURS.lengths[variant].map((length, i) => ({
     seq: makeSequence(length, i === 1, rng),
-    onMs: RENK.onMs[variant][i],
-    swap: RENK.swap[variant][i] || (glitch && i === 1),
+    onMs: COLOURS.onMs[variant][i],
+    swap: COLOURS.swap[variant][i] || (glitch && i === 1),
   }))
 }
 
 /** All the colours of the stage (its step count). */
 export function colourTotal(variant: Variant): number {
-  return RENK.lengths[variant].reduce((sum, n) => sum + n, 0)
+  return COLOURS.lengths[variant].reduce((sum, n) => sum + n, 0)
 }

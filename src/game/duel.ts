@@ -2,7 +2,7 @@ import { STAGE_COUNT } from './config'
 import { stageShare } from './grades'
 import type { RoundOutcome } from './types'
 
-// The duel (docs/YOL-HARITASI.md §2.5): two players, the same five stages side by side. Who
+// The duel (docs/ROADMAP.md §2.5): two players, the same five stages side by side. Who
 // saved more of the system wins; on equal points the one who finished with more time left.
 
 export type DuelWinner = 0 | 1 | 'draw'

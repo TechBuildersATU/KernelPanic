@@ -1,17 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BASMA, ISIN, PIKSEL, RENK, TUZAK } from '@/game/config'
+import { BEAM, COLOURS, ORDERS, PIXEL, TRAP } from '@/game/config'
 import { seededRng } from '@/game/rng'
-import { makeOrders } from '@/game/stages/basma'
-import { makeBeamLine, solutionOf } from '@/game/stages/isin'
-import { makePixelScreens } from '@/game/stages/piksel'
-import { makeLayers } from '@/game/stages/renk'
-import { makeTrapItems } from '@/game/stages/tuzak'
+import { makeOrders } from '@/game/stages/orders'
+import { makeBeamLine, solutionOf } from '@/game/stages/beam'
+import { makePixelScreens } from '@/game/stages/pixel'
+import { makeLayers } from '@/game/stages/colours'
+import { makeTrapItems } from '@/game/stages/trap'
 import type { StageIO } from '@/screens/stages/runner'
-import { PressRunner } from '@/screens/stages/runners/basma'
-import { BeamRunner } from '@/screens/stages/runners/isin'
-import { PixelRunner } from '@/screens/stages/runners/piksel'
-import { ColourRunner } from '@/screens/stages/runners/renk'
-import { TrapRunner } from '@/screens/stages/runners/tuzak'
+import { PressRunner } from '@/screens/stages/runners/orders'
+import { BeamRunner } from '@/screens/stages/runners/beam'
+import { PixelRunner } from '@/screens/stages/runners/pixel'
+import { ColourRunner } from '@/screens/stages/runners/colours'
+import { TrapRunner } from '@/screens/stages/runners/trap'
 
 // The stage games' logic, with fake timers: every stage is played to its end, a mistake or a
 // step running out of time only costs that step, and the round clock is held while the player
@@ -77,12 +77,12 @@ describe('Ölü Piksel runner', () => {
     game.start()
     const deadline = game.snapshot().deadline!
     game.tap(wrongCell(0))
-    expect(game.snapshot().deadline).toBe(deadline - PIKSEL.wrongPenaltyMs)
+    expect(game.snapshot().deadline).toBe(deadline - PIXEL.wrongPenaltyMs)
     expect(log.miss).toBe(0)
-    vi.advanceTimersByTime(PIKSEL.limitsMs[0] - PIKSEL.wrongPenaltyMs)
+    vi.advanceTimersByTime(PIXEL.limitsMs[0] - PIXEL.wrongPenaltyMs)
     expect(game.snapshot().phase).toBe('reveal')
     expect(log).toMatchObject({ ok: 0, miss: 1, notes: ['1. ekran · süre bitti'] })
-    vi.advanceTimersByTime(PIKSEL.revealMs)
+    vi.advanceTimersByTime(PIXEL.revealMs)
     expect(game.snapshot()).toMatchObject({ screen: 1, phase: 'find' })
   })
 
@@ -90,7 +90,7 @@ describe('Ölü Piksel runner', () => {
     const log = record()
     const game = new PixelRunner(screens, log.io)
     game.start()
-    for (let i = 0; i < 4; i++) vi.advanceTimersByTime(PIKSEL.limitsMs[i] + PIKSEL.revealMs)
+    for (let i = 0; i < 4; i++) vi.advanceTimersByTime(PIXEL.limitsMs[i] + PIXEL.revealMs)
     game.tap(screens[4].odd)
     vi.advanceTimersByTime(700)
     expect(log).toMatchObject({ ok: 1, miss: 4, done: 1 })
@@ -112,7 +112,7 @@ describe('Ölü Piksel runner', () => {
 describe('Dört Renk runner', () => {
   const layers = makeLayers('normal', false, seededRng(2))
   const showMs = (i: number) =>
-    600 + layers[i].seq.length * (layers[i].onMs + RENK.gapMs) + (layers[i].swap ? 1100 : 250)
+    600 + layers[i].seq.length * (layers[i].onMs + COLOURS.gapMs) + (layers[i].swap ? 1100 : 250)
 
   it('the clock holds during the show and runs while the player repeats', () => {
     const log = record()
@@ -146,9 +146,9 @@ describe('Dört Renk runner', () => {
     const log = record()
     const game = new ColourRunner(layers, seededRng(3), log.io)
     game.start()
-    vi.advanceTimersByTime(showMs(0) + RENK.idleMs)
+    vi.advanceTimersByTime(showMs(0) + COLOURS.idleMs)
     expect(log).toMatchObject({ miss: 3, notes: ['katman 1 · 0/3 renk, sonra durdun'] })
-    vi.advanceTimersByTime(1600 + showMs(1) + RENK.idleMs + 1600)
+    vi.advanceTimersByTime(1600 + showMs(1) + COLOURS.idleMs + 1600)
     const before = game.snapshot().order
     vi.advanceTimersByTime(showMs(2))
     expect(game.snapshot().phase).toBe('input')
@@ -161,7 +161,7 @@ describe('Dört Renk runner', () => {
 
 describe('Işın Yolu runner', () => {
   const rng = seededRng(4)
-  const lines = ISIN.lines.normal.map((size) => makeBeamLine(size, rng))
+  const lines = BEAM.lines.normal.map((size) => makeBeamLine(size, rng))
 
   function solve(game: BeamRunner, line: number) {
     const target = solutionOf(lines[line], lines[line].start)
@@ -188,7 +188,7 @@ describe('Işın Yolu runner', () => {
     const log = record()
     const game = new BeamRunner(lines, false, seededRng(5), log.io)
     game.start()
-    vi.advanceTimersByTime(ISIN.limitsMs[0])
+    vi.advanceTimersByTime(BEAM.limitsMs[0])
     expect(game.snapshot().phase).toBe('reveal')
     expect(log.notes[0]).toBe('1. hat · süre bitti (0 dokunuş)')
     vi.advanceTimersByTime(350 + 200 * lines[0].mirrors.length)
@@ -201,7 +201,7 @@ describe('Işın Yolu runner', () => {
     const game = new BeamRunner(lines, true, seededRng(5), record().io)
     game.start()
     const turns = () => game.snapshot().turns.reduce((a, b) => a + b, 0)
-    vi.advanceTimersByTime(ISIN.glitchFlipMs)
+    vi.advanceTimersByTime(BEAM.glitchFlipMs)
     expect(turns()).toBe(1)
   })
 })
@@ -211,7 +211,7 @@ describe('Renk Tuzağı runner', () => {
 
   it('right, wrong and too late each cost or earn one word; the rule changes after three', () => {
     const log = record()
-    const game = new TrapRunner(items, TUZAK.limitMs.normal, false, seededRng(7), log.io)
+    const game = new TrapRunner(items, TRAP.limitMs.normal, false, seededRng(7), log.io)
     game.start()
     vi.advanceTimersByTime(450)
     expect(game.snapshot()).toMatchObject({ item: 0, phase: 'answer', rule: 0 })
@@ -219,7 +219,7 @@ describe('Renk Tuzağı runner', () => {
     vi.advanceTimersByTime(380)
     game.tap((items[1].answer + 1) % 4)
     expect(game.snapshot().phase).toBe('wrong')
-    vi.advanceTimersByTime(1100 + TUZAK.limitMs.normal)
+    vi.advanceTimersByTime(1100 + TRAP.limitMs.normal)
     expect(log).toMatchObject({ ok: 1, miss: 2 })
     expect(log.notes[1]).toMatch(/süre bitti, doğrusu/)
     vi.advanceTimersByTime(1100)
@@ -240,16 +240,16 @@ describe('Basma Dedik runner', () => {
   /** Plays the command on screen right, using the runner's own clock. */
   function playRight(game: PressRunner) {
     const eff = game.snapshot().eff
-    if (eff === 'bas') game.press()
-    if (eff === 'basma') vi.advanceTimersByTime(BASMA.windowMs.basma)
-    if (eff === 'uc') for (let i = 0; i < 3; i++) game.press()
-    if (eff === 'tut') {
+    if (eff === 'press') game.press()
+    if (eff === 'dontPress') vi.advanceTimersByTime(ORDERS.windowMs.dontPress)
+    if (eff === 'triple') for (let i = 0; i < 3; i++) game.press()
+    if (eff === 'hold') {
       game.press()
-      vi.advanceTimersByTime(BASMA.holdMs)
+      vi.advanceTimersByTime(ORDERS.holdMs)
       game.frame()
       game.release()
     }
-    if (eff === 'yesil') {
+    if (eff === 'green') {
       vi.advanceTimersByTime(1100)
       game.press()
     }
@@ -260,7 +260,7 @@ describe('Basma Dedik runner', () => {
     const game = new PressRunner(orders, log.io)
     game.start()
     for (let i = 0; i < 6; i++) {
-      if (game.snapshot().phase === 'ters') vi.advanceTimersByTime(1700)
+      if (game.snapshot().phase === 'reverse') vi.advanceTimersByTime(1700)
       expect(game.snapshot()).toMatchObject({ idx: i, phase: 'cmd' })
       playRight(game)
       expect(game.snapshot().phase).toBe('ok')
@@ -271,10 +271,10 @@ describe('Basma Dedik runner', () => {
 
   it('letting go after a full BASILI TUT counts, even before a frame noticed it', () => {
     const log = record()
-    const game = new PressRunner([{ kind: 'tut', inverted: false, step: 0 }], log.io)
+    const game = new PressRunner([{ kind: 'hold', inverted: false, step: 0 }], log.io)
     game.start()
     game.press()
-    vi.advanceTimersByTime(BASMA.holdMs + 50)
+    vi.advanceTimersByTime(ORDERS.holdMs + 50)
     game.release()
     expect(game.snapshot().phase).toBe('ok')
     expect(log).toMatchObject({ ok: 1, miss: 0 })
@@ -289,7 +289,7 @@ describe('Basma Dedik runner', () => {
     vi.advanceTimersByTime(4000)
     expect(game.snapshot().phase).toBe('miss')
     expect(log.miss).toBe(1)
-    expect(first).not.toBe('basma')
+    expect(first).not.toBe('dontPress')
     vi.advanceTimersByTime(1200)
     expect(game.snapshot()).toMatchObject({ idx: 1, phase: 'cmd' })
   })
@@ -298,8 +298,8 @@ describe('Basma Dedik runner', () => {
     const log = record()
     const game = new PressRunner(
       [
-        { kind: 'tut', inverted: false, step: 0 },
-        { kind: 'yesil', inverted: false, step: 1 },
+        { kind: 'hold', inverted: false, step: 0 },
+        { kind: 'green', inverted: false, step: 1 },
       ],
       log.io,
     )

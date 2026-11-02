@@ -101,7 +101,7 @@
   transition: filter 0.3s;
 }
 
-.game[data-ters='true'] .ring {
+.game[data-reverse='true'] .ring {
   --rc: var(--warn);
 }
 

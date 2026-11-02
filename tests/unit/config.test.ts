@@ -5,21 +5,21 @@ import {
   DEFAULT_ROUND_SECONDS,
   EMERGENCY_CHOOSE_MS,
   EMERGENCY_READ_MS,
-  ISIN,
+  BEAM,
   MAX_EVENTS_PER_ROUND,
   MIN_RANDOM_EVENTS,
-  PIKSEL,
+  PIXEL,
   RANDOM_EVENT_SLOTS,
-  RENK,
+  COLOURS,
   ROUND_SECONDS_OPTIONS,
   STAGE_COUNT,
   STAGE_ORDER,
 } from '@/game/config'
 import { parseTestFlags } from '@/app/testFlags'
 
-describe('game config (docs/YOL-HARITASI.md)', () => {
+describe('game config (docs/ROADMAP.md)', () => {
   it('five stages in a fixed order, Basma Dedik last', () => {
-    expect(STAGE_ORDER).toEqual(['piksel', 'renk', 'isin', 'tuzak', 'basma'])
+    expect(STAGE_ORDER).toEqual(['pixel', 'colours', 'beam', 'trap', 'orders'])
     expect(STAGE_COUNT).toBe(5)
   })
 
@@ -45,23 +45,23 @@ describe('game config (docs/YOL-HARITASI.md)', () => {
   })
 
   it('Ölü Piksel has five screens on its three levels: two easy, two medium, one close look', () => {
-    expect(PIKSEL.sizes).toEqual([4, 5, 6, 7, 8])
-    expect(PIKSEL.levels).toEqual([0, 0, 1, 1, 2])
-    expect(PIKSEL.diffs).toHaveLength(5)
-    expect(PIKSEL.limitsMs).toHaveLength(5)
+    expect(PIXEL.sizes).toEqual([4, 5, 6, 7, 8])
+    expect(PIXEL.levels).toEqual([0, 0, 1, 1, 2])
+    expect(PIXEL.diffs).toHaveLength(5)
+    expect(PIXEL.limitsMs).toHaveLength(5)
     // harder each time: more squares, a smaller difference, a little more time
     for (let i = 1; i < 5; i++) {
-      expect(PIKSEL.diffs[i]).toBeLessThan(PIKSEL.diffs[i - 1])
-      expect(PIKSEL.limitsMs[i]).toBeGreaterThan(PIKSEL.limitsMs[i - 1])
+      expect(PIXEL.diffs[i]).toBeLessThan(PIXEL.diffs[i - 1])
+      expect(PIXEL.limitsMs[i]).toBeGreaterThan(PIXEL.limitsMs[i - 1])
     }
   })
 
   it('every other stage has three steps of its own, each with its own clock', () => {
     for (const variant of ['normal', 'safe', 'risky'] as const) {
-      expect(RENK.lengths[variant]).toHaveLength(3)
-      expect(ISIN.lines[variant]).toHaveLength(3)
+      expect(COLOURS.lengths[variant]).toHaveLength(3)
+      expect(BEAM.lines[variant]).toHaveLength(3)
     }
-    expect(ISIN.limitsMs).toHaveLength(3)
+    expect(BEAM.limitsMs).toHaveLength(3)
   })
 })
 

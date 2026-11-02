@@ -18,7 +18,26 @@ export async function expectTouchTarget(locator: Locator, min = 64): Promise<voi
   expect(box?.height).toBeGreaterThanOrEqual(min)
 }
 
-/** Presses the red button and waits for the first stage. */
+/**
+ * Where the eye's iris is, sideways (viewBox units: 240 is straight ahead, less is left). Read
+ * from the lens group's transform, which the eye's motion rewrites on every frame.
+ */
+export async function irisX(eye: Locator): Promise<number> {
+  const transform = await eye.locator('g[transform^="translate("]').getAttribute('transform')
+  return Number(/translate\(([-\d.]+)/.exec(transform ?? '')?.[1] ?? NaN)
+}
+
+/**
+ * Stops the page's clock (`page.clock.install()` must come before `goto`): from here on the
+ * page's time only moves with `page.clock.runFor()`, so no step runs out on a slow machine while
+ * the test is still looking at it.
+ */
+export async function holdClock(page: Page): Promise<void> {
+  const now = await page.evaluate(() => Date.now())
+  await page.clock.pauseAt(now + 100)
+}
+
+/** Presses the eye (the button) and waits for the first stage. */
 export async function startRound(page: Page, url = ROUND_URL): Promise<void> {
   await page.goto(url)
   await page.getByTestId('btn-panic').tap()
@@ -35,7 +54,7 @@ export async function startDuel(page: Page, url = ROUND_URL): Promise<void> {
   await expect(page.getByTestId('duel')).toBeVisible({ timeout: 10_000 })
 }
 
-export type StageId = 'piksel' | 'renk' | 'isin' | 'tuzak' | 'basma'
+export type StageId = 'pixel' | 'colours' | 'beam' | 'trap' | 'orders'
 
 /** Where a round is played: the whole page, or one player's half of the duel. */
 export type Scope = Page | Locator
@@ -106,14 +125,14 @@ export async function step(
   if ((await root.count()) === 0) return false
   const phase = await root.getAttribute('data-phase')
   const before = await settled(scope, stage)
-  if (stage === 'piksel') {
+  if (stage === 'pixel') {
     if (phase !== 'find') return false
     await tapStep(root.locator(`[data-odd="${right}"]`).first())
     // a wrong pixel costs time but not the screen: let it run out
     await nextStep(scope, stage, before)
     return true
   }
-  if (stage === 'renk') {
+  if (stage === 'colours') {
     const board = root.locator('[data-seq]')
     if ((await board.count()) === 0) return false
     const rest = ((await board.getAttribute('data-seq')) ?? '').split(',').map(Number)
@@ -134,7 +153,7 @@ export async function step(
     await tapStep(root.locator(`[data-k="${rest[0]}"]`))
     return true
   }
-  if (stage === 'isin') {
+  if (stage === 'beam') {
     if (phase !== 'play') return false
     if (right) {
       const need = root.locator('[data-testid="mirror"][data-need="true"]')
@@ -145,7 +164,7 @@ export async function step(
     await nextStep(scope, stage, before)
     return true
   }
-  if (stage === 'tuzak') {
+  if (stage === 'trap') {
     if (phase !== 'answer') return false
     await tapStep(root.locator(`[data-correct="${right}"]`).first())
     await nextStep(scope, stage, before)
@@ -154,12 +173,12 @@ export async function step(
   // basma
   const eff = await root.getAttribute('data-eff')
   if (!eff) return false
-  const button = root.getByTestId('btn-basma')
-  const press = (right && eff !== 'basma') || (!right && eff === 'basma')
+  const button = root.getByTestId('btn-press')
+  const press = (right && eff !== 'dontPress') || (!right && eff === 'dontPress')
   if (press) {
-    if (eff === 'bas' || eff === 'basma') await tapStep(button)
-    else if (eff === 'uc') for (let i = 0; i < (right ? 3 : 1); i++) await tapStep(button)
-    else if (eff === 'yesil') {
+    if (eff === 'press' || eff === 'dontPress') await tapStep(button)
+    else if (eff === 'triple') for (let i = 0; i < (right ? 3 : 1); i++) await tapStep(button)
+    else if (eff === 'green') {
       // the green lasts half a second, longer than a tap from outside can take on a busy
       // machine: the page presses the button itself in the frame the colour comes on
       await root.evaluate(
@@ -168,7 +187,7 @@ export async function step(
             const frame = () => {
               const ring = el.querySelector<HTMLElement>('[data-testid="command-ring"]')
               if (ring?.dataset.c !== colour) return requestAnimationFrame(frame)
-              const target = el.querySelector('[data-testid="btn-basma"]')!
+              const target = el.querySelector('[data-testid="btn-press"]')!
               const init = { bubbles: true, pointerId: 1, isPrimary: true }
               target.dispatchEvent(new PointerEvent('pointerdown', init))
               target.dispatchEvent(new PointerEvent('pointerup', init))
@@ -178,7 +197,7 @@ export async function step(
           }),
         right ? 'g' : 'r',
       )
-    } else if (eff === 'tut') {
+    } else if (eff === 'hold') {
       await button.dispatchEvent('pointerdown', { pointerId: 1, isPrimary: true })
       await page.waitForTimeout(right ? 2_200 : 500)
       await button.dispatchEvent('pointerup', { pointerId: 1, isPrimary: true })

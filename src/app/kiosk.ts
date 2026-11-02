@@ -1,4 +1,4 @@
-// Booth tablet helpers, started by the first press of the red button (a user gesture):
+// Booth tablet helpers, started by the first press of the eye (a user gesture):
 // keep the screen awake and, in a plain browser tab, go full screen. The APK does both
 // natively (MainActivity); in the installed PWA the manifest already asks for full screen.
 

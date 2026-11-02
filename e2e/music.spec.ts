@@ -15,7 +15,7 @@ function music(page: Page): Promise<MusicState> {
   return page.evaluate(() => (window as unknown as { __kpMusic: MusicState }).__kpMusic)
 }
 
-test('the waiting theme plays on the red button screen', async ({ page }) => {
+test('the waiting theme plays on the button screen', async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('disclaimer').tap() // any first touch unlocks audio
   await expect.poll(async () => (await music(page)).scene).toBe('menu')
@@ -36,7 +36,7 @@ test('the last ten seconds push the intensity up', async ({ page }) => {
   await page.clock.install()
   await startRound(page)
   await expect.poll(async () => (await music(page)).intensity).toBeCloseTo(0.35)
-  await expect(page.getByTestId('stage-piksel')).toHaveAttribute('data-phase', 'find')
+  await expect(page.getByTestId('stage-pixel')).toHaveAttribute('data-phase', 'find')
   await page.clock.fastForward(51_000)
   await expect.poll(async () => (await music(page)).intensity).toBe(1)
 })
@@ -81,7 +81,7 @@ test('the music switch in the settings turns it off and is remembered', async ({
 test('a close result and a crash get their own themes', async ({ page }) => {
   test.setTimeout(180_000)
   await startRound(page, ROUND_URL)
-  await playStages(page, { piksel: { wrong: 2 }, renk: { wrong: 3 } })
+  await playStages(page, { pixel: { wrong: 2 }, colours: { wrong: 3 } })
   await expect(page.getByTestId('result')).toHaveAttribute('data-tone', 'close')
   await expect.poll(async () => (await music(page)).scene).toBe('close')
   await page.getByTestId('btn-restart').tap()
