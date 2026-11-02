@@ -1,6 +1,6 @@
 import { TEST_FLAGS_ENABLED } from '@/app/testFlags'
 import { PIXEL } from '@/game/config'
-import { LOOK_NAMES, PIXEL_TAGS } from '@/game/stages/pixel'
+import { PIXEL_TAGS } from '@/game/stages/pixel'
 import { pixelScreensFor } from '@/game/stages/players'
 import { Dots, Level, Say, StepTimer } from './kit'
 import { TONES, useRunner, type StageProps } from './runner'
@@ -40,9 +40,6 @@ export function PixelStage(props: StageProps) {
         <p className={k.info}>
           renk farkı <b>%{pct(screen.diff)}</b>
         </p>
-        <p className={k.info} data-testid="pixel-panel">
-          panel <b>{LOOK_NAMES[screen.look]}</b>
-        </p>
         <Dots marks={view.marks} label="Ekranlar" />
         <div className={s.clock}>
           <StepTimer deadline={view.deadline} total={screen.limitMs} />
@@ -60,7 +57,6 @@ export function PixelStage(props: StageProps) {
             key={view.screen}
             className={s.grid}
             style={{ '--n': screen.size } as never}
-            data-look={screen.look}
             data-testid="pixel-grid"
           >
             {Array.from({ length: screen.size * screen.size }, (_, i) => {
@@ -70,15 +66,13 @@ export function PixelStage(props: StageProps) {
                   key={i}
                   type="button"
                   className={s.cell}
-                  style={{ '--c': dead ? screen.dead : screen.base } as never}
+                  style={{ background: dead ? screen.dead : screen.base }}
                   data-dead={dead && (view.phase === 'hit' || view.phase === 'reveal')}
                   data-odd={TEST_FLAGS_ENABLED ? dead : undefined}
                   data-nudge={view.nudge?.cell === i ? (view.nudge.flip ? 'a' : 'b') : undefined}
                   aria-label="piksel"
                   onPointerDown={() => game.tap(i)}
-                >
-                  <span className={s.dot} />
-                </button>
+                />
               )
             })}
           </div>

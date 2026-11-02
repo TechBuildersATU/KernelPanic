@@ -30,7 +30,7 @@ description: >-
 | Faz 7 | 2 Nov ✅ | §2.0–2.5, §3.1      | 1v1 duel (`screens/DuelPlay`, `DuelResult`, `game/duel.ts`, `Play layout="half"`), `fx/BootIntro` + Android splash, logo + credit, gear settings, `SocialDialog`, `HomeButton`, Overheat ±5 |
 | Faz 8 | 2 Nov ✅ | §2.1, §2.3, §2.5, §3.3 | duel content per player (`game/stages/players.ts`), no Emergency in a duel, `ResultTransition layout="half"`, Emergency freeze + reading time, Dead Pixel 5 screens, `LogoChip` + Orbitron |
 | Faz 9 | 2 Nov ✅ | §2.1, §2.5, §8, §11 #26–29 | the cyber eye (`components/eye`: `Eye`, `geometry`, `motion`), looks every 3 s and at touches; mirrored duel card; logo chip clipped during screen switches; English identifiers, file names and docs (`docs/ROADMAP.md`); speed-independent e2e |
-| Faz 10 | 2 Nov ✅ | §2.3, §3, §11 #30–32 | Emergency removed (no `Variant`, one Glitch a round), Dead Pixel panels (`PIXEL_LOOKS`, `PIXEL_HUES`), Beam Path recipes + `mirrorLine()` |
+| Faz 10 | 2 Nov ✅ | §2.3, §3, §11 #30–32 | Emergency removed (no `Variant`, one Glitch a round), Dead Pixel colours (`PIXEL_COLOURS`), Beam Path recipes + `mirrorLine()` |
 | Final | before release | §10–§12      | real-tablet test: sound level, touch feel, effect smoothness, two players touching at once, balance, backup install |
 
 ## 2. Order inside a phase

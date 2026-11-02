@@ -10,7 +10,7 @@ import {
   sourceDir,
   traceBeam,
 } from '@/game/stages/beam'
-import { makePixelScreens, PIXEL_HUES, PIXEL_LOOKS } from '@/game/stages/pixel'
+import { makePixelScreens, PIXEL_COLOURS } from '@/game/stages/pixel'
 import { colourTotal, derange, makeLayers, makeSequence } from '@/game/stages/colours'
 import { makeTrapItems } from '@/game/stages/trap'
 
@@ -35,25 +35,32 @@ describe('Ölü Piksel', () => {
     expect(makePixelScreens(seededRng(5))).toEqual(makePixelScreens(seededRng(5)))
   })
 
-  it('every screen of a round is another kind of panel; the diamonds only on the first three', () => {
-    const looksSeen = new Map<string, Set<number>>()
-    const hues = new Set<string>()
+  it('many colours and tones: eighteen colours, nudged every round, no two neighbours alike', () => {
+    const hue = (css: string) => Number(/hsl\((\d+)/.exec(css)?.[1])
+    const near = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b))
+    const families = new Set<number>()
+    const tones = new Set<string>()
+    const steps: number[] = []
     for (const seed of SEEDS) {
       const screens = makePixelScreens(seededRng(seed))
-      expect(new Set(screens.map((s) => s.look)).size).toBe(PIXEL_LOOKS.length)
-      expect(screens.findIndex((s) => s.look === 'diamond')).toBeLessThanOrEqual(2)
-      screens.forEach((s, i) => {
-        if (!looksSeen.has(s.look)) looksSeen.set(s.look, new Set())
-        looksSeen.get(s.look)!.add(i)
-        hues.add(s.base)
+      screens.forEach((s) => {
+        tones.add(s.base)
+        // the palette colour it came from: the closest hue
+        const from = PIXEL_COLOURS.reduce(
+          (best, c, k) =>
+            near(c[0], hue(s.base)) < near(PIXEL_COLOURS[best][0], hue(s.base)) ? k : best,
+          0,
+        )
+        families.add(from)
       })
+      for (let i = 1; i < screens.length; i++)
+        steps.push(near(hue(screens[i].base), hue(screens[i - 1].base)))
     }
-    // over many rounds every look comes on every allowed screen, and every colour is used
-    for (const look of PIXEL_LOOKS)
-      expect([...looksSeen.get(look)!].sort()).toEqual(
-        look === 'diamond' ? [0, 1, 2] : [0, 1, 2, 3, 4],
-      )
-    expect(hues.size).toBeGreaterThanOrEqual(PIXEL_HUES.length)
+    // two screens in a row never look alike
+    expect(Math.min(...steps)).toBeGreaterThanOrEqual(28)
+    // every colour of the palette shows up, in many more tones than colours
+    expect(families.size).toBe(PIXEL_COLOURS.length)
+    expect(tones.size).toBeGreaterThan(PIXEL_COLOURS.length * 5)
   })
 })
 

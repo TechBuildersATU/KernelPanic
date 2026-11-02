@@ -60,7 +60,7 @@ on, and you get one of the "late" titles.
 
 | #   | Stage                                      | What you do                                                                                                                           | Steps                                                              |
 | --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 1   | **Dead Pixel** _(Ölü Piksel)_              | Find the square with a slightly different colour, on a different kind of panel each time (LCD, LED, diamond, honeycomb, RGB bars)     | 5 screens: 4×4 → 8×8, the difference shrinks from 10 % to 3.5 %    |
+| 1   | **Dead Pixel** _(Ölü Piksel)_              | Find the square with a slightly different colour, in a new colour every screen (eighteen colours in many tones)                       | 5 screens: 4×4 → 8×8, the difference shrinks from 10 % to 3.5 %    |
 | 2   | **Four Colours** _(Dört Renk)_             | Watch the pads light up, then repeat the order                                                                                        | 3 layers: 3 colours slow → 5 fast → 5 with the pads trading places |
 | 3   | **Beam Path** _(Işın Yolu)_                | Tap mirrors so the laser reaches the server; the beam can come from either side                                                       | 3 lines with more mirrors, decoys and walls                        |
 | 4   | **Colour Trap** _(Renk Tuzağı)_            | A colour name written in another colour: first tap what it _says_, then the rule flips and you tap its _ink_                          | 6 words                                                            |
@@ -236,8 +236,8 @@ durur. Süre biterse tur kesilmez; sayaç kırmızıya döner ve ileri sayar.
    kendi süresi vardır. Yanlış yaparsan ya da süre biterse yalnızca o adımı kaybedersin, doğrusu
    gösterilir ve sıradaki adım gelir; aşama her zaman sonuna kadar oynanır.
    1. **Ölü Piksel:** rengi azıcık farklı kareyi bul. 5 ekran, her ekranda kareler çoğalır ve fark
-      azalır; her ekran başka bir panel (LCD, LED, elmas, petek, RGB) ve başka bir renk. Yanlış
-      kare o ekranın süresinden 2 sn götürür.
+      azalır; her ekran 18 renkten birinde, her turda biraz farklı bir tonda. Yanlış kare o
+      ekranın süresinden 2 sn götürür.
    2. **Dört Renk:** yanan renkleri izle, aynı sırayla tekrarla. 3 katman; son katmanda gösterimden
       sonra renk tuşları yer değiştirir.
    3. **Işın Yolu:** aynalara dokunup çevir, ışın sunucuya ulaşsın. 3 hat, her hatta daha çok ayna;

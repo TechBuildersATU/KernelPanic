@@ -31,32 +31,27 @@ test.describe('Stages', () => {
     await expectTouchTarget(page.locator('[data-odd="true"]'), 60)
   })
 
-  test('Ölü Piksel: every screen is another kind of panel, named next to it', async ({ page }) => {
-    const PANEL: Record<string, string> = {
-      square: 'LCD',
-      led: 'LED',
-      diamond: 'elmas',
-      hex: 'petek',
-      bars: 'RGB',
-    }
+  test('Ölü Piksel: every screen comes in another colour', async ({ page }) => {
     await page.clock.install()
     await startRound(page)
     const stage = page.getByTestId('stage-pixel')
     await expect(stage).toHaveAttribute('data-phase', 'find')
     // the clock is held: on a slow machine no screen runs out while the test reads it
     await holdClock(page)
-    const looks: string[] = []
+    const colours: string[] = []
     for (let i = 1; i <= 5; i++) {
       await expect(stage.getByTestId('stage-level')).toContainText(`${i}/5`)
       await expect(stage).toHaveAttribute('data-phase', 'find')
-      const look = (await stage.getByTestId('pixel-grid').getAttribute('data-look')) ?? ''
-      looks.push(look)
-      await expect(stage.getByTestId('pixel-panel')).toHaveText(`panel ${PANEL[look]}`)
+      colours.push(
+        await stage
+          .locator('[data-odd="false"]')
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundColor),
+      )
       await stage.locator('[data-odd="true"]').tap()
       await page.clock.runFor(1_500)
     }
-    expect(new Set(looks).size).toBe(5)
-    expect(looks.indexOf('diamond')).toBeLessThanOrEqual(2)
+    expect(new Set(colours).size).toBe(5)
   })
 
   test('a wrong pixel costs 2 s; out of time the pixel is shown and screen 2 comes', async ({

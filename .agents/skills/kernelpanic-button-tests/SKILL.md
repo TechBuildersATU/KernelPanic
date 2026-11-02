@@ -27,8 +27,8 @@ description: >-
   overheat, power streak, one Glitch on stage 2–4 with a seed), cooling ±5 s (`coolingShiftMs`),
   duel points and winner (`duel.test.ts`), duel content per player (`players.test.ts`: same
   difficulty, other answers, Beam Path the same), the stage generators (`stages.test.ts`: every
-  beam recipe solvable, mirrored lines too, the lines vary; every Dead Pixel screen of a round
-  another panel), reducer transitions, the
+  beam recipe solvable, mirrored lines too, the lines vary; Dead Pixel's colours vary), reducer
+  transitions, the
   five stage runners with fake timers (`runners.test.ts`: a mistake or a step running out
   only costs that step, the clock is held while the player only watches), and the eye's
   geometry (`eye.test.ts`: never the same look twice, `towards`, lids, blink).

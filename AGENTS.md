@@ -65,9 +65,9 @@ split screen (§2.5).
   the button screen (a hold, so a stray tap never ends someone's round).
 - **Emergency is gone (Faz 10, §3.3):** no safe/risky versions of a stage any more (no
   `Variant`); `planEvents` gives every round exactly one Glitch on stage 2, 3 or 4.
-- **Variety (Faz 10):** Dead Pixel screens each have a `look` (`PIXEL_LOOKS`: `square`, `led`,
-  `diamond`, `hex`, `bars`; `data-look` on `pixel-grid`, the name in `pixel-panel`) and a hue
-  from `PIXEL_HUES`; the cell button is the touch target, its `.dot` takes the shape. Beam Path
+- **Variety (Faz 10):** Dead Pixel paints its five screens from `PIXEL_COLOURS` (eighteen
+  colours, lightness tuned per hue, nudged every round; neighbours ≥ 40° apart). Keep the plain
+  squares: the club rejected other pixel shapes. Beam Path
   lines come from `BEAM.lines` (three recipes per line) and `mirrorLine()` (left ↔ right, top ↔
   bottom; `BeamLine.source` is the emitter, `sourceDir()` its direction).
 - **Dead Pixel** has five screens (`PIXEL.levels`: two easy, two medium, one close look).
@@ -183,7 +183,7 @@ while developing.** Follow `.agents/skills/kernelpanic-button-tests/SKILL.md`.
   `btn-press` = the final's red button, `btn-report`, `btn-restart`, `btn-settings`,
   `btn-social`, `btn-home`, `btn-panic-1`/`-2`); duel `mode-duel`, `half-1`/`half-2`,
   `half-tag`, `duel-waiting`,
-  `duel-result`; Dead Pixel `pixel-grid`, `pixel-panel`; opening
+  `duel-result`; Dead Pixel `pixel-grid`; opening
   `boot-intro`. Test builds also mark the right move on each
   stage (`data-odd`, `data-seq`, `data-need`, `data-correct`, `data-eff`) for the e2e helper.
 - Tappable controls: ≥ 64 px, pressed feedback, `usePressGuard` (double-tap guard) on anything
